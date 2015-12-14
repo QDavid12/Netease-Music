@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import { render } from 'react-dom';
 import Router from 'react-router';
 import { DefaultRoute, Link, Route, RouteHandler, IndexRoute } from 'react-router';
+
 
 import Login from './components/login.js';
 import Index from './components/index.js';
@@ -15,25 +15,19 @@ import Player from './components/player.js';
 var store = require('./Store');
 var action = require('./Action');
 
-console.log("app init");
-
 let App = React.createClass({
   getInitialState: function(){
-      return {
-          isLogin: false
-      };
+    var that = this;
+    store.setState = function(data){
+      that.setState(data);
+    }
+    store.getState = function(){
+      return that.state;
+    }
+    return store.getInitState();
   }, 
   login: function(username, password){
-    var that = this;
-    action.login({
-      username: username,
-      password: password
-    }, function(data){
-      //console.log(data);
-      that.setState({isLogin: true, profile: data.profile, account: data.account, bindings: data.bindings});
-      console.log("account");
-      console.log(that.state.account);
-    });
+    action.login(username, password);
   },
   componentDidMount: function(){
     document.location = "#/index";
@@ -62,3 +56,4 @@ Router.run(routes, function (Handler) {
   ReactDom.render(<Handler />, document.getElementById("app"));
 });
 
+export default App;

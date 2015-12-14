@@ -30,6 +30,7 @@ var httpRequest = function (method, url, data, callback) {
 
 module.exports = {
     encode: function(username, password, callback){
+        console.log(username);
         var url, pattern = /^0\d{2,3}\d{7,8}$|^1[34578]\d{9}$/,
             body = {
                 password: crypto.MD5(password),

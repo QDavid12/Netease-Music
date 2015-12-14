@@ -44,7 +44,9 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(1);
+	__webpack_require__(1);
+	__webpack_require__(208);
+	module.exports = __webpack_require__(209);
 
 
 /***/ },
@@ -54,6 +56,10 @@
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 
 	var _extends = Object.assign || function (target) {
 	  for (var i = 1; i < arguments.length; i++) {
@@ -114,27 +120,21 @@
 	var store = __webpack_require__(208);
 	var action = __webpack_require__(209);
 
-	console.log("app init");
-
 	var App = _react2['default'].createClass({
 	  displayName: 'App',
 
 	  getInitialState: function getInitialState() {
-	    return {
-	      isLogin: false
+	    var that = this;
+	    store.setState = function (data) {
+	      that.setState(data);
 	    };
+	    store.getState = function () {
+	      return that.state;
+	    };
+	    return store.getInitState();
 	  },
 	  login: function login(username, password) {
-	    var that = this;
-	    action.login({
-	      username: username,
-	      password: password
-	    }, function (data) {
-	      //console.log(data);
-	      that.setState({ isLogin: true, profile: data.profile, account: data.account, bindings: data.bindings });
-	      console.log("account");
-	      console.log(that.state.account);
-	    });
+	    action.login(username, password);
 	  },
 	  componentDidMount: function componentDidMount() {
 	    document.location = "#/index";
@@ -151,6 +151,9 @@
 	_reactRouter2['default'].run(routes, function (Handler) {
 	  _reactDom2['default'].render(_react2['default'].createElement(Handler, null), document.getElementById("app"));
 	});
+
+	exports['default'] = App;
+	module.exports = exports['default'];
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "app.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
@@ -23126,22 +23129,21 @@
 
 	  getInitialState: function getInitialState() {
 	    return {
-	      profile: false,
-	      messageBox: false
+	      profileBox: this.props.profileBox,
+	      messageBox: this.props.messageBox
 	    };
 	  },
 	  showProfile: function showProfile() {
-	    this.setState({ profile: !this.state.profile });
+	    this.setState({ profileBox: !this.state.profileBox });
 	  },
 	  render: function render() {
-	    //console.log(this.props.isLogin);
 	    var profile;
-	    if (this.props.isLogin && this.state.profile) {
-	      profile = _react2['default'].createElement('div', { className: 'profile-menu' }, 'profile');
-	    } else if (!this.props.isLogin && this.state.profile) {
+	    if (this.props.isLogin && this.state.profileBox) {
+	      profile = _react2['default'].createElement('div', { className: 'profile-menu' }, this.props.profile.nickname);
+	    } else if (!this.props.isLogin && this.state.profileBox) {
 	      profile = _react2['default'].createElement(_loginJs2['default'], { login: this.props.login });
 	    }
-	    return _react2['default'].createElement('div', { className: 'nav red' }, _react2['default'].createElement('div', { className: 'logo' }, _react2['default'].createElement('img', { src: './img/logo.png', alt: 'logo' })), _react2['default'].createElement(_reactRouter.Link, { to: '/index', className: 'homelink' }, _react2['default'].createElement('div', { className: 'logo-letters' }, '网易云音乐')), _react2['default'].createElement('div', { className: 'btn-group' }, _react2['default'].createElement('i', { id: 'btn-back', className: 'glyphicon glyphicon-menu-left' }), _react2['default'].createElement('i', { id: 'btn-forward', className: 'glyphicon glyphicon-menu-right active' })), _react2['default'].createElement('div', { className: 'search-container' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-search' }), _react2['default'].createElement('input', { className: 'search', placeholder: '搜索音乐，歌手，歌词，用户' })), _react2['default'].createElement('div', { className: 'tool-right' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-envelope' }), _react2['default'].createElement('i', { className: 'glyphicon glyphicon-cog' }), _react2['default'].createElement('div', { className: 'user' }, _react2['default'].createElement('div', { className: 'avatar', onClick: this.showProfile }), _react2['default'].createElement('span', { className: 'caret' }))), profile);
+	    return _react2['default'].createElement('div', { className: 'nav red' }, _react2['default'].createElement('div', { className: 'logo' }, _react2['default'].createElement('img', { src: './img/logo.png', alt: 'logo' })), _react2['default'].createElement(_reactRouter.Link, { to: '/index', className: 'homelink' }, _react2['default'].createElement('div', { className: 'logo-letters' }, '网易云音乐')), _react2['default'].createElement('div', { className: 'btn-group' }, _react2['default'].createElement('i', { id: 'btn-back', className: 'glyphicon glyphicon-menu-left' }), _react2['default'].createElement('i', { id: 'btn-forward', className: 'glyphicon glyphicon-menu-right active' })), _react2['default'].createElement('div', { className: 'search-container' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-search' }), _react2['default'].createElement('input', { className: 'search', placeholder: '搜索音乐，歌手，歌词，用户' })), _react2['default'].createElement('div', { className: 'tool-right' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-envelope' }), _react2['default'].createElement('i', { className: 'glyphicon glyphicon-cog' }), _react2['default'].createElement('div', { className: 'user', onClick: this.showProfile }, _react2['default'].createElement('div', { className: 'avatar' }), _react2['default'].createElement('span', { className: 'caret' }))), profile);
 	  }
 	});
 
@@ -23224,16 +23226,82 @@
 
 	"use strict";
 
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var store = (function () {
+	    var state = {};
+	    function init() {
+	        state = {
+	            isLogin: false,
+	            profileBox: false,
+	            messageBox: false
+	        };
+	    }
+	    function getInitState() {
+	        init();
+	        return state;
+	    }
+	    function getState() {
+	        //not real
+	    }
+	    function setState(data) {
+	        //not real
+	    }
+	    return {
+	        setState: setState,
+	        getState: getState,
+	        getInitState: getInitState
+	    };
+	})();
+
+	exports["default"] = store;
+	module.exports = exports["default"];
+
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Store.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 209 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	exports.login = login;
+	var store = __webpack_require__(208);
+	var api = __webpack_require__(210);
+
+	function login(username, password) {
+	    api.login(username, password, function (data) {
+	        console.log("login success");
+	        store.setState({
+	            isLogin: true,
+	            profile: data.profile,
+	            bindings: data.bindings,
+	            account: data.account,
+	            profileBox: false
+	        });
+	    });
+	}
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Action.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 210 */
 /***/ function(module, exports) {
 
 	/* REACT HOT LOADER */ if (module.hot) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	exports.login = login;
 	var ipcRenderer = require('electron').ipcRenderer;
 	var request = require('superagent');
 
@@ -23248,17 +23316,16 @@
 	    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:39.0) Gecko/20100101 Firefox/39.0'
 	};
 
-	module.exports = {
-	    login: function login(data, callback) {
-	        var body = ipcRenderer.sendSync('encode', data);
-	        var req = request.post(body.url).send(body.body);
-	        req.set(header).timeout(10000).end(function (err, resp) {
-	            callback(resp.body);
-	        });
-	    }
-	};
+	function login(username, password, callback) {
+	    console.log(username);
+	    var body = ipcRenderer.sendSync('encode', username, password);
+	    var req = request.post(body.url).send(body.body);
+	    req.set(header).timeout(10000).end(function (err, resp) {
+	        callback(resp.body);
+	    });
+	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (module.hot) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Action.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (module.hot) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Api.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }
 /******/ ]);

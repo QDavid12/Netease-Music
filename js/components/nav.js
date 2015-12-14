@@ -5,20 +5,19 @@ import Login from './login.js';
 let Nav = React.createClass({
   getInitialState: function(){
     return {
-      profile: false,
-      messageBox: false
+      profileBox: this.props.profileBox,
+      messageBox: this.props.messageBox
     }
   },
   showProfile: function(){
-    this.setState({profile: !this.state.profile});
+    this.setState({profileBox: !this.state.profileBox});
   },
   render: function(){
-    //console.log(this.props.isLogin);
     var profile;
-    if(this.props.isLogin&&this.state.profile){
-      profile = <div className="profile-menu">profile</div>
+    if(this.props.isLogin&&this.state.profileBox){
+      profile = <div className="profile-menu">{this.props.profile.nickname}</div>
     }
-    else if((!this.props.isLogin)&&(this.state.profile)){
+    else if((!this.props.isLogin)&&(this.state.profileBox)){
       profile = <Login login={this.props.login}/>
     }
     return(
@@ -38,8 +37,8 @@ let Nav = React.createClass({
         <div className="tool-right">
           <i className="glyphicon glyphicon-envelope"></i>
           <i className="glyphicon glyphicon-cog"></i>
-          <div className="user">
-            <div className="avatar" onClick={this.showProfile}></div>
+          <div className="user" onClick={this.showProfile}>
+            <div className="avatar"></div>
             <span className="caret"></span>
           </div>
         </div>

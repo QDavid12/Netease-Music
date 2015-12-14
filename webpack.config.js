@@ -1,7 +1,9 @@
 var webpack = require('webpack');
 module.exports = {
     entry: [
-      "./js/app.js"
+      "./js/app.js",
+      "./js/Store.js",
+      "./js/Action.js"
     ],
     output: {
         path: './build',
@@ -14,7 +16,7 @@ module.exports = {
             { test: /\.css$/, loader: "style!css" },
             { test: /\.less/,loader: 'style-loader!css-loader!less-loader'}
         ],
-        noParse: [/Action/]
+        noParse: [/Api/]
     },
     resolve:{
         extensions:['','.js','.json']

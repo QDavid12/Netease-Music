@@ -43,10 +43,9 @@ app.on('ready', function() {
   });
 
   /* encode part */
-  ipc.on('encode', function(event, data){
-    console.log(data);
+  ipc.on('encode', function(event, username, password){
     var ret = event;
-    api.encode(data.username, data.password, function(res){
+    api.encode(username, password, function(res){
       ret.returnValue = res;
     })
   });
