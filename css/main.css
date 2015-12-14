@@ -1,3 +1,13 @@
+/* main content */
+.main-content-container {
+  overflow-x: hidden; 
+  position: absolute;
+  left: 250px;
+  top: 70px;
+  width: -webkit-calc(100% - 250px);
+  height: -webkit-calc(100% - 70px - 80px);
+  background: #eee;
+}
 /* login modal */
 .login-back {
   position: fixed;
@@ -10,20 +20,21 @@
   opacity: 0.3;
 }
 .login-container {
-  position: fixed;
+  position: fixed!important;
   z-index: 999;
   top: 40%;
   left: 50%;
   margin-left: -250px;
   margin-top: -150px;
   width: 500px;
-  height: 300px;
+  height: 300px!important;
   border: 1px solid #eee;
   box-shadow: 10px 10px 60px #888;
   background: #f6f6f6;
   border-radius: 5px;
 }
 .login-container .title {
+  display: block;
   color: #777;
   font-size: 24px;
   text-align: center;
@@ -75,6 +86,7 @@
   background: white;
   z-index: 105;
   border: 1px solid #b8b8b8;
+  border-left: 0 solid #fff;
 }
 .small-album .tools {
   /* background: white; */
@@ -379,6 +391,18 @@ html, body, .full {
   color: #821000;
 }
 /* nav */
+.nav .profile-menu {
+  position: fixed;
+  right: 10px;
+  top: 70px;
+  z-index: 500;
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+  box-shadow: 0px 2px 10px #444;
+}
 .nav {
   position: fixed;
   width: 100%;

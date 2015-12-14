@@ -21,6 +21,7 @@ module.exports = {
     },
     plugins: [
       new webpack.NoErrorsPlugin()
-    ]
+    ],
+    watch: true
 };
 /*'webpack/hot/only-dev-server',*/

@@ -14,7 +14,7 @@ var header = {
 
 module.exports = {
     login: function(data, callback){
-        var body = ipcRenderer.sendSync('login', data);
+        var body = ipcRenderer.sendSync('encode', data);
         var req = request.post(body.url).send(body.body);
         req.set(header).timeout(10000).end(function(err, resp){
             callback(resp.body);

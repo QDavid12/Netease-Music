@@ -1,42 +1,51 @@
 import React from 'react';
+import ReactDom from 'react-dom';
+import { render } from 'react-dom';
 import Router from 'react-router';
-import { DefaultRoute, Link, Route, RouteHandler } from 'react-router';
+import { DefaultRoute, Link, Route, RouteHandler, IndexRoute } from 'react-router';
 
-import LoginHandler from './login.js';
+import Login from './components/login.js';
+import Index from './components/index.js';
 
-import Toolbar from './toolbar.js';
-import Nav from './nav.js';
-import Sidebar from './sidebar.js';
-import Player from './player.js';
+import Toolbar from './components/toolbar.js';
+import Nav from './components/nav.js';
+import Sidebar from './components/sidebar.js';
+import Player from './components/player.js';
 
-//var store = require('./store');
+var store = require('./Store');
 var action = require('./Action');
+
+console.log("app init");
 
 let App = React.createClass({
   getInitialState: function(){
       return {
-          isLogin: false,
+          isLogin: false
       };
-  },
+  }, 
   login: function(username, password){
-    var resp;
+    var that = this;
     action.login({
       username: username,
       password: password
     }, function(data){
-      console.log(data);
-      resp = data;
-    })
-    console.log(resp);
-
+      //console.log(data);
+      that.setState({isLogin: true, profile: data.profile, account: data.account, bindings: data.bindings});
+      console.log("account");
+      console.log(that.state.account);
+    });
+  },
+  componentDidMount: function(){
+    document.location = "#/index";
   },
   render: function(){
+    var { ...other } = this.state;
     return (
       <div className="full">
         <Toolbar />
-        <Nav />
+        <Nav {...other} login={this.login}/>
           <Sidebar />
-          <RouteHandler className="main-container" login={this.login}/>
+          <RouteHandler {...other}/>
         <Player />
       </div>
     )
@@ -45,11 +54,11 @@ let App = React.createClass({
 
 let routes = (
   <Route name="app" path="/" handler={App}>
-    <Route name="login" path="/login" handler={LoginHandler}/>
+    <Route name="index" path="/index" handler={Index}/>
   </Route>
 );
 
 Router.run(routes, function (Handler) {
-  React.render(<Handler />, document.body);
+  ReactDom.render(<Handler />, document.getElementById("app"));
 });
 

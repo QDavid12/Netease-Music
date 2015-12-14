@@ -30,9 +30,6 @@ app.on('ready', function() {
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname +'/index.html');
-  /*api.login("18811351935", "742693934", function(data){
-      console.log(data);
-  });*/
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
@@ -46,11 +43,10 @@ app.on('ready', function() {
   });
 
   /* encode part */
-  ipc.on('login', function(event, data){
+  ipc.on('encode', function(event, data){
     console.log(data);
     var ret = event;
     api.encode(data.username, data.password, function(res){
-      console.log("ha");
       ret.returnValue = res;
     })
   });
