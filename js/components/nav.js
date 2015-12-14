@@ -9,6 +9,12 @@ let Nav = React.createClass({
       messageBox: this.props.messageBox
     }
   },
+  componentWillReceiveProps: function(nextProps){
+    this.setState({
+      profileBox: this.props.profileBox,
+      messageBox: this.props.messageBox 
+    })
+  },
   showProfile: function(){
     this.setState({profileBox: !this.state.profileBox});
   },

@@ -23017,7 +23017,7 @@
 	    this.props.login(user, pass);
 	  },
 	  render: function render() {
-	    return _react2['default'].createElement('div', { className: 'login-container' }, _react2['default'].createElement('div', { className: 'title' }, '欢迎登陆'), _react2['default'].createElement('input', { type: 'text', placeholder: '用户名/邮箱/手机', defaultValue: this.state.user, ref: 'user' }), _react2['default'].createElement('input', { type: 'password', placeholder: '密码', defaultValue: this.state.pass, ref: 'pass' }), _react2['default'].createElement('button', { onClick: this.submit }, '登   陆'));
+	    return _react2['default'].createElement('div', { className: 'login-container' }, _react2['default'].createElement('div', { className: 'title' }, '欢迎登陆'), _react2['default'].createElement('input', { type: 'text', placeholder: '用户名/邮箱/手机', defaultValue: this.state.user, ref: 'user' }), _react2['default'].createElement('input', { type: 'password', placeholder: '密码', defaultValue: this.state.pass, ref: 'pass' }), _react2['default'].createElement('button', { onClick: this.submit, disabled: this.disabled }, '登   陆'));
 	  }
 	});
 
@@ -23132,6 +23132,12 @@
 	      profileBox: this.props.profileBox,
 	      messageBox: this.props.messageBox
 	    };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    this.setState({
+	      profileBox: this.props.profileBox,
+	      messageBox: this.props.messageBox
+	    });
 	  },
 	  showProfile: function showProfile() {
 	    this.setState({ profileBox: !this.state.profileBox });
