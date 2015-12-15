@@ -44,7 +44,7 @@ let Nav = React.createClass({
           <i className="glyphicon glyphicon-envelope"></i>
           <i className="glyphicon glyphicon-cog"></i>
           <div className="user" onClick={this.showProfile}>
-            <div className="avatar"></div>
+            <div className="avatar"><img src={this.props.isLogin?this.props.profile.avatarUrl:"./img/logo.png"}/></div>
             <span className="caret"></span>
           </div>
         </div>

@@ -118,7 +118,8 @@
 	var _componentsPlayerJs2 = _interopRequireDefault(_componentsPlayerJs);
 
 	var store = __webpack_require__(208);
-	var action = __webpack_require__(209);
+	var _action = __webpack_require__(209);
+	_action.init();
 
 	var App = _react2['default'].createClass({
 	  displayName: 'App',
@@ -134,15 +135,20 @@
 	    return store.getInitState();
 	  },
 	  login: function login(username, password) {
-	    action.login(username, password);
+	    _action.login(username, password);
+	  },
+	  action: function action(method, data) {
+	    _action.dispatch(method, data);
 	  },
 	  componentDidMount: function componentDidMount() {
 	    document.location = "#/index";
 	  },
 	  render: function render() {
+	    console.log(this.state);
+
 	    var other = _objectWithoutProperties(this.state, []);
 
-	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], null), _react2['default'].createElement(_componentsNavJs2['default'], _extends({}, other, { login: this.login })), _react2['default'].createElement(_componentsSidebarJs2['default'], null), _react2['default'].createElement(_reactRouter.RouteHandler, other), _react2['default'].createElement(_componentsPlayerJs2['default'], null));
+	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], null), _react2['default'].createElement(_componentsNavJs2['default'], _extends({}, other, { login: this.login })), _react2['default'].createElement(_componentsSidebarJs2['default'], null), _react2['default'].createElement(_reactRouter.RouteHandler, other), _react2['default'].createElement(_componentsPlayerJs2['default'], { playList: this.state.playList, action: this.action }));
 	  }
 	});
 
@@ -23149,7 +23155,7 @@
 	    } else if (!this.props.isLogin && this.state.profileBox) {
 	      profile = _react2['default'].createElement(_loginJs2['default'], { login: this.props.login });
 	    }
-	    return _react2['default'].createElement('div', { className: 'nav red' }, _react2['default'].createElement('div', { className: 'logo' }, _react2['default'].createElement('img', { src: './img/logo.png', alt: 'logo' })), _react2['default'].createElement(_reactRouter.Link, { to: '/index', className: 'homelink' }, _react2['default'].createElement('div', { className: 'logo-letters' }, '网易云音乐')), _react2['default'].createElement('div', { className: 'btn-group' }, _react2['default'].createElement('i', { id: 'btn-back', className: 'glyphicon glyphicon-menu-left' }), _react2['default'].createElement('i', { id: 'btn-forward', className: 'glyphicon glyphicon-menu-right active' })), _react2['default'].createElement('div', { className: 'search-container' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-search' }), _react2['default'].createElement('input', { className: 'search', placeholder: '搜索音乐，歌手，歌词，用户' })), _react2['default'].createElement('div', { className: 'tool-right' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-envelope' }), _react2['default'].createElement('i', { className: 'glyphicon glyphicon-cog' }), _react2['default'].createElement('div', { className: 'user', onClick: this.showProfile }, _react2['default'].createElement('div', { className: 'avatar' }), _react2['default'].createElement('span', { className: 'caret' }))), profile);
+	    return _react2['default'].createElement('div', { className: 'nav red' }, _react2['default'].createElement('div', { className: 'logo' }, _react2['default'].createElement('img', { src: './img/logo.png', alt: 'logo' })), _react2['default'].createElement(_reactRouter.Link, { to: '/index', className: 'homelink' }, _react2['default'].createElement('div', { className: 'logo-letters' }, '网易云音乐')), _react2['default'].createElement('div', { className: 'btn-group' }, _react2['default'].createElement('i', { id: 'btn-back', className: 'glyphicon glyphicon-menu-left' }), _react2['default'].createElement('i', { id: 'btn-forward', className: 'glyphicon glyphicon-menu-right active' })), _react2['default'].createElement('div', { className: 'search-container' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-search' }), _react2['default'].createElement('input', { className: 'search', placeholder: '搜索音乐，歌手，歌词，用户' })), _react2['default'].createElement('div', { className: 'tool-right' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-envelope' }), _react2['default'].createElement('i', { className: 'glyphicon glyphicon-cog' }), _react2['default'].createElement('div', { className: 'user', onClick: this.showProfile }, _react2['default'].createElement('div', { className: 'avatar' }, _react2['default'].createElement('img', { src: this.props.isLogin ? this.props.profile.avatarUrl : "./img/logo.png" })), _react2['default'].createElement('span', { className: 'caret' }))), profile);
 	  }
 	});
 
@@ -23214,8 +23220,44 @@
 	var Player = _react2["default"].createClass({
 	  displayName: "Player",
 
+	  getInitialState: function getInitialState() {
+	    console.log(this.props);
+	    return {
+	      playList: this.props.playList,
+	      playing: false,
+	      num: 0
+	    };
+	  },
+	  play: function play() {
+	    if (this.state.playing) {
+	      this.refs.audio.pause();
+	    } else {
+	      this.refs.audio.play();
+	    }
+	    this.setState({ playing: !this.state.playing });
+	  },
+	  next: function next() {
+	    this.refs.audio.pause();
+	    this.setState({ num: this.state.num + 1, playing: true });
+	  },
+	  back: function back() {
+	    this.refs.audio.pause();
+	    this.setState({ num: this.state.num - 1, playing: true });
+	  },
+	  componentDidUpdate: function componentDidUpdate() {
+	    console.log("update");
+	    console.log(this.state);
+	    if (this.state.playing) {
+	      this.refs.audio.play();
+	    } else {
+	      this.refs.audio.pause();
+	    }
+	  },
 	  render: function render() {
-	    return _react2["default"].createElement("div", { className: "player grey" }, _react2["default"].createElement("i", { className: "control last glyphicon glyphicon-step-backward" }), _react2["default"].createElement("i", { className: "control play glyphicon glyphicon-play" }), _react2["default"].createElement("i", { className: "control next glyphicon glyphicon-step-forward" }), _react2["default"].createElement("div", { className: "panel" }, _react2["default"].createElement("div", { className: "pace-container" }, _react2["default"].createElement("div", { className: "pace" }, _react2["default"].createElement("div", { className: "already" }, _react2["default"].createElement("div", { className: "cursor" }, _react2["default"].createElement("div", { className: "point" })))), _react2["default"].createElement("div", { className: "time" }, _react2["default"].createElement("span", null, "00:13"), " / ", _react2["default"].createElement("span", null, "03:47")))), _react2["default"].createElement("div", { className: "right" }, _react2["default"].createElement("div", { className: "volume-container" }, _react2["default"].createElement("i", { className: "glyphicon glyphicon-volume-up" }), _react2["default"].createElement("div", { className: "pace" }, _react2["default"].createElement("div", { className: "already" }, _react2["default"].createElement("div", { className: "cursor" })))), _react2["default"].createElement("i", { className: "widget glyphicon glyphicon-random" }), _react2["default"].createElement("div", { className: "widget lyric" }, _react2["default"].createElement("span", null, "词")), _react2["default"].createElement("i", { className: "widget glyphicon glyphicon-tasks" }), _react2["default"].createElement("span", { className: "tasks-number" }, "10")));
+	    //this.props.action("getSongDetail", ["28815250"]);
+	    console.log(this.state.playList[this.state.num]);
+	    var playerClass = "control play glyphicon glyphicon-" + (!this.state.playing ? "play" : "pause");
+	    return _react2["default"].createElement("div", { className: "player grey" }, _react2["default"].createElement("i", { onClick: this.back, className: "control last glyphicon glyphicon-step-backward" }), _react2["default"].createElement("i", { onClick: this.play, className: playerClass }), _react2["default"].createElement("i", { onClick: this.next, className: "control next glyphicon glyphicon-step-forward" }), _react2["default"].createElement("audio", { src: this.state.playList[this.state.num], ref: "audio" }), _react2["default"].createElement("div", { className: "panel" }, _react2["default"].createElement("div", { className: "pace-container" }, _react2["default"].createElement("div", { className: "pace" }, _react2["default"].createElement("div", { className: "already" }, _react2["default"].createElement("div", { className: "cursor" }, _react2["default"].createElement("div", { className: "point" })))), _react2["default"].createElement("div", { className: "time" }, _react2["default"].createElement("span", null, "00:13"), " / ", _react2["default"].createElement("span", null, "03:47")))), _react2["default"].createElement("div", { className: "right" }, _react2["default"].createElement("div", { className: "volume-container" }, _react2["default"].createElement("i", { className: "glyphicon glyphicon-volume-up" }), _react2["default"].createElement("div", { className: "pace" }, _react2["default"].createElement("div", { className: "already" }, _react2["default"].createElement("div", { className: "cursor" })))), _react2["default"].createElement("i", { className: "widget glyphicon glyphicon-random" }), _react2["default"].createElement("div", { className: "widget lyric" }, _react2["default"].createElement("span", null, "词")), _react2["default"].createElement("i", { className: "widget glyphicon glyphicon-tasks" }), _react2["default"].createElement("span", { className: "tasks-number" }, "10")));
 	  }
 	});
 
@@ -23238,23 +23280,33 @@
 	var store = (function () {
 	    var state = {};
 	    function init() {
-	        state = {
-	            isLogin: false,
+	        var newstate = {
 	            profileBox: false,
 	            messageBox: false
 	        };
+	        for (var x in newstate) {
+	            state[x] = newstate[x];
+	        }
 	    }
 	    function getInitState() {
 	        init();
 	        return state;
 	    }
 	    function getState() {
-	        //not real
+	        return state;
 	    }
 	    function setState(data) {
 	        //not real
 	    }
+	    function setStore(data) {
+	        console.log("store");
+	        console.log(data);
+	        for (var x in data) {
+	            state[x] = data[x];
+	        }
+	    }
 	    return {
+	        setStore: setStore,
 	        setState: setState,
 	        getState: getState,
 	        getInitState: getInitState
@@ -23278,19 +23330,42 @@
 	    value: true
 	});
 	exports.login = login;
+	exports.init = init;
+	exports.dispatch = dispatch;
 	var store = __webpack_require__(208);
 	var api = __webpack_require__(210);
 
 	function login(username, password) {
 	    api.login(username, password, function (data) {
 	        console.log("login success");
+	        console.log(data);
 	        store.setState({
 	            isLogin: true,
 	            profile: data.profile,
-	            bindings: data.bindings,
 	            account: data.account,
 	            profileBox: false
 	        });
+	    });
+	}
+
+	function init() {
+	    var data = api.init();
+	    if (data.remember) {
+	        console.log("remember");
+	        console.log(data);
+	        store.setStore({
+	            isLogin: true,
+	            profile: data.profile,
+	            account: data.account,
+	            profileBox: false,
+	            playList: data.playList
+	        });
+	    }
+	}
+
+	function dispatch(method, data) {
+	    api.dispatch(method, data, function (data) {
+	        console.log(data);
 	    });
 	}
 
@@ -23307,9 +23382,13 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	exports.getSongDetail = getSongDetail;
 	exports.login = login;
+	exports.init = init;
+	exports.dispatch = dispatch;
 	var ipcRenderer = require('electron').ipcRenderer;
 	var request = require('superagent');
+	var fs = require('fs');
 
 	var header = {
 	    'Accept': '*/*',
@@ -23322,13 +23401,82 @@
 	    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:39.0) Gecko/20100101 Firefox/39.0'
 	};
 
-	function login(username, password, callback) {
-	    console.log(username);
-	    var body = ipcRenderer.sendSync('encode', username, password);
-	    var req = request.post(body.url).send(body.body);
-	    req.set(header).timeout(10000).end(function (err, resp) {
-	        callback(resp.body);
+	var config = {};
+	var path = {
+	    config: "./cache/config"
+	};
+
+	try {
+	    config = JSON.parse(fs.readFileSync(path.config));
+	} catch (e) {
+	    console.log("config not found");
+	}
+
+	var httpRequest = function httpRequest(method, url, data, callback) {
+	    var req;
+	    if (method == 'post') {
+	        req = request.post(url).send(data);
+	    } else {
+	        req = request.get(url).query(data);
+	    }
+	    if (config.cookie) {
+	        req.set('Cookie', config.cookie);
+	    }
+	    req.set(header).timeout(10000).end(callback);
+	};
+
+	function getSongDetail(ids, callback) {
+	    var url = 'http://music.163.com/api/song/detail';
+	    httpRequest('get', url, { ids: '[' + ids.join() + ']' }, function (err, res) {
+	        if (err) {
+	            callback({ msg: '[songsDetail]http error ' + err, type: 1 });
+	            return;
+	        }
+	        var doc = JSON.parse(res.text);
+	        if (doc.code != 200) callback({ msg: '[songsDetail]http code ' + doc.code, type: 1 });else callback(doc.songs);
 	    });
+	}
+
+	function login(username, password, callback) {
+	    //console.log(username);
+	    var body = ipcRenderer.sendSync('encode', username, password);
+	    httpRequest("post", body.url, body.body, function (err, res) {
+	        config["cookie"] = res.header['set-cookie'];
+	        config["profile"] = res.body.profile;
+	        config["account"] = res.body.account;
+	        config["remember"] = true;
+	        console.log(res.header['set-cookie']);
+	        fs.writeFile(path.config, JSON.stringify(config, null, 4), { flag: "w+" }, function (err) {
+	            console.log(err);
+	        });
+	        callback(res.body);
+	    });
+	}
+
+	function init() {
+	    var res;
+	    if (config.remember) {
+	        res = {
+	            remember: true,
+	            profile: config.profile,
+	            account: config.account,
+	            playList: config.playList
+	        };
+	        console.log("api init");
+	        console.log(res);
+	    } else {
+	        res = {
+	            remember: false
+	        };
+	    }
+	    return res;
+	}
+
+	function dispatch(method, data, callback) {
+	    var map = {
+	        "getSongDetail": getSongDetail
+	    };
+	    map[method](data, callback);
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (module.hot) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Api.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }

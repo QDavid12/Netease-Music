@@ -14,6 +14,7 @@ import Player from './components/player.js';
 
 var store = require('./Store');
 var action = require('./Action');
+action.init();
 
 let App = React.createClass({
   getInitialState: function(){
@@ -29,10 +30,14 @@ let App = React.createClass({
   login: function(username, password){
     action.login(username, password);
   },
+  action: function(method, data){
+    action.dispatch(method, data);
+  },
   componentDidMount: function(){
     document.location = "#/index";
   },
   render: function(){
+    console.log(this.state);
     var { ...other } = this.state;
     return (
       <div className="full">
@@ -40,7 +45,7 @@ let App = React.createClass({
         <Nav {...other} login={this.login}/>
           <Sidebar />
           <RouteHandler {...other}/>
-        <Player />
+        <Player playList={this.state.playList} action={this.action}/>
       </div>
     )
   }

@@ -1,10 +1,12 @@
 var store = (function(){
     var state = {};
     function init(){
-        state = {
-          isLogin: false,
+        var newstate = {
           profileBox: false,
           messageBox: false
+        }
+        for(var x in newstate){
+            state[x] = newstate[x];
         }
     }
     function getInitState(){
@@ -12,12 +14,20 @@ var store = (function(){
         return state;
     }
     function getState(){
-        //not real
+        return state;
     }
     function setState(data){
         //not real
     }
+    function setStore(data){
+        console.log("store");
+        console.log(data);
+        for(var x in data){
+            state[x] = data[x];
+        }
+    }
     return {
+        setStore: setStore,
         setState: setState,
         getState: getState,
         getInitState: getInitState
