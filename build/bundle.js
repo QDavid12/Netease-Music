@@ -22994,28 +22994,25 @@
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
-	'use strict';
+	"use strict";
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
 	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { 'default': obj };
+	  return obj && obj.__esModule ? obj : { "default": obj };
 	}
 
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var Login = _react2['default'].createClass({
-	  displayName: 'Login',
+	var Login = _react2["default"].createClass({
+	  displayName: "Login",
 
 	  getInitialState: function getInitialState() {
-	    return {
-	      user: '18811351935',
-	      pass: '742693934'
-	    };
+	    return {};
 	  },
 	  submit: function submit() {
 	    var user = this.refs.user.value;
@@ -23023,12 +23020,12 @@
 	    this.props.login(user, pass);
 	  },
 	  render: function render() {
-	    return _react2['default'].createElement('div', { className: 'login-container' }, _react2['default'].createElement('div', { className: 'title' }, '欢迎登陆'), _react2['default'].createElement('input', { type: 'text', placeholder: '用户名/邮箱/手机', defaultValue: this.state.user, ref: 'user' }), _react2['default'].createElement('input', { type: 'password', placeholder: '密码', defaultValue: this.state.pass, ref: 'pass' }), _react2['default'].createElement('button', { onClick: this.submit, disabled: this.disabled }, '登   陆'));
+	    return _react2["default"].createElement("div", { className: "login-container" }, _react2["default"].createElement("div", { className: "title" }, "欢迎登陆"), _react2["default"].createElement("input", { type: "text", placeholder: "用户名/邮箱/手机", defaultValue: this.state.user, ref: "user" }), _react2["default"].createElement("input", { type: "password", placeholder: "密码", defaultValue: this.state.pass, ref: "pass" }), _react2["default"].createElement("button", { onClick: this.submit }, "登   陆"));
 	  }
 	});
 
-	exports['default'] = Login;
-	module.exports = exports['default'];
+	exports["default"] = Login;
+	module.exports = exports["default"];
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "login.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
@@ -23225,39 +23222,124 @@
 	    return {
 	      playList: this.props.playList,
 	      playing: false,
-	      num: 0
+	      num: 0,
+	      pace: 0,
+	      time: "00:00",
+	      duration: "00:00"
 	    };
 	  },
+	  setDuration: function setDuration() {
+	    var duration = this.refs.audio.duration;
+	    var dmin = parseInt(duration / 60);
+	    var dsecond = parseInt(duration - dmin * 60);
+	    this.setState({
+	      duration: (dmin > 9 ? dmin.toString() : "0" + dmin) + ":" + (dsecond > 9 ? dsecond.toString() : "0" + dsecond)
+	    });
+	  },
+	  setTime: function setTime() {
+	    var duration = this.refs.audio.duration;
+	    var time = this.refs.audio.currentTime;
+	    var min = parseInt(time / 60);
+	    var second = parseInt(time - min * 60);
+	    this.setState({
+	      time: (min > 9 ? min.toString() : "0" + min) + ":" + (second > 9 ? second.toString() : "0" + second),
+	      pace: (time / duration * 100).toFixed(2)
+	    });
+	  },
 	  play: function play() {
-	    if (this.state.playing) {
-	      this.refs.audio.pause();
-	    } else {
+	    var audio = this.refs.audio;
+	    if (audio.paused) {
 	      this.refs.audio.play();
+	    } else {
+	      this.refs.audio.pause();
 	    }
-	    this.setState({ playing: !this.state.playing });
+	    //this.setState({playing: !this.state.playing});
 	  },
 	  next: function next() {
+	    var num = this.state.num;
 	    this.refs.audio.pause();
-	    this.setState({ num: this.state.num + 1, playing: true });
+	    this.refs.audio.src = this.state.playList[this.state.num + 1];
+	    this.refs.audio.load();
+	    this.refs.audio.play();
+	    this.setState({ num: this.state.num + 1 });
 	  },
 	  back: function back() {
+	    var num = this.state.num;
 	    this.refs.audio.pause();
-	    this.setState({ num: this.state.num - 1, playing: true });
+	    this.refs.audio.src = this.state.playList[this.state.num - 1];
+	    this.refs.audio.load();
+	    this.refs.audio.play();
+	    this.setState({ num: this.state.num - 1 });
 	  },
-	  componentDidUpdate: function componentDidUpdate() {
-	    console.log("update");
-	    console.log(this.state);
-	    if (this.state.playing) {
-	      this.refs.audio.play();
-	    } else {
+	  componentDidUpdate: function componentDidUpdate() {},
+	  componentDidMount: function componentDidMount() {
+	    this.refs.audio.addEventListener("play", (function () {
+	      this.setState({ playing: true });
+	    }).bind(this));
+	    this.refs.audio.addEventListener("pause", (function () {
+	      this.setState({ playing: false });
+	    }).bind(this));
+	    this.refs.audio.addEventListener("loadstart", (function () {
+	      console.log("loadstart");
+	    }).bind(this));
+	    this.refs.audio.addEventListener("canplay", (function () {
+	      console.log("canplay");
+	      //this.setState({playing: true});
+	    }).bind(this));
+	    this.refs.audio.addEventListener("durationchange", (function () {
+	      console.log("durationchange" + this.refs.audio.duration);
+	      this.setDuration();
+	    }).bind(this));
+	    this.refs.audio.addEventListener("timeupdate", (function () {
+	      this.setTime();
+	    }).bind(this));
+	    this.refs.audio.addEventListener("ended", (function () {
+	      console.log("ended");
+	    }).bind(this));
+	    /*pace control*/
+	    this.refs.paceCursor.addEventListener("mousedown", (function (e) {
+	      console.log("mousedown");
 	      this.refs.audio.pause();
+	      this.onmoving = this.refs.paceCursor;
+	    }).bind(this));
+	    document.addEventListener("mousemove", (function (e) {
+	      if (this.onmoving) {
+	        var already = this.onmoving.parentNode;
+	        var container = already.parentNode;
+	        var maxWidth = container.offsetWidth;
+	        var width = e.clientX - getOffset(container);
+	        if (width >= maxWidth) {
+	          width = maxWidth;
+	        }
+	        if (width <= 0) {
+	          width = 0;
+	        }
+	        console.log(width);
+	        this.setState({ pace: (width / maxWidth * 100).toFixed(2) });
+	      }
+	    }).bind(this));
+	    document.addEventListener("mouseup", (function (e) {
+	      if (this.onmoving) {
+	        console.log("mouseup");
+	        this.onmoving = false;
+	        this.refs.audio.play();
+	        this.refs.audio.currentTime = this.state.pace * this.refs.audio.duration / 100;
+	      }
+	    }).bind(this));
+	    function getOffset(e) {
+	      var o = e.offsetLeft;
+	      if (e.offsetParent != null) {
+	        o += getOffset(e.offsetParent);
+	      }
+	      return o;
 	    }
+	    console.log(this.state.playList[this.state.num]);
+	    this.refs.audio.src = this.state.playList[this.state.num];
+	    this.refs.audio.load();
 	  },
 	  render: function render() {
-	    //this.props.action("getSongDetail", ["28815250"]);
-	    console.log(this.state.playList[this.state.num]);
 	    var playerClass = "control play glyphicon glyphicon-" + (!this.state.playing ? "play" : "pause");
-	    return _react2["default"].createElement("div", { className: "player grey" }, _react2["default"].createElement("i", { onClick: this.back, className: "control last glyphicon glyphicon-step-backward" }), _react2["default"].createElement("i", { onClick: this.play, className: playerClass }), _react2["default"].createElement("i", { onClick: this.next, className: "control next glyphicon glyphicon-step-forward" }), _react2["default"].createElement("audio", { src: this.state.playList[this.state.num], ref: "audio" }), _react2["default"].createElement("div", { className: "panel" }, _react2["default"].createElement("div", { className: "pace-container" }, _react2["default"].createElement("div", { className: "pace" }, _react2["default"].createElement("div", { className: "already" }, _react2["default"].createElement("div", { className: "cursor" }, _react2["default"].createElement("div", { className: "point" })))), _react2["default"].createElement("div", { className: "time" }, _react2["default"].createElement("span", null, "00:13"), " / ", _react2["default"].createElement("span", null, "03:47")))), _react2["default"].createElement("div", { className: "right" }, _react2["default"].createElement("div", { className: "volume-container" }, _react2["default"].createElement("i", { className: "glyphicon glyphicon-volume-up" }), _react2["default"].createElement("div", { className: "pace" }, _react2["default"].createElement("div", { className: "already" }, _react2["default"].createElement("div", { className: "cursor" })))), _react2["default"].createElement("i", { className: "widget glyphicon glyphicon-random" }), _react2["default"].createElement("div", { className: "widget lyric" }, _react2["default"].createElement("span", null, "词")), _react2["default"].createElement("i", { className: "widget glyphicon glyphicon-tasks" }), _react2["default"].createElement("span", { className: "tasks-number" }, "10")));
+	    return _react2["default"].createElement("div", { className: "player grey" }, _react2["default"].createElement("i", { onClick: this.back, className: "control last glyphicon glyphicon-step-backward" }), _react2["default"].createElement("i", { onClick: this.play, className: playerClass }), _react2["default"].createElement("i", { onClick: this.next, className: "control next glyphicon glyphicon-step-forward" }), _react2["default"].createElement("audio", { ref: "audio" }), _react2["default"].createElement("div", { className: "panel" }, _react2["default"].createElement("div", { className: "pace-container" }, _react2["default"].createElement("div", { className: "pace" }, _react2["default"].createElement("div", { className: "already", style: { width: this.state.pace + "%" } }, _react2["default"].createElement("div", { className: "cursor", ref: "paceCursor" }, _react2["default"].createElement("div", { className: "point" })))), _react2["default"].createElement("div", { className: "time" }, _react2["default"].createElement("span", null, this.state.time), " / ", _react2["default"].createElement("span", null, this.state.duration)))), _react2["default"].createElement("div", { className: "right" }, _react2["default"].createElement("div", { className: "volume-container" }, _react2["default"].createElement("i", { className: "glyphicon glyphicon-volume-up" }), _react2["default"].createElement("div", { className: "pace" }, _react2["default"].createElement("div", { className: "already" }, _react2["default"].createElement("div", { className: "cursor" })))), _react2["default"].createElement("i", { className: "widget glyphicon glyphicon-random" }), _react2["default"].createElement("div", { className: "widget lyric" }, _react2["default"].createElement("span", null, "词")), _react2["default"].createElement("i", { className: "widget glyphicon glyphicon-tasks" }), _react2["default"].createElement("span", { className: "tasks-number" }, "10")));
 	  }
 	});
 
