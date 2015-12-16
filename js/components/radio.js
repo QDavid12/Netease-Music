@@ -3,8 +3,8 @@ import React from 'react';
 let Radio = React.createClass({
   getInitialState: function(){
     console.log("radio init");
-    console.log(this.props.radio.length);
-    if(this.props.radio.length==0){
+    console.log(this.props.radioList.length);
+    if(this.props.radioList.length==0){
       this.props.action("getNewRadio", {});
     }
     return {
@@ -13,19 +13,19 @@ let Radio = React.createClass({
   },
   componentDidUpdate: function(){
     console.log("Radio update");
-    console.log(this.props.radio);
+    console.log(this.props.radioList);
   },
   play: function(e){
     var id = parseInt(e.target.id.split("-")[1]);
-    //console.log("playRadio "+id);    
-    this.props.playRadio(id);
+    //console.log("playRadio "+id);
+    this.props.action('playRadio', id);
   },
   render() {
     var i=-1;
     return(
         <div className="main-content-container radio-container">
           {
-            this.props.radio.map(function(song){
+            this.props.radioList.map(function(song){
               i+=1;
               return (
                 <div key={song.id}>

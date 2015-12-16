@@ -1,10 +1,10 @@
 import React from 'react';
+import PlayListBox from './playListBox';
 
 let Player = React.createClass({
   getInitialState: function(){
-    console.log(this.props);
+    //console.log(this.props);
     return{
-      num: 0,
       pace: 0,
       time: "00:00",
       duration: "00:00",
@@ -13,39 +13,33 @@ let Player = React.createClass({
     }
   },
   componentWillReceiveProps: function(nextProps){
-    var audio = this.refs.audio
-    //mode radio
-    if(nextProps.mode=="radio"){
-      console.log("radio player");
-      //this.setState({mode: nextProps.mode});
-      //have to restart
-      if(nextProps.radioNum!=this.radioNum){
-        this.radioNum = nextProps.radioNum;
-        console.log("player change to radio");
-        console.log(nextProps.radioNum);
-        audio.pause();
-        audio.src = nextProps.radio[nextProps.radioNum].mp3Url;
-        audio.load();
-        if(nextProps.restart==true){
-          this.props.didRestart();
-          audio.play();
-        }
+    console.log("player nextProps");
+    var audio = this.refs.audio;
+    var play = 0;
+    var restart = 0;
+    //play
+    if(nextProps.play){
+      if(audio.paused){
+        play = 1;
       }
     }
-    //playList change and restart immediately
-    if(nextProps.playList.length!=0&&nextProps.restart&&nextProps.mode=="playList"){
-      this.setState({num: nextProps.start});
-      this.props.didRestart();
-      console.log("playlist change and restart");
-      console.log(nextProps.start);
-      //this.start = nextProps.start;
-      audio.pause();
-      audio.src = nextProps.playList[nextProps.start].mp3Url;
-      audio.load();
-      audio.play();
+    //pause
+    if(!nextProps.play) audio.pause();
+    //restart
+    if(nextProps.restart){
+      play = 1;
+      restart = 1;
+    }
+    if(play==1&&restart==0) audio.play();
+    if(restart==1){
+      this.reload(nextProps);
+      this.props.action("didRestart");
     }
   },
   setDuration: function(){
+    if(this.refs.audio.src==""||this.refs.audio.src==undefined){
+      return;
+    }
     var duration = this.refs.audio.duration;
     var dmin = parseInt(duration/60);
     var dsecond = parseInt(duration-dmin*60);
@@ -54,6 +48,9 @@ let Player = React.createClass({
     })
   },
   setTime: function(){
+    if(this.refs.audio.src==""||this.refs.audio.src==undefined){
+      return;
+    }
     var duration = this.refs.audio.duration;
     var time = this.refs.audio.currentTime;
     var min = parseInt(time/60);
@@ -63,49 +60,54 @@ let Player = React.createClass({
       pace: ((time/duration)*100).toFixed(2)
     });
   },
-  play: function(){
-    var audio = this.refs.audio;
-    if(audio.paused){
-      if(audio.src==""&&this.props.mode=="playList"){
-        if(this.props.playList.length==0){
-          return alert("playlist empty!");
-        }
-        audio.src = this.props.playList[this.state.num].mp3Url;
-        audio.load();
+  playClick: function(){
+    if(this.props.play){
+      return this.props.action("pause");
+    }
+    if(this.props.radio){
+      return this.props.action("play");
+    }
+    //playList
+    if(this.props.playList.length!=0){
+      this.props.action("play");
+    }
+  },
+  nextClick: function(){
+    if(this.props.radio){
+      if(this.props.radioList[this.props.radioNum+2]==undefined){
+        console.log("getNewRadio");
+        this.props.action("getNewRadio");
       }
+      return this.props.action("next");
+    }
+    //playList
+    if(this.props.playList.length!=0&&this.props.playList[this.props.num+1]!=undefined){
+      this.props.action("next");
+    }
+  },
+  backClick: function(){
+    if(this.props.radio){
+      return this.props.action("last");
+    }
+    if(this.props.playList.length!=0&&this.props.playList[this.props.num-1]!=undefined){
+      this.props.action("last");
+    }
+  },
+  reload: function(nextProps){
+    //console.log("playSong");
+    var audio = this.refs.audio;
+    this.setState({pace: 0, time: "00:00"});
+    if(nextProps.radio){
+      var song = nextProps.radioList[nextProps.radioNum];
+    }
+    else{
+      var song = nextProps.playList[nextProps.num];
+    }
+    if(song!=undefined){
+      this.setState({pace: 0, time: "00:00"})
+      audio.src = song.mp3Url;
+      audio.load();
       audio.play();
-    }
-    else{
-      audio.pause();
-    }
-    //this.setState({playing: !this.state.playing});
-  },
-  next: function(){
-    if(this.props.mode=="playList"){
-      var num = this.state.num;
-      this.refs.audio.pause();
-      this.refs.audio.src = this.props.playList[this.state.num+1].mp3Url;
-      this.refs.audio.load();
-      this.refs.audio.play();
-      this.setState({num: this.state.num+1});
-    }
-    else{
-      console.log("next radio");
-      this.props.nextRadio();
-    }
-  },
-  back: function(){
-    if(this.props.mode=="playList"){
-      var num = this.state.num;
-      this.refs.audio.pause();
-      this.refs.audio.src = this.props.playList[this.state.num-1].mp3Url;
-      this.refs.audio.load();
-      this.refs.audio.play();
-      this.setState({num: this.state.num-1});
-    }
-    else{
-      console.log("last radio");
-      this.props.lastRadio();
     }
   },
   componentDidUpdate: function(){
@@ -135,11 +137,14 @@ let Player = React.createClass({
     }.bind(this));
     this.refs.audio.addEventListener("ended", function(){
       console.log("ended");
-      this.next();
+      this.nextClick();
     }.bind(this));
     /*pace control*/
     this.refs.paceCursor.addEventListener("mousedown", function(e){
       console.log("mousedown");
+      if(this.refs.audio.src==""){
+        return;
+      }
       this.refs.audio.pause();
       this.onmoving = this.refs.paceCursor;
     }.bind(this));
@@ -156,7 +161,12 @@ let Player = React.createClass({
           width = 0;
         }
         console.log(width);
-        this.setState({pace: ((width/maxWidth)*100).toFixed(2)});
+        var ratio = width/maxWidth;
+        var time = ratio * this.refs.audio.duration;
+        var min = parseInt(time/60);
+        var second = parseInt(time-min*60);
+        var timeStr = (min>9?min.toString():"0"+min) + ":" + (second>9?second.toString():"0"+second);
+        this.setState({pace: (ratio*100).toFixed(2), time: timeStr});
       }
     }.bind(this));
     document.addEventListener("mouseup", function(e){
@@ -170,18 +180,23 @@ let Player = React.createClass({
     document.addEventListener("mousedown", function(){
       
     }.bind(this))
-    function getOffset(e){
-      var o = e.offsetLeft;
-      if(e.offsetParent!=null){
-        o += getOffset(e.offsetParent);
-      }
-      return o;
+  },
+  playTimeChange: function(e){
+    if(this.refs.audio.src==""||this.refs.audio.src==undefined){
+      return;
     }
-    //console.log(this.props.playList[this.state.num]);
-    if(this.props.playList&&this.props.playList.length!=0){
-      this.refs.audio.src = this.props.playList[this.state.num].mp3Url;
-      this.refs.audio.load();
-    }
+    var container = e.target;
+    var maxWidth = container.offsetWidth;
+    var width = e.clientX - getOffset(container);
+    console.log(width/maxWidth);
+    var ratio = width/maxWidth;
+    var time = ratio * this.refs.audio.duration;
+    var min = parseInt(time/60);
+    var second = parseInt(time-min*60);
+    var timeStr = (min>9?min.toString():"0"+min) + ":" + (second>9?second.toString():"0"+second);
+    this.setState({pace: (ratio*100).toFixed(2), time: timeStr});
+    this.refs.audio.play();
+    this.refs.audio.currentTime = (ratio*this.refs.audio.duration);
   },
   togglePlayList: function(){
     this.setState({playListBox: !this.state.playListBox});
@@ -189,27 +204,33 @@ let Player = React.createClass({
   switchPlay: function(e){
     var key = parseInt(e.target.id.split("-")[1]);
     console.log(key);
-    this.setState({num: key});
-    this.refs.audio.pause();
-    this.refs.audio.src = this.props.playList[key].mp3Url;
-    this.refs.audio.load();
-    this.refs.audio.play();
+    this.props.action("changeNum", key);
   },
   render: function(){
-    var playerClass = "control play glyphicon glyphicon-" + (!this.state.playing?"play":"pause");
-    var song = this.props.playList.length==0 ? {album: {picUrl: "./img/logo.png"}, name: "song", artists: [{name: "artist"}]} : this.props.playList[this.state.num];
+    var playerClass = "control play glyphicon glyphicon-" + (!this.props.play?"play":"pause");
+    var song = this.props.playList.length==0 ? {album: {picUrl: "./img/logo.png"}, name: "song", artists: [{name: "artist"}]} : this.props.playList[this.props.num];
+    if(this.props.radio){
+      song = this.props.radioList[this.props.radioNum];
+    }
     var i=-1;
+    var playListBox;
+    if(this.state.playListBox){
+      playListBox = <PlayListBox switchPlay={this.switchPlay} playList={this.props.playList} num={this.props.num} />
+    }
+    else{
+      playListBox = ""
+    }
     return(
         <div className="player grey">
-        <i onClick={this.back} className="control last glyphicon glyphicon-step-backward"></i>
-        <i onClick={this.play} className={playerClass}></i>
-        <i onClick={this.next} className="control next glyphicon glyphicon-step-forward"></i>
+        <i onClick={this.backClick} className="control last glyphicon glyphicon-step-backward"></i>
+        <i onClick={this.playClick} className={playerClass}></i>
+        <i onClick={this.nextClick} className="control next glyphicon glyphicon-step-forward"></i>
 
         <audio ref="audio"/>
 
         <div className="panel">
           <div className="pace-container">
-            <div className="pace">
+            <div className="pace" onClick={this.playTimeChange}>
               <div className="already" style={{width: this.state.pace+"%"}}>
                 <div className="cursor" ref="paceCursor"><div className="point"></div></div>
               </div>
@@ -232,27 +253,7 @@ let Player = React.createClass({
           <div className="widget lyric"><span>词</span></div>
           <i className="widget glyphicon glyphicon-tasks" onClick={this.togglePlayList}></i>
           <span className="tasks-number">{this.props.playList.length}</span>
-          <div className="tasks-box" onClick={this.togglePlayListBox} style={{display: this.state.playListBox?"block":"none"}}>
-            <div className="title">播放列表</div>
-            <div className="content">
-              <table>
-                <tbody>
-                {
-                  this.props.playList.map(function(song){
-                    i+=1;
-                    return(
-                      <tr className={(i==this.state.num?"active":"")+" tr"+i%2}>
-                        <td className="status"><i className="glyphicon glyphicon-play"></i></td>
-                        <td className="name" id={"song-"+i} onClick={this.switchPlay}>{song.name}</td>
-                        <td className="artists">{song.artists[0].name}</td>
-                      </tr>
-                    )
-                  }.bind(this))
-                }
-                </tbody>
-              </table>
-            </div>
-          </div>
+          { playListBox }
         </div>
       <div className="small-album grey">
         <div className="cover"><img src={song.album.picUrl} /></div>
@@ -269,5 +270,13 @@ let Player = React.createClass({
     );
   }
 });
+
+function getOffset(e){
+  var o = e.offsetLeft;
+  if(e.offsetParent!=null){
+    o += getOffset(e.offsetParent);
+  }
+  return o;
+}
 
 export default Player;

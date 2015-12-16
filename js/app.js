@@ -22,8 +22,13 @@ let App = React.createClass({
     store.setState = function(data){
       that.setState(data);
     }
-    store.getState = function(){
-      return that.state;
+    store.getState = function(key){
+      if(key==undefined){
+        return that.state;
+      }
+      else{
+        return that.state[key];
+      }
     }
     var state = store.getInitState();
     this.isLogin = state.isLogin;
@@ -86,7 +91,7 @@ let App = React.createClass({
         <Nav {...other} login={this.login}/>
           <Sidebar userSonglist={this.state.userSonglist} action={this.action}/>
           <RouteHandler {...other} action={this.action} playRadio={this.playRadio}/>
-        <Player mode={this.state.mode} radio={this.state.radio} playList={this.state.playList} didRestart={this.didRestart} restart={this.state.restart} radioNum={this.state.radioNum}start={this.state.start} action={this.action} nextRadio={this.nextRadio} lastRadio={this.lastRadio}/>
+        <Player {...other} action={this.action}/>
       </div>
     )
   }
