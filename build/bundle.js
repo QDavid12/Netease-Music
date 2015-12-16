@@ -45,8 +45,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(1);
-	__webpack_require__(209);
-	module.exports = __webpack_require__(210);
+	__webpack_require__(210);
+	module.exports = __webpack_require__(211);
 
 
 /***/ },
@@ -101,24 +101,28 @@
 
 	var _componentsSonglistJs2 = _interopRequireDefault(_componentsSonglistJs);
 
-	var _componentsToolbarJs = __webpack_require__(204);
+	var _componentsRadioJs = __webpack_require__(204);
+
+	var _componentsRadioJs2 = _interopRequireDefault(_componentsRadioJs);
+
+	var _componentsToolbarJs = __webpack_require__(205);
 
 	var _componentsToolbarJs2 = _interopRequireDefault(_componentsToolbarJs);
 
-	var _componentsNavJs = __webpack_require__(205);
+	var _componentsNavJs = __webpack_require__(206);
 
 	var _componentsNavJs2 = _interopRequireDefault(_componentsNavJs);
 
-	var _componentsSidebarJs = __webpack_require__(207);
+	var _componentsSidebarJs = __webpack_require__(208);
 
 	var _componentsSidebarJs2 = _interopRequireDefault(_componentsSidebarJs);
 
-	var _componentsPlayerJs = __webpack_require__(208);
+	var _componentsPlayerJs = __webpack_require__(209);
 
 	var _componentsPlayerJs2 = _interopRequireDefault(_componentsPlayerJs);
 
-	var store = __webpack_require__(209);
-	var _action = __webpack_require__(210);
+	var store = __webpack_require__(210);
+	var _action = __webpack_require__(211);
 	_action.init();
 
 	var App = _react2['default'].createClass({
@@ -158,17 +162,42 @@
 	  didRestart: function didRestart() {
 	    this.setState({ restart: false });
 	  },
+	  playRadio: function playRadio(num) {
+	    console.log("playRadio " + num);
+	    var radioNum = this.state.radioNum;
+	    this.setState({ radioNum: num, mode: "radio", restart: true });
+	    if (this.state.radio[radioNum + 3] == undefined) {
+	      console.log("load more");
+	      this.action("getNewRadio", {});
+	    }
+	  },
+	  nextRadio: function nextRadio() {
+	    console.log("nextRadio");
+	    var radioNum = this.state.radioNum;
+	    this.setState({ radioNum: this.state.radioNum + 1, restart: true });
+	    if (this.state.radio[radioNum + 3] == undefined) {
+	      console.log("load more");
+	      this.action("getNewRadio", {});
+	    }
+	  },
+	  lastRadio: function lastRadio() {
+	    var radioNum = this.state.radioNum;
+	    if (this.state.radio[radioNum - 1] != undefined) {
+	      this.setState({ radioNum: this.state.radioNum - 1, restart: true });
+	    }
+	    //this.setState({radioNum: this.state.radioNum-1, restart: true});
+	  },
 	  render: function render() {
 	    console.log("app render");
 	    //console.log(this.state);
 
 	    var other = _objectWithoutProperties(this.state, []);
 
-	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], null), _react2['default'].createElement(_componentsNavJs2['default'], _extends({}, other, { login: this.login })), _react2['default'].createElement(_componentsSidebarJs2['default'], { userSonglist: this.state.userSonglist, action: this.action }), _react2['default'].createElement(_reactRouter.RouteHandler, { currentSonglist: this.state.currentSonglist, action: this.action }), _react2['default'].createElement(_componentsPlayerJs2['default'], { playList: this.state.playList, didRestart: this.didRestart, restart: this.state.restart, start: this.state.start, action: this.action }));
+	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], { action: this.action }), _react2['default'].createElement(_componentsNavJs2['default'], _extends({}, other, { login: this.login })), _react2['default'].createElement(_componentsSidebarJs2['default'], { userSonglist: this.state.userSonglist, action: this.action }), _react2['default'].createElement(_reactRouter.RouteHandler, _extends({}, other, { action: this.action, playRadio: this.playRadio })), _react2['default'].createElement(_componentsPlayerJs2['default'], { mode: this.state.mode, radio: this.state.radio, playList: this.state.playList, didRestart: this.didRestart, restart: this.state.restart, radioNum: this.state.radioNum, start: this.state.start, action: this.action, nextRadio: this.nextRadio, lastRadio: this.lastRadio }));
 	  }
 	});
 
-	var routes = _react2['default'].createElement(_reactRouter.Route, { name: 'app', path: '/', handler: App }, _react2['default'].createElement(_reactRouter.Route, { name: 'discover', path: '/discover', handler: _componentsDiscoverJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'songlist', path: '/songlist/:id', handler: _componentsSonglistJs2['default'] }));
+	var routes = _react2['default'].createElement(_reactRouter.Route, { name: 'app', path: '/', handler: App }, _react2['default'].createElement(_reactRouter.Route, { name: 'discover', path: '/discover', handler: _componentsDiscoverJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'songlist', path: '/songlist/:id', handler: _componentsSonglistJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'radio', path: '/radio', handler: _componentsRadioJs2['default'] }));
 
 	_reactRouter2['default'].run(routes, function (Handler) {
 	  _reactDom2['default'].render(_react2['default'].createElement(Handler, null), document.getElementById("app"));
@@ -23129,11 +23158,65 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
 	function _interopRequireDefault(obj) {
-	    return obj && obj.__esModule ? obj : { "default": obj };
+	  return obj && obj.__esModule ? obj : { "default": obj };
+	}
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var Radio = _react2["default"].createClass({
+	  displayName: "Radio",
+
+	  getInitialState: function getInitialState() {
+	    console.log("radio init");
+	    console.log(this.props.radio.length);
+	    if (this.props.radio.length == 0) {
+	      this.props.action("getNewRadio", {});
+	    }
+	    return {};
+	  },
+	  componentDidUpdate: function componentDidUpdate() {
+	    console.log("Radio update");
+	    console.log(this.props.radio);
+	  },
+	  play: function play(e) {
+	    var id = parseInt(e.target.id.split("-")[1]);
+	    //console.log("playRadio "+id);  
+	    this.props.playRadio(id);
+	  },
+	  render: function render() {
+	    var i = -1;
+	    return _react2["default"].createElement("div", { className: "main-content-container radio-container" }, this.props.radio.map((function (song) {
+	      i += 1;
+	      return _react2["default"].createElement("div", { key: song.id }, _react2["default"].createElement("span", { onClick: this.play, id: "radio-" + i }, song.name));
+	    }).bind(this)));
+	  }
+	});
+
+	exports["default"] = Radio;
+	module.exports = exports["default"];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "radio.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 205 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { "default": obj };
 	}
 
 	var _react = __webpack_require__(2);
@@ -23141,11 +23224,15 @@
 	var _react2 = _interopRequireDefault(_react);
 
 	var Toolbar = _react2["default"].createClass({
-	    displayName: "Toolbar",
+	  displayName: "Toolbar",
 
-	    render: function render() {
-	        return _react2["default"].createElement("div", { className: "tool red" }, _react2["default"].createElement("div", { className: "circle pink" }), _react2["default"].createElement("div", { className: "circle orange" }), _react2["default"].createElement("div", { className: "circle green" }), _react2["default"].createElement("i", { className: "zoom glyphicon glyphicon-credit-card" }));
-	    }
+	  control: function control(e) {
+	    var method = e.target.id;
+	    this.props.action(method, "");
+	  },
+	  render: function render() {
+	    return _react2["default"].createElement("div", { className: "tool red" }, _react2["default"].createElement("div", { className: "circle pink", id: "close", onClick: this.control }), _react2["default"].createElement("div", { className: "circle orange", id: "minimize", onClick: this.control }), _react2["default"].createElement("div", { className: "circle green", id: "maximize", onClick: this.control }), _react2["default"].createElement("i", { className: "zoom glyphicon glyphicon-credit-card" }));
+	  }
 	});
 
 	exports["default"] = Toolbar;
@@ -23154,7 +23241,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "toolbar.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 205 */
+/* 206 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -23175,7 +23262,7 @@
 
 	var _reactRouter = __webpack_require__(160);
 
-	var _loginJs = __webpack_require__(206);
+	var _loginJs = __webpack_require__(207);
 
 	var _loginJs2 = _interopRequireDefault(_loginJs);
 
@@ -23214,7 +23301,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "nav.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 206 */
+/* 207 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -23255,7 +23342,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "login.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 207 */
+/* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -23282,7 +23369,7 @@
 	  render: function render() {
 	    console.log("sidebar");
 	    //console.log(this.props.userSonglist);
-	    return _react2['default'].createElement('div', { className: 'sidebar grey' }, _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '推荐'), _react2['default'].createElement(_reactRouter.Link, { to: '/discover' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-music' }), _react2['default'].createElement('span', { className: 'name' }, '发现音乐')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-headphones' }), _react2['default'].createElement('span', { className: 'name' }, '私人FM')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-expand' }), _react2['default'].createElement('span', { className: 'name' }, 'MV')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-user' }), _react2['default'].createElement('span', { className: 'name' }, '朋友'))))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '我的音乐', _react2['default'].createElement('i', { className: 'glyphicon glyphicon-menu-right' })), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-folder-open' }), _react2['default'].createElement('span', { className: 'name' }, '本地音乐')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-download-alt' }), _react2['default'].createElement('span', { className: 'name' }, '下载的音乐'))))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '创建的歌单', _react2['default'].createElement('i', { className: 'glyphicon glyphicon-plus-sign' })), this.props.userSonglist.map(function (list) {
+	    return _react2['default'].createElement('div', { className: 'sidebar grey' }, _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '推荐'), _react2['default'].createElement(_reactRouter.Link, { to: '/discover' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-music' }), _react2['default'].createElement('span', { className: 'name' }, '发现音乐')))), _react2['default'].createElement(_reactRouter.Link, { to: '/radio' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-headphones' }), _react2['default'].createElement('span', { className: 'name' }, '私人FM')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-expand' }), _react2['default'].createElement('span', { className: 'name' }, 'MV')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-user' }), _react2['default'].createElement('span', { className: 'name' }, '朋友'))))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '我的音乐', _react2['default'].createElement('i', { className: 'glyphicon glyphicon-menu-right' })), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-folder-open' }), _react2['default'].createElement('span', { className: 'name' }, '本地音乐')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-download-alt' }), _react2['default'].createElement('span', { className: 'name' }, '下载的音乐'))))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '创建的歌单', _react2['default'].createElement('i', { className: 'glyphicon glyphicon-plus-sign' })), this.props.userSonglist.map(function (list) {
 	      var listClass = "glyphicon glyphicon-" + (list["isFirst"] ? "heart-empty" : "list");
 	      return _react2['default'].createElement(_reactRouter.Link, { to: "/songlist/" + list.id, key: list.id }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: listClass }), _react2['default'].createElement('span', { className: 'name' }, list.name))));
 	    })));
@@ -23295,7 +23382,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "sidebar.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 208 */
+/* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -23320,25 +23407,45 @@
 	  getInitialState: function getInitialState() {
 	    console.log(this.props);
 	    return {
-	      playing: false,
 	      num: 0,
 	      pace: 0,
 	      time: "00:00",
 	      duration: "00:00",
-	      playListBox: false
+	      playListBox: false,
+	      mode: this.props.mode
 	    };
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (nextProps.playList.length != 0 && nextProps.restart) {
+	    var audio = this.refs.audio;
+	    //mode radio
+	    if (nextProps.mode == "radio") {
+	      console.log("radio player");
+	      //this.setState({mode: nextProps.mode});
+	      //have to restart
+	      if (nextProps.radioNum != this.radioNum) {
+	        this.radioNum = nextProps.radioNum;
+	        console.log("player change to radio");
+	        console.log(nextProps.radioNum);
+	        audio.pause();
+	        audio.src = nextProps.radio[nextProps.radioNum].mp3Url;
+	        audio.load();
+	        if (nextProps.restart == true) {
+	          this.props.didRestart();
+	          audio.play();
+	        }
+	      }
+	    }
+	    //playList change and restart immediately
+	    if (nextProps.playList.length != 0 && nextProps.restart && nextProps.mode == "playList") {
 	      this.setState({ num: nextProps.start });
 	      this.props.didRestart();
-	      console.log("change and restart");
+	      console.log("playlist change and restart");
 	      console.log(nextProps.start);
 	      //this.start = nextProps.start;
-	      this.refs.audio.pause();
-	      this.refs.audio.src = nextProps.playList[nextProps.start].mp3Url;
-	      this.refs.audio.load();
-	      this.refs.audio.play();
+	      audio.pause();
+	      audio.src = nextProps.playList[nextProps.start].mp3Url;
+	      audio.load();
+	      audio.play();
 	    }
 	  },
 	  setDuration: function setDuration() {
@@ -23362,7 +23469,7 @@
 	  play: function play() {
 	    var audio = this.refs.audio;
 	    if (audio.paused) {
-	      if (audio.src == "") {
+	      if (audio.src == "" && this.props.mode == "playList") {
 	        if (this.props.playList.length == 0) {
 	          return alert("playlist empty!");
 	        }
@@ -23376,20 +23483,30 @@
 	    //this.setState({playing: !this.state.playing});
 	  },
 	  next: function next() {
-	    var num = this.state.num;
-	    this.refs.audio.pause();
-	    this.refs.audio.src = this.props.playList[this.state.num + 1].mp3Url;
-	    this.refs.audio.load();
-	    this.refs.audio.play();
-	    this.setState({ num: this.state.num + 1 });
+	    if (this.props.mode == "playList") {
+	      var num = this.state.num;
+	      this.refs.audio.pause();
+	      this.refs.audio.src = this.props.playList[this.state.num + 1].mp3Url;
+	      this.refs.audio.load();
+	      this.refs.audio.play();
+	      this.setState({ num: this.state.num + 1 });
+	    } else {
+	      console.log("next radio");
+	      this.props.nextRadio();
+	    }
 	  },
 	  back: function back() {
-	    var num = this.state.num;
-	    this.refs.audio.pause();
-	    this.refs.audio.src = this.props.playList[this.state.num - 1].mp3Url;
-	    this.refs.audio.load();
-	    this.refs.audio.play();
-	    this.setState({ num: this.state.num - 1 });
+	    if (this.props.mode == "playList") {
+	      var num = this.state.num;
+	      this.refs.audio.pause();
+	      this.refs.audio.src = this.props.playList[this.state.num - 1].mp3Url;
+	      this.refs.audio.load();
+	      this.refs.audio.play();
+	      this.setState({ num: this.state.num - 1 });
+	    } else {
+	      console.log("last radio");
+	      this.props.lastRadio();
+	    }
 	  },
 	  componentDidUpdate: function componentDidUpdate() {
 	    console.log("player update");
@@ -23493,7 +23610,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "player.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 209 */
+/* 210 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -23511,7 +23628,10 @@
 	            messageBox: false,
 	            userSonglist: [],
 	            playList: [],
-	            start: 0
+	            start: 0,
+	            mode: "playList",
+	            radio: [],
+	            radioNum: 0
 	        };
 	        for (var x in newstate) {
 	            state[x] = newstate[x];
@@ -23548,7 +23668,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Store.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 210 */
+/* 211 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -23558,16 +23678,30 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	exports.dispatch = dispatch;
 	exports.login = login;
 	exports.init = init;
-	exports.dispatch = dispatch;
-	var store = __webpack_require__(209);
-	var api = __webpack_require__(211);
+	var store = __webpack_require__(210);
+	var api = __webpack_require__(212);
 
 	var methods = {
 	    "addToPlaylist": addToPlaylist,
-	    "changePlayList": changePlayList
+	    "changePlayList": changePlayList,
+	    "getNewRadio": getNewRadio,
+	    "changeToRadioMode": changeToRadioMode
 	};
+
+	function dispatch(method, data) {
+	    if (method in methods) {
+	        methods[method](data);
+	    } else {
+	        api.dispatch(method, data, function (data) {
+	            console.log(method);
+	            console.log(data);
+	            store.setState(data);
+	        });
+	    }
+	}
 
 	function login(username, password) {
 	    api.login(username, password, function (data) {
@@ -23603,18 +23737,6 @@
 	    }
 	}
 
-	function dispatch(method, data) {
-	    if (method in methods) {
-	        methods[method](data);
-	    } else {
-	        api.dispatch(method, data, function (data) {
-	            console.log(method);
-	            console.log(data);
-	            store.setState(data);
-	        });
-	    }
-	}
-
 	function addToPlaylist(list) {
 	    console.log("addToPlaylist");
 	    var newList = [];
@@ -23638,10 +23760,29 @@
 	    });
 	}
 
+	function getNewRadio(data) {
+	    console.log("getNewRadio");
+	    var oldRadio = store.getState().radio;
+	    api.dispatch("getNewRadio", [], function (data) {
+	        console.log(data);
+	        for (var x in data.radio) {
+	            oldRadio.push(data.radio[x]);
+	        }
+	        store.setState({ radio: oldRadio });
+	    });
+	}
+
+	function changeToRadioMode(data) {
+	    console.log("changeToRadioMode");
+	    store.setState({
+	        mode: "radio"
+	    });
+	}
+
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Action.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 211 */
+/* 212 */
 /***/ function(module, exports) {
 
 	/* REACT HOT LOADER */ if (module.hot) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -23651,6 +23792,7 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	exports.getNewRadio = getNewRadio;
 	exports.userSonglist = userSonglist;
 	exports.songlistDetail = songlistDetail;
 	exports.getSongDetail = getSongDetail;
@@ -23696,6 +23838,18 @@
 	    req.set(header).timeout(10000).end(callback);
 	};
 
+	function getNewRadio(data, callback) {
+	    var url = 'http://music.163.com/api/radio/get';
+	    httpRequest('get', url, null, function (err, res) {
+	        if (err) {
+	            callback({ msg: '[radio]http error ' + err, type: 1 });
+	            return;
+	        }
+	        var doc = JSON.parse(res.text);
+	        if (doc.code != 200) callback({ msg: '[radio]http code ' + doc.code, type: 1 });else callback({ radio: doc.data });
+	    });
+	}
+
 	function userSonglist(data, callback) {
 	    // [uid],[offset],[limit],callback
 	    var uid = config.profile.userId;
@@ -23730,7 +23884,7 @@
 	    //var that = this;
 	    httpRequest('get', url, data, function (err, res) {
 	        if (err) callback({ msg: '[playlistDetail]http timeout', type: 1 });else {
-	            if (res.body.code != 200) callback({ msg: '[playlistDetail]http code ' + data.code, type: 1 });else callback({ currentSonglist: res.body.result });
+	            if (res.body.code != 200) callback({ msg: '[playlistDetail]http code ' + data.code, type: 1 });else callback({ currentSonglist: res.body.result, mode: "playList" });
 	            //else callback(transfer(res.body.result.tracks));
 	        }
 	    });
@@ -23838,9 +23992,25 @@
 	    var map = {
 	        "getSongDetail": getSongDetail,
 	        "userSonglist": userSonglist,
-	        "songlistDetail": songlistDetail
+	        "songlistDetail": songlistDetail,
+	        "getNewRadio": getNewRadio,
+	        "maximize": maximize,
+	        "close": close,
+	        "minimize": minimize
 	    };
 	    map[method](data, callback);
+	}
+
+	function maximize(data, callback) {
+	    callback(ipcRenderer.sendSync('maximize'));
+	}
+
+	function minimize(data, callback) {
+	    callback(ipcRenderer.sendSync('minimize'));
+	}
+
+	function close(data, callback) {
+	    callback(ipcRenderer.sendSync('close'));
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (module.hot) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Api.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }

@@ -6,7 +6,10 @@ var store = (function(){
           messageBox: false,
           userSonglist: [],
           playList: [],
-          start: 0
+          start: 0,
+          mode: "playList",
+          radio: [],
+          radioNum: 0
         }
         for(var x in newstate){
             state[x] = newstate[x];

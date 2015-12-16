@@ -3,7 +3,22 @@ var api = require('./Api');
 
 const methods = {
     "addToPlaylist": addToPlaylist,
-    "changePlayList": changePlayList
+    "changePlayList": changePlayList,
+    "getNewRadio": getNewRadio,
+    "changeToRadioMode": changeToRadioMode
+}
+
+export function dispatch(method, data){
+    if(method in methods){
+        methods[method](data);
+    }
+    else{
+        api.dispatch(method, data, function(data){
+            console.log(method);
+            console.log(data);
+            store.setState(data);
+        });
+    }
 }
 
 export function login(username, password){
@@ -41,18 +56,6 @@ export function init(){
     }
 }
 
-export function dispatch(method, data){
-    if(method in methods){
-        methods[method](data);
-    }
-    else{
-        api.dispatch(method, data, function(data){
-            console.log(method);
-            console.log(data);
-            store.setState(data);
-        });
-    }
-}
 
 function addToPlaylist(list){
     console.log("addToPlaylist");
@@ -74,5 +77,24 @@ function changePlayList(list){
         playList: list,
         start: 0,
         restart: true
+    });
+}
+
+function getNewRadio(data){
+    console.log("getNewRadio");
+    var oldRadio = store.getState().radio;
+    api.dispatch("getNewRadio", [], function(data){
+        console.log(data);
+        for(var x in data.radio){
+            oldRadio.push(data.radio[x]);
+        }
+        store.setState({radio: oldRadio});
+    });
+}
+
+function changeToRadioMode(data){
+    console.log("changeToRadioMode");
+    store.setState({
+        mode: "radio"
     });
 }

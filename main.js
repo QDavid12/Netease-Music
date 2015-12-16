@@ -26,7 +26,14 @@ app.on('window-all-closed', function() {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1800, height: 900});
+  mainWindow = new BrowserWindow({
+    width: 1800, 
+    height: 1200,
+    resizable: true,
+    frame: false,
+    transparent: true,
+    icon: 'file://' + __dirname + '/img/wangyiyun.jpg'
+  });
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname +'/index.html');
@@ -42,11 +49,32 @@ app.on('ready', function() {
     mainWindow = null;
   });
 
-  /* encode part */
+  /* ipc part */
   ipc.on('encode', function(event, username, password){
     var ret = event;
     api.encode(username, password, function(res){
       ret.returnValue = res;
     })
+  });
+
+  ipc.on('close', function(event){
+    console.log("close");
+    app.quit();
+  });
+
+  ipc.on('maximize', function(event){
+    if(mainWindow.isMaximized()){
+      mainWindow.restore();
+    }
+    else{
+      mainWindow.maximize();
+    }
+    //mainWindow.maximize();
+    event.returnValue = "maximize";
+  });
+
+  ipc.on('minimize', function(event){
+    mainWindow.minimize();
+    event.returnValue = "minimize";
   });
 });

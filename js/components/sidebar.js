@@ -20,7 +20,7 @@ let Sidebar = React.createClass({
           </div>
           </Link>
 
-          <Link to="/">
+          <Link to="/radio">
           <div className="list">
             <div className="content">
               <i className="glyphicon glyphicon-headphones"></i>

@@ -4,25 +4,45 @@ let Player = React.createClass({
   getInitialState: function(){
     console.log(this.props);
     return{
-      playing: false,
       num: 0,
       pace: 0,
       time: "00:00",
       duration: "00:00",
-      playListBox: false
+      playListBox: false,
+      mode: this.props.mode
     }
   },
   componentWillReceiveProps: function(nextProps){
-    if(nextProps.playList.length!=0&&nextProps.restart){
+    var audio = this.refs.audio
+    //mode radio
+    if(nextProps.mode=="radio"){
+      console.log("radio player");
+      //this.setState({mode: nextProps.mode});
+      //have to restart
+      if(nextProps.radioNum!=this.radioNum){
+        this.radioNum = nextProps.radioNum;
+        console.log("player change to radio");
+        console.log(nextProps.radioNum);
+        audio.pause();
+        audio.src = nextProps.radio[nextProps.radioNum].mp3Url;
+        audio.load();
+        if(nextProps.restart==true){
+          this.props.didRestart();
+          audio.play();
+        }
+      }
+    }
+    //playList change and restart immediately
+    if(nextProps.playList.length!=0&&nextProps.restart&&nextProps.mode=="playList"){
       this.setState({num: nextProps.start});
       this.props.didRestart();
-      console.log("change and restart");
+      console.log("playlist change and restart");
       console.log(nextProps.start);
       //this.start = nextProps.start;
-      this.refs.audio.pause();
-      this.refs.audio.src = nextProps.playList[nextProps.start].mp3Url;
-      this.refs.audio.load();
-      this.refs.audio.play();
+      audio.pause();
+      audio.src = nextProps.playList[nextProps.start].mp3Url;
+      audio.load();
+      audio.play();
     }
   },
   setDuration: function(){
@@ -46,7 +66,7 @@ let Player = React.createClass({
   play: function(){
     var audio = this.refs.audio;
     if(audio.paused){
-      if(audio.src==""){
+      if(audio.src==""&&this.props.mode=="playList"){
         if(this.props.playList.length==0){
           return alert("playlist empty!");
         }
@@ -61,20 +81,32 @@ let Player = React.createClass({
     //this.setState({playing: !this.state.playing});
   },
   next: function(){
-    var num = this.state.num;
-    this.refs.audio.pause();
-    this.refs.audio.src = this.props.playList[this.state.num+1].mp3Url;
-    this.refs.audio.load();
-    this.refs.audio.play();
-    this.setState({num: this.state.num+1});
+    if(this.props.mode=="playList"){
+      var num = this.state.num;
+      this.refs.audio.pause();
+      this.refs.audio.src = this.props.playList[this.state.num+1].mp3Url;
+      this.refs.audio.load();
+      this.refs.audio.play();
+      this.setState({num: this.state.num+1});
+    }
+    else{
+      console.log("next radio");
+      this.props.nextRadio();
+    }
   },
   back: function(){
-    var num = this.state.num;
-    this.refs.audio.pause();
-    this.refs.audio.src = this.props.playList[this.state.num-1].mp3Url;
-    this.refs.audio.load();
-    this.refs.audio.play();
-    this.setState({num: this.state.num-1})
+    if(this.props.mode=="playList"){
+      var num = this.state.num;
+      this.refs.audio.pause();
+      this.refs.audio.src = this.props.playList[this.state.num-1].mp3Url;
+      this.refs.audio.load();
+      this.refs.audio.play();
+      this.setState({num: this.state.num-1});
+    }
+    else{
+      console.log("last radio");
+      this.props.lastRadio();
+    }
   },
   componentDidUpdate: function(){
     console.log("player update");

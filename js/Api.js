@@ -36,6 +36,18 @@ var httpRequest = function (method, url, data, callback) {
     req.set(header).timeout(10000).end(callback);
 }
 
+export function getNewRadio(data, callback) {
+    var url = 'http://music.163.com/api/radio/get';
+    httpRequest('get', url, null, function (err, res) {
+        if (err) {
+            callback({msg: '[radio]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200)callback({msg: '[radio]http code ' + doc.code, type: 1});
+        else callback({radio: doc.data});
+    });
+}
 
 export function userSonglist(data, callback) {
     // [uid],[offset],[limit],callback
@@ -74,7 +86,7 @@ export function songlistDetail(id, callback) {
         if (err)callback({msg: '[playlistDetail]http timeout', type: 1});
         else {
             if (res.body.code != 200)callback({msg: '[playlistDetail]http code ' + data.code, type: 1});
-            else callback({currentSonglist: res.body.result});
+            else callback({currentSonglist: res.body.result, mode: "playList"});
             //else callback(transfer(res.body.result.tracks));
         }
     });
@@ -185,7 +197,23 @@ export function dispatch(method, data, callback){
     const map = {
         "getSongDetail": getSongDetail,
         "userSonglist": userSonglist,
-        "songlistDetail": songlistDetail
+        "songlistDetail": songlistDetail,
+        "getNewRadio": getNewRadio,
+        "maximize": maximize,
+        "close": close,
+        "minimize": minimize
     }
     map[method](data, callback);
+}
+
+function maximize(data, callback){
+    callback(ipcRenderer.sendSync('maximize'));
+}
+
+function minimize(data, callback){
+    callback(ipcRenderer.sendSync('minimize'));
+}
+
+function close(data, callback){
+    callback(ipcRenderer.sendSync('close'));
 }
