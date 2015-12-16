@@ -31,7 +31,7 @@ let Nav = React.createClass({
         <div className="logo">
           <img src="./img/logo.png" alt="logo" />
         </div>
-        <Link to="/index" className="homelink"><div className="logo-letters">网易云音乐</div></Link>
+        <Link to="/discover" className="homelink"><div className="logo-letters">网易云音乐</div></Link>
         <div className="btn-group">
           <i id="btn-back" className="glyphicon glyphicon-menu-left"></i>
           <i id="btn-forward" className="glyphicon glyphicon-menu-right active"></i>

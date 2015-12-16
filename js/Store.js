@@ -3,7 +3,10 @@ var store = (function(){
     function init(){
         var newstate = {
           profileBox: false,
-          messageBox: false
+          messageBox: false,
+          userSonglist: [],
+          playList: [],
+          start: 0
         }
         for(var x in newstate){
             state[x] = newstate[x];

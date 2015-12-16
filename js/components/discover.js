@@ -1,6 +1,6 @@
 import React from 'react';
 
-let Index = React.createClass({
+let Discover = React.createClass({
   getInitialState: function() {
     return {
 
@@ -12,10 +12,10 @@ let Index = React.createClass({
   render: function(){
     return(
         <div className="main-content-container">
-            <div className="title">主页</div>
+            <div className="title">Discover</div>
         </div>
     );
   }
 });
 
-export default Index;
+export default Discover;

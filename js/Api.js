@@ -36,6 +36,102 @@ var httpRequest = function (method, url, data, callback) {
     req.set(header).timeout(10000).end(callback);
 }
 
+
+export function userSonglist(data, callback) {
+    // [uid],[offset],[limit],callback
+    var uid = config.profile.userId;
+    if (!uid) {
+        callback({msg: '[userPlaylist]user do not login', type: 0});
+        return;
+    }
+
+    var offset = 0;
+    var limit = 500;
+    var url = 'http://music.163.com/api/user/playlist/';
+    var data = {
+        "offset": offset,
+        "limit": limit,
+        "uid": uid
+    }
+    httpRequest('get', url, data, function (err, res) {
+        if (err) {
+            callback({msg: '[userPlaylist]http timeout', type: 1});
+            return;
+        }
+        if (res.body.code != 200)callback({msg: '[userPlaylist]http code ' + data.code, type: 1});
+        else {
+            res.body.playlist[0].isFirst = true;
+            callback({userSonglist: res.body.playlist});
+        }
+    });
+}
+
+export function songlistDetail(id, callback) {
+    var url = 'http://music.163.com/api/playlist/detail';
+    var data = {"id": id}
+    //var that = this;
+    httpRequest('get', url, data, function (err, res) {
+        if (err)callback({msg: '[playlistDetail]http timeout', type: 1});
+        else {
+            if (res.body.code != 200)callback({msg: '[playlistDetail]http code ' + data.code, type: 1});
+            else callback({currentSonglist: res.body.result});
+            //else callback(transfer(res.body.result.tracks));
+        }
+    });
+}
+
+function transfer(results) {
+    var songList = [];
+    var idArray = [];
+    var idMap = {};
+    for (var i = 0; i < results.length; i++) {
+        var r = results[i];
+        idArray.push(r.id);
+        idMap[r.id] = i;
+        var o = {src: ''};
+        o.id = r.id;
+        o.title = r.name;
+        o.album = r.album.name;
+        o.artist = r.artists.map(function (v) {
+            return v.name;
+        }).join();
+        songList.push(o);//modefy here!
+    }
+    var that = this;
+    process.nextTick(function () {
+        // >100时分批查询
+        var num = Math.ceil(idArray.length / 100);
+        for (var k = 0; k < num; k++) {
+            var idTmp = idArray.slice(k * 100, Math.min((k + 1) * 100, idArray.length));
+            songsDetail(idTmp, function (err, songs) {
+                if (err) {
+                    throw(err.msg);
+                    return;
+                }
+                for (var i = 0; i < songs.length; i++) {
+                    var index = idMap[songs[i].id];
+                    songList[index].src = songs[i].mp3Url;
+                    songList[index].album = songs[i].album;
+                }
+            });
+        }
+    });
+    return songList;
+}
+
+function songsDetail(ids, callback) {
+        var url = 'http://music.163.com/api/song/detail';
+        httpRequest('get', url, {ids: '[' + ids.join() + ']'}, function (err, res) {
+            if (err) {
+                callback({msg: '[songsDetail]http error ' + err, type: 1});
+                return;
+            }
+            var doc = JSON.parse(res.text);
+            if (doc.code != 200)callback({msg: '[songsDetail]http code ' + doc.code, type: 1});
+            else callback(null, doc.songs);
+        });
+    }
+
 export function getSongDetail(ids, callback){
     var url = 'http://music.163.com/api/song/detail';
     httpRequest('get', url, {ids: '[' + ids.join() + ']'}, function (err, res) {
@@ -87,7 +183,9 @@ export function init(){
 
 export function dispatch(method, data, callback){
     const map = {
-        "getSongDetail": getSongDetail
+        "getSongDetail": getSongDetail,
+        "userSonglist": userSonglist,
+        "songlistDetail": songlistDetail
     }
     map[method](data, callback);
 }

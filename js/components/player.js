@@ -4,12 +4,25 @@ let Player = React.createClass({
   getInitialState: function(){
     console.log(this.props);
     return{
-      playList: this.props.playList,
       playing: false,
       num: 0,
       pace: 0,
       time: "00:00",
-      duration: "00:00"
+      duration: "00:00",
+      playListBox: false
+    }
+  },
+  componentWillReceiveProps: function(nextProps){
+    if(nextProps.playList.length!=0&&nextProps.restart){
+      this.setState({num: nextProps.start});
+      this.props.didRestart();
+      console.log("change and restart");
+      console.log(nextProps.start);
+      //this.start = nextProps.start;
+      this.refs.audio.pause();
+      this.refs.audio.src = nextProps.playList[nextProps.start].mp3Url;
+      this.refs.audio.load();
+      this.refs.audio.play();
     }
   },
   setDuration: function(){
@@ -33,33 +46,41 @@ let Player = React.createClass({
   play: function(){
     var audio = this.refs.audio;
     if(audio.paused){
-      this.refs.audio.play();
+      if(audio.src==""){
+        if(this.props.playList.length==0){
+          return alert("playlist empty!");
+        }
+        audio.src = this.props.playList[this.state.num].mp3Url;
+        audio.load();
+      }
+      audio.play();
     }
     else{
-      this.refs.audio.pause();
+      audio.pause();
     }
     //this.setState({playing: !this.state.playing});
   },
   next: function(){
     var num = this.state.num;
     this.refs.audio.pause();
-    this.refs.audio.src = this.state.playList[this.state.num+1];
+    this.refs.audio.src = this.props.playList[this.state.num+1].mp3Url;
     this.refs.audio.load();
     this.refs.audio.play();
-    this.setState({num: this.state.num+1})
+    this.setState({num: this.state.num+1});
   },
   back: function(){
     var num = this.state.num;
     this.refs.audio.pause();
-    this.refs.audio.src = this.state.playList[this.state.num-1];
+    this.refs.audio.src = this.props.playList[this.state.num-1].mp3Url;
     this.refs.audio.load();
     this.refs.audio.play();
     this.setState({num: this.state.num-1})
   },
   componentDidUpdate: function(){
-
+    console.log("player update");
   },
   componentDidMount: function () {
+    console.log("player mount");
     this.refs.audio.addEventListener("play", function(){
       this.setState({playing: true});
     }.bind(this));
@@ -82,6 +103,7 @@ let Player = React.createClass({
     }.bind(this));
     this.refs.audio.addEventListener("ended", function(){
       console.log("ended");
+      this.next();
     }.bind(this));
     /*pace control*/
     this.refs.paceCursor.addEventListener("mousedown", function(e){
@@ -113,6 +135,9 @@ let Player = React.createClass({
         this.refs.audio.currentTime = (this.state.pace*this.refs.audio.duration)/100;
       }
     }.bind(this));
+    document.addEventListener("mousedown", function(){
+      
+    }.bind(this))
     function getOffset(e){
       var o = e.offsetLeft;
       if(e.offsetParent!=null){
@@ -120,12 +145,28 @@ let Player = React.createClass({
       }
       return o;
     }
-    console.log(this.state.playList[this.state.num]);
-    this.refs.audio.src = this.state.playList[this.state.num];
+    //console.log(this.props.playList[this.state.num]);
+    if(this.props.playList&&this.props.playList.length!=0){
+      this.refs.audio.src = this.props.playList[this.state.num].mp3Url;
+      this.refs.audio.load();
+    }
+  },
+  togglePlayList: function(){
+    this.setState({playListBox: !this.state.playListBox});
+  },
+  switchPlay: function(e){
+    var key = parseInt(e.target.id.split("-")[1]);
+    console.log(key);
+    this.setState({num: key});
+    this.refs.audio.pause();
+    this.refs.audio.src = this.props.playList[key].mp3Url;
     this.refs.audio.load();
+    this.refs.audio.play();
   },
   render: function(){
     var playerClass = "control play glyphicon glyphicon-" + (!this.state.playing?"play":"pause");
+    var song = this.props.playList.length==0 ? {album: {picUrl: "./img/logo.png"}, name: "song", artists: [{name: "artist"}]} : this.props.playList[this.state.num];
+    var i=-1;
     return(
         <div className="player grey">
         <i onClick={this.back} className="control last glyphicon glyphicon-step-backward"></i>
@@ -157,9 +198,41 @@ let Player = React.createClass({
           </div>
           <i className="widget glyphicon glyphicon-random"></i>
           <div className="widget lyric"><span>词</span></div>
-          <i className="widget glyphicon glyphicon-tasks"></i>
-          <span className="tasks-number">10</span>
+          <i className="widget glyphicon glyphicon-tasks" onClick={this.togglePlayList}></i>
+          <span className="tasks-number">{this.props.playList.length}</span>
+          <div className="tasks-box" onClick={this.togglePlayListBox} style={{display: this.state.playListBox?"block":"none"}}>
+            <div className="title">播放列表</div>
+            <div className="content">
+              <table>
+                <tbody>
+                {
+                  this.props.playList.map(function(song){
+                    i+=1;
+                    return(
+                      <tr className={(i==this.state.num?"active":"")+" tr"+i%2}>
+                        <td className="status"><i className="glyphicon glyphicon-play"></i></td>
+                        <td className="name" id={"song-"+i} onClick={this.switchPlay}>{song.name}</td>
+                        <td className="artists">{song.artists[0].name}</td>
+                      </tr>
+                    )
+                  }.bind(this))
+                }
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+      <div className="small-album grey">
+        <div className="cover"><img src={song.album.picUrl} /></div>
+        <div className="info">
+          <a href="#" className="name"><span>{song.name}</span></a>
+          <a href="#" className="artist"><span>{song.artists[0].name}</span></a>
+        </div>
+        <div className="tools">
+          <i className="glyphicon glyphicon-share"></i>
+          <i className="glyphicon glyphicon-heart-empty"></i>
+        </div>
+      </div>
     </div>
     );
   }

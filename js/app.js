@@ -3,9 +3,8 @@ import ReactDom from 'react-dom';
 import Router from 'react-router';
 import { DefaultRoute, Link, Route, RouteHandler, IndexRoute } from 'react-router';
 
-
-import Login from './components/login.js';
-import Index from './components/index.js';
+import Discover from './components/discover.js';
+import Songlist from './components/songlist.js';
 
 import Toolbar from './components/toolbar.js';
 import Nav from './components/nav.js';
@@ -25,7 +24,9 @@ let App = React.createClass({
     store.getState = function(){
       return that.state;
     }
-    return store.getInitState();
+    var state = store.getInitState();
+    this.isLogin = state.isLogin;
+    return state;
   }, 
   login: function(username, password){
     action.login(username, password);
@@ -34,18 +35,32 @@ let App = React.createClass({
     action.dispatch(method, data);
   },
   componentDidMount: function(){
-    document.location = "#/index";
+    document.location = "#/discover";
+    if(this.state.isLogin==true){
+      this.isLogin = true;
+      this.action("userSonglist", {});
+    }
+  },
+  componentDidUpdate: function(){
+    if(this.isLogin==false&&this.state.isLogin==true){
+      this.isLogin = true;
+      this.action("userSonglist", {});
+    }
+  },
+  didRestart: function(){
+    this.setState({restart: false});
   },
   render: function(){
-    console.log(this.state);
+    console.log("app render");
+    //console.log(this.state);
     var { ...other } = this.state;
     return (
       <div className="full">
         <Toolbar />
         <Nav {...other} login={this.login}/>
-          <Sidebar />
-          <RouteHandler {...other}/>
-        <Player playList={this.state.playList} action={this.action}/>
+          <Sidebar userSonglist={this.state.userSonglist} action={this.action}/>
+          <RouteHandler currentSonglist={this.state.currentSonglist} action={this.action}/>
+        <Player playList={this.state.playList} didRestart={this.didRestart} restart={this.state.restart} start={this.state.start} action={this.action}/>
       </div>
     )
   }
@@ -53,7 +68,8 @@ let App = React.createClass({
 
 let routes = (
   <Route name="app" path="/" handler={App}>
-    <Route name="index" path="/index" handler={Index}/>
+    <Route name="discover" path="/discover" handler={Discover}/>
+    <Route name="songlist" path="/songlist/:id" handler={Songlist}/>
   </Route>
 );
 
