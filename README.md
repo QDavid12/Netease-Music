@@ -16,8 +16,10 @@ $ npm install && npm start
 ```
 
 ## To Package it
+```
 # like this
 $ electron-packager ./ Music --all --out ~/Music --version 0.36.0 --overwrite
+```
 
 
 

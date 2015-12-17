@@ -23771,6 +23771,8 @@
 	    "playRadio": playRadio
 	};
 
+	function like() {}
+
 	function playRadio(id) {
 	    var play = store.getState("play");
 	    var radio = store.getState("radio");
