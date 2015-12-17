@@ -45,6 +45,7 @@ let App = React.createClass({
     if(this.state.isLogin==true){
       this.isLogin = true;
       this.action("userSonglist", {});
+      this.action("getNewRadio");
     }
   },
   componentDidUpdate: function(){
@@ -55,15 +56,6 @@ let App = React.createClass({
   },
   didRestart: function(){
     this.setState({restart: false});
-  },
-  playRadio:function(num){
-    console.log("playRadio "+num);
-    var radioNum = this.state.radioNum;
-    this.setState({radioNum: num, mode: "radio", restart: true});
-    if(this.state.radio[radioNum+3]==undefined){
-      console.log("load more");
-      this.action("getNewRadio", {});
-    }
   },
   nextRadio: function(){
     console.log("nextRadio");
@@ -90,7 +82,7 @@ let App = React.createClass({
         <Toolbar action={this.action} />
         <Nav {...other} login={this.login}/>
           <Sidebar userSonglist={this.state.userSonglist} action={this.action}/>
-          <RouteHandler {...other} action={this.action} playRadio={this.playRadio}/>
+          <RouteHandler {...other} action={this.action}/>
         <Player {...other} action={this.action}/>
       </div>
     )

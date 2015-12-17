@@ -15,12 +15,21 @@ const methods = {
 }
 
 function playRadio(id){
-    store.setState({
-        radioNum: id, 
-        play: true, 
-        restart: true,
-        radio: true
-    });
+    var play = store.getState("play");
+    var radio = store.getState("radio");
+    if(!radio){
+        return store.setState({
+            radioNum: id, 
+            play: true, 
+            restart: true,
+            radio: true
+        });
+    }
+    else{
+        return store.setState({
+            play: !play
+        })
+    }
 }
 
 function changeNum(num){

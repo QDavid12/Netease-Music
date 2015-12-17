@@ -87,7 +87,10 @@ let Player = React.createClass({
   },
   backClick: function(){
     if(this.props.radio){
-      return this.props.action("last");
+      if(this.props.radioList[this.props.radioNum-1]!=undefined){
+        return this.props.action("last");
+      }
+      return;
     }
     if(this.props.playList.length!=0&&this.props.playList[this.props.num-1]!=undefined){
       this.props.action("last");
@@ -182,6 +185,8 @@ let Player = React.createClass({
     }.bind(this))
   },
   playTimeChange: function(e){
+    //bug
+    return;
     if(this.refs.audio.src==""||this.refs.audio.src==undefined){
       return;
     }
