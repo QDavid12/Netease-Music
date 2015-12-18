@@ -6,6 +6,7 @@ import { DefaultRoute, Link, Route, RouteHandler, IndexRoute } from 'react-route
 import Discover from './components/discover.js';
 import Songlist from './components/songlist.js';
 import Radio from './components/radio.js';
+import Artist from './components/artist.js';
 
 import Toolbar from './components/toolbar.js';
 import Nav from './components/nav.js';
@@ -94,6 +95,7 @@ let routes = (
     <Route name="discover" path="/discover" handler={Discover}/>
     <Route name="songlist" path="/songlist/:id" handler={Songlist}/>
     <Route name="radio" path="/radio" handler={Radio}/>
+    <Route name="artist" path="/artist/:id" handler={Artist}/>
   </Route>
 );
 

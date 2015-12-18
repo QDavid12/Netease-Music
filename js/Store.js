@@ -11,7 +11,8 @@ var store = (function(){
           radioNum: 0,
           mode: "playList",
           play: false,
-          radio: false
+          radio: false,
+          song: false
         }
         for(var x in newstate){
             state[x] = newstate[x];

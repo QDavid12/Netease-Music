@@ -1,5 +1,7 @@
 import React from 'react';
 import PlayListBox from './playListBox';
+import Song from './song.js';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 let Player = React.createClass({
   getInitialState: function(){
@@ -9,7 +11,9 @@ let Player = React.createClass({
       time: "00:00",
       duration: "00:00",
       playListBox: false,
-      mode: this.props.mode
+      mode: this.props.mode,
+      volume: 30,
+      song: false
     }
   },
   componentWillReceiveProps: function(nextProps){
@@ -129,13 +133,13 @@ let Player = React.createClass({
     }.bind(this));
     this.refs.audio.addEventListener("canplay", function(){
       console.log("canplay");
-      //this.setState({playing: true});
     }.bind(this));
     this.refs.audio.addEventListener("durationchange", function(){
       console.log("durationchange" + this.refs.audio.duration);
       this.setDuration();
     }.bind(this));
     this.refs.audio.addEventListener("timeupdate", function(){
+      if(this.onmoving) return;
       this.setTime();
     }.bind(this));
     this.refs.audio.addEventListener("ended", function(){
@@ -148,8 +152,12 @@ let Player = React.createClass({
       if(this.refs.audio.src==""){
         return;
       }
-      this.refs.audio.pause();
+      //this.refs.audio.pause();
       this.onmoving = this.refs.paceCursor;
+    }.bind(this));
+    this.refs.volumeCursor.addEventListener("mousedown", function(e){
+      console.log("mousedown");
+      this.onmoving = this.refs.volumeCursor;
     }.bind(this));
     document.addEventListener("mousemove", function(e){
       if(this.onmoving){
@@ -163,45 +171,69 @@ let Player = React.createClass({
         if(width<=0){
           width = 0;
         }
-        console.log(width);
         var ratio = width/maxWidth;
-        var time = ratio * this.refs.audio.duration;
-        var min = parseInt(time/60);
-        var second = parseInt(time-min*60);
-        var timeStr = (min>9?min.toString():"0"+min) + ":" + (second>9?second.toString():"0"+second);
-        this.setState({pace: (ratio*100).toFixed(2), time: timeStr});
+        console.log(ratio);
+        if(/pace/.test(this.onmoving.className)){
+          var time = ratio * this.refs.audio.duration;
+          var min = parseInt(time/60);
+          var second = parseInt(time-min*60);
+          var timeStr = (min>9?min.toString():"0"+min) + ":" + (second>9?second.toString():"0"+second);
+          this.setState({pace: (ratio*100).toFixed(2), time: timeStr});
+        }
+        else{
+          console.log("volumeCursor");
+          this.refs.audio.volume = ratio;
+          this.setState({volume: (ratio*100).toFixed(2)});
+        }
       }
     }.bind(this));
     document.addEventListener("mouseup", function(e){
       if(this.onmoving){
         console.log("mouseup");
+        if(/pace/.test(this.onmoving.className)){
+          //this.refs.audio.play();
+          this.refs.audio.currentTime = (this.state.pace*this.refs.audio.duration)/100;
+        }
+        else{
+          console.log("volumeCursor mouseup");
+        }
         this.onmoving = false;
-        this.refs.audio.play();
-        this.refs.audio.currentTime = (this.state.pace*this.refs.audio.duration)/100;
       }
     }.bind(this));
     document.addEventListener("mousedown", function(){
       
     }.bind(this))
   },
-  playTimeChange: function(e){
+  paceChange: function(e){
     //bug
-    return;
-    if(this.refs.audio.src==""||this.refs.audio.src==undefined){
+    if(/cursor/.test(e.target.className)){
       return;
     }
     var container = e.target;
+    if(!/pace/.test(container.className)){
+      container = container.parentNode;
+    }
+    var isTime = /time/.test(container.className);
+    if(this.refs.audio.src==""||this.refs.audio.src==undefined){
+      if(isTime) return;
+    }
     var maxWidth = container.offsetWidth;
     var width = e.clientX - getOffset(container);
     console.log(width/maxWidth);
     var ratio = width/maxWidth;
-    var time = ratio * this.refs.audio.duration;
-    var min = parseInt(time/60);
-    var second = parseInt(time-min*60);
-    var timeStr = (min>9?min.toString():"0"+min) + ":" + (second>9?second.toString():"0"+second);
-    this.setState({pace: (ratio*100).toFixed(2), time: timeStr});
-    this.refs.audio.play();
-    this.refs.audio.currentTime = (ratio*this.refs.audio.duration);
+    if(isTime){
+      var time = ratio * this.refs.audio.duration;
+      var min = parseInt(time/60);
+      var second = parseInt(time-min*60);
+      var timeStr = (min>9?min.toString():"0"+min) + ":" + (second>9?second.toString():"0"+second);
+      this.setState({pace: (ratio*100).toFixed(2), time: timeStr});
+      this.refs.audio.play();
+      this.refs.audio.currentTime = (ratio*this.refs.audio.duration);
+    }
+    else{
+      this.refs.audio.volume = ratio;
+      this.setState({volume: (ratio*100).toFixed(2)});
+    }
   },
   togglePlayList: function(){
     this.setState({playListBox: !this.state.playListBox});
@@ -210,6 +242,17 @@ let Player = React.createClass({
     var key = parseInt(e.target.id.split("-")[1]);
     console.log(key);
     this.props.action("changeNum", key);
+  },
+  toggleSong: function(){
+    if(this.props.radio){
+      return;
+    }
+    else{
+      if(this.props.playList.length==0){
+        return;
+      }
+    }
+    this.setState({song: !this.state.song});
   },
   render: function(){
     var playerClass = "control play glyphicon glyphicon-" + (!this.props.play?"play":"pause");
@@ -235,9 +278,9 @@ let Player = React.createClass({
 
         <div className="panel">
           <div className="pace-container">
-            <div className="pace" onClick={this.playTimeChange}>
+            <div className="pace timePace" onClick={this.paceChange}>
               <div className="already" style={{width: this.state.pace+"%"}}>
-                <div className="cursor" ref="paceCursor"><div className="point"></div></div>
+                <div className="cursor paceCursor" ref="paceCursor"><div className="point"></div></div>
               </div>
             </div>
             <div className="time">
@@ -248,9 +291,9 @@ let Player = React.createClass({
         <div className="right">
           <div className="volume-container">
             <i className="glyphicon glyphicon-volume-up"></i>
-            <div className="pace">
-              <div className="already">
-                <div className="cursor"></div>
+            <div className="pace volumePace" onClick={this.paceChange}>
+              <div className="already" style={{width: this.state.volume+"%"}}>
+                <div className="cursor" ref="volumeCursor"></div>
               </div>
             </div>
           </div>
@@ -261,14 +304,20 @@ let Player = React.createClass({
           { playListBox }
         </div>
       <div className="small-album grey">
-        <div className="cover"><img src={song.album.picUrl} /></div>
+        <div className="cover" onClick={this.toggleSong}>
+          <div className="resize"><i className="glyphicon glyphicon-resize-full"></i></div>
+          <img src={song.album.picUrl} />
+        </div>
+        <ReactCSSTransitionGroup transitionName="song-container" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+          {this.state.song?<Song song={song} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
+        </ReactCSSTransitionGroup>
         <div className="info">
-          <a href="#" className="name"><span>{song.name}</span></a>
-          <a href="#" className="artist"><span>{song.artists[0].name}</span></a>
+          <a href="#" className="name overflow"><span>{song.name}</span></a>
+          <a href="#" className="artist overflow"><span>{song.artists[0].name}</span></a>
         </div>
         <div className="tools">
           <i className="glyphicon glyphicon-share"></i>
-          <i className="glyphicon glyphicon-heart-empty"></i>
+          <i className={"glyphicon glyphicon-heart"+(song.starred?"":"-empty")}></i>
         </div>
       </div>
     </div>
