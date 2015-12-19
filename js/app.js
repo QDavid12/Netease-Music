@@ -83,7 +83,7 @@ let App = React.createClass({
         <Toolbar action={this.action} />
         <Nav {...other} login={this.login}/>
           <Sidebar userSonglist={this.state.userSonglist} action={this.action}/>
-          <RouteHandler {...other} action={this.action}/>
+          <RouteHandler {...other} time={this.time} action={this.action}/>
         <Player {...other} action={this.action}/>
       </div>
     )

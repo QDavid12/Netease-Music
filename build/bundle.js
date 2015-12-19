@@ -193,7 +193,7 @@
 
 	    var other = _objectWithoutProperties(this.state, []);
 
-	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], { action: this.action }), _react2['default'].createElement(_componentsNavJs2['default'], _extends({}, other, { login: this.login })), _react2['default'].createElement(_componentsSidebarJs2['default'], { userSonglist: this.state.userSonglist, action: this.action }), _react2['default'].createElement(_reactRouter.RouteHandler, _extends({}, other, { action: this.action })), _react2['default'].createElement(_componentsPlayerJs2['default'], _extends({}, other, { action: this.action })));
+	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], { action: this.action }), _react2['default'].createElement(_componentsNavJs2['default'], _extends({}, other, { login: this.login })), _react2['default'].createElement(_componentsSidebarJs2['default'], { userSonglist: this.state.userSonglist, action: this.action }), _react2['default'].createElement(_reactRouter.RouteHandler, _extends({}, other, { time: this.time, action: this.action })), _react2['default'].createElement(_componentsPlayerJs2['default'], _extends({}, other, { action: this.action })));
 	  }
 	});
 
@@ -23155,28 +23155,40 @@
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
-	"use strict";
+	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
+	Object.defineProperty(exports, '__esModule', {
 	  value: true
 	});
 
 	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { "default": obj };
+	  return obj && obj.__esModule ? obj : { 'default': obj };
 	}
 
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var Radio = _react2["default"].createClass({
-	  displayName: "Radio",
+	var _lyricJs = __webpack_require__(213);
+
+	var _lyricJs2 = _interopRequireDefault(_lyricJs);
+
+	var _commentJs = __webpack_require__(215);
+
+	var _commentJs2 = _interopRequireDefault(_commentJs);
+
+	var Radio = _react2['default'].createClass({
+	  displayName: 'Radio',
 
 	  getInitialState: function getInitialState() {
 	    console.log("radio init");
 	    console.log(this.props.radioList.length);
 	    if (this.props.radioList.length == 0) {
 	      this.props.action("getNewRadio", {});
+	    } else {
+	      this.song = this.props.radioList[this.props.radioNum];
+	      this.props.action("getLyric", this.song.id);
+	      this.props.action("getComments", { "rid": this.song.commentThreadId });
 	    }
 	    return {};
 	  },
@@ -23184,26 +23196,30 @@
 	    console.log("Radio update");
 	    console.log(this.props.radioList);
 	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    var song = nextProps.radioList[nextProps.radioNum];
+	    if (song.id != this.song.id) {
+	      console.log("new song");
+	      this.song = song;
+	      this.props.action("getLyric", song.id);
+	      this.props.action("getComments", { "rid": song.commentThreadId });
+	    }
+	  },
 	  play: function play(e) {
 	    var id = parseInt(e.target.id.split("-")[1]);
 	    //console.log("playRadio "+id);
 	    this.props.action('playRadio', id);
 	  },
 	  render: function render() {
-	    var i = -1;
 	    var buttonClass = "playButton glyphicon glyphicon-" + (this.props.play && this.props.radio ? "pause" : "play");
 	    var thisSong = this.props.radioList[this.props.radioNum];
 	    console.log(thisSong);
-	    return _react2["default"].createElement("div", { className: "main-content-container radio-container" }, _react2["default"].createElement("div", { className: "top" }, this.props.radioList.map((function (song) {
-	      i += 1;
-	      var button = i == this.props.radioNum ? _react2["default"].createElement("i", { className: buttonClass, onClick: this.play, id: "radio-" + i }) : "";
-	      return _react2["default"].createElement("div", { key: song.id, className: i == this.props.radioNum ? "radioCover active" : "radioCover" }, _react2["default"].createElement("img", { src: song.album.picUrl }), button);
-	    }).bind(this)), _react2["default"].createElement("div", { className: "info-container" }, _react2["default"].createElement("div", { className: "name overflow" }, thisSong.name), _react2["default"].createElement("div", { className: "album overflow" }, thisSong.album.name), _react2["default"].createElement("div", { className: "artists overflow" }, thisSong.artists[0].name))));
+	    return _react2['default'].createElement('div', { className: 'main-content-container radio-container' }, _react2['default'].createElement('div', { className: 'top' }, _react2['default'].createElement('div', { key: thisSong.id, className: 'radioCover active' }, _react2['default'].createElement('img', { src: thisSong.album.picUrl }), _react2['default'].createElement('i', { className: buttonClass, onClick: this.play, id: "radio-" + this.props.radioNum })), _react2['default'].createElement('div', { className: 'info-container' }, _react2['default'].createElement(_lyricJs2['default'], { lyric: this.props.lyric, song: this.song, play: this.props.play, time: this.props.time }))), _react2['default'].createElement('div', { className: 'bottom' }, _react2['default'].createElement(_commentJs2['default'], { comments: this.props.comments, id: this.song.commentThreadId })));
 	  }
 	});
 
-	exports["default"] = Radio;
-	module.exports = exports["default"];
+	exports['default'] = Radio;
+	module.exports = exports['default'];
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "radio.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 

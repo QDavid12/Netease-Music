@@ -63,7 +63,7 @@
 .song-container .song-lyric{
   margin-left: 420px;
   width: 550px;
-  height: 400px;
+  height: 450px;
   /* border: 1px solid #111; */
   position: absolute;
   top: 50px;
@@ -250,17 +250,23 @@
 }
 /* radioList */
 .radio-container .top{
-  width: 100%;
+  width: 1000px;
   height: 500px;
   background: #fff;
-  padding: 50px;
+  /* padding: 50px; */
+  margin: 0 auto;
+}
+.radio-container .bottom{
+  width: 800px;
+  margin: 0 auto;
 }
 .radio-container .radioCover{
-  position: absolute;
+  position: relative;
   width: 300px;
   height: 300px;
   left: 80px;
   top: 50px;
+  display: inline-block;  
   z-index: 50;
 }
 .radio-container .radioCover.active{
@@ -298,10 +304,10 @@
   top: 85%;
 }
 .radio-container .info-container{
-  width: -webkit-calc(100% - 400px);
+  width: 500px;
   position: relative;
-  left: 400px;
-  top: -10px;
+  left: 440px;
+  top: -265px;
 }
 .radio-container .info-container .name{
   font-size: 24px;
