@@ -4,6 +4,7 @@ const app = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
 
 const api = require('./js/api/api');
+const Crypto = require('./js/api/Crypto');
 var ipc = require('electron').ipcMain;
 
 // Report crashes to our server.
@@ -57,6 +58,11 @@ app.on('ready', function() {
     api.encode(username, password, function(res){
       ret.returnValue = res;
     })
+  });
+
+  ipc.on('encrypt', function(event, data){
+    var body = Crypto.aesRsaEncrypt(JSON.stringify(data));
+    event.returnValue = body;
   });
 
   ipc.on('close', function(event){

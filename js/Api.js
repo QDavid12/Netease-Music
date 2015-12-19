@@ -144,7 +144,7 @@ function songsDetail(ids, callback) {
         });
     }
 
-export function getSongDetail(ids, callback){
+function getSongDetail(ids, callback){
     var url = 'http://music.163.com/api/song/detail';
     httpRequest('get', url, {ids: '[' + ids.join() + ']'}, function (err, res) {
         if (err) {
@@ -154,6 +154,34 @@ export function getSongDetail(ids, callback){
         var doc = JSON.parse(res.text);
         if (doc.code != 200)callback({msg: '[songsDetail]http code ' + doc.code, type: 1});
         else callback(doc.songs);
+    });
+}
+
+function getLyric(id, callback){
+    var url = 'http://music.163.com/api/song/media';
+    httpRequest('get', url, {id: id}, function (err, res) {
+        if (err) {
+            callback({msg: '[songLyric]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200)callback({msg: '[songLyric]http code ' + doc.code, type: 1});
+        else callback({lyric: doc});
+    });
+}
+
+export function getComments(data, callback) {
+    if(!data.rid){return callback({msg: "params error"});}
+    var url = 'http://music.163.com/weapi/v1/resource/comments/'+data.rid;
+    var body = ipcRenderer.sendSync('encrypt', {"rid": data.rid, "offset": data.offset||0});
+    httpRequest('post', url, body, function (err, res) {
+        if (err) {
+            callback({msg: '[comments]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200)callback({msg: '[comments]http code ' + doc.code, type: 1});
+        else callback({comments: doc});
     });
 }
 
@@ -201,7 +229,9 @@ export function dispatch(method, data, callback){
         "getNewRadio": getNewRadio,
         "maximize": maximize,
         "close": close,
-        "minimize": minimize
+        "minimize": minimize,
+        "getLyric": getLyric,
+        "getComments": getComments
     }
     map[method](data, callback);
 }

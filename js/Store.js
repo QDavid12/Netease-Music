@@ -12,7 +12,9 @@ var store = (function(){
           mode: "playList",
           play: false,
           radio: false,
-          song: false
+          song: false,
+          lyric: undefined,
+          comments: undefined
         }
         for(var x in newstate){
             state[x] = newstate[x];

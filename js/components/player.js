@@ -276,6 +276,10 @@ let Player = React.createClass({
 
         <audio ref="audio"/>
 
+        <ReactCSSTransitionGroup transitionName="song-container" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+          {this.state.song?<Song song={song} comments={this.props.comments} lyric={this.props.lyric} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
+        </ReactCSSTransitionGroup>
+
         <div className="panel">
           <div className="pace-container">
             <div className="pace timePace" onClick={this.paceChange}>
@@ -308,9 +312,6 @@ let Player = React.createClass({
           <div className="resize"><i className="glyphicon glyphicon-resize-full"></i></div>
           <img src={song.album.picUrl} />
         </div>
-        <ReactCSSTransitionGroup transitionName="song-container" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-          {this.state.song?<Song song={song} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
-        </ReactCSSTransitionGroup>
         <div className="info">
           <a href="#" className="name overflow"><span>{song.name}</span></a>
           <a href="#" className="artist overflow"><span>{song.artists[0].name}</span></a>

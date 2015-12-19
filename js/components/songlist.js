@@ -42,7 +42,7 @@ let Songlist = React.createClass({
       return (
         <div className="main-content-container songlist">
           <div className="info-container">
-            <div className="cover"><img src={songlist.coverImgUrl}/></div>
+            <div className="cover"><img className="reflect" src={songlist.coverImgUrl}/></div>
             <div className="info">
               <div className="songlabel">歌单</div>
               <span className="triangle-up"></span>
