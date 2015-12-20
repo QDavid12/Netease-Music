@@ -14,7 +14,11 @@ var store = (function(){
           radio: false,
           song: false,
           lyric: undefined,
-          comments: undefined
+          FMlyric: undefined,
+          comments: undefined,
+          FMcomments: undefined,
+          time: "00:00",
+          pace: 0
         }
         for(var x in newstate){
             state[x] = newstate[x];

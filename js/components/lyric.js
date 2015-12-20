@@ -35,7 +35,7 @@ let Lyric = React.createClass({
         console.log(this.refs[this.props.time].offsetTop);
         //this.refs.container.scrollTop = 120+this.refs[this.props.time].offsetTop;
         var top = -120+this.refs[this.props.time].offsetTop;
-        $("#lyric-scroller").animate({scrollTop: top}, 300);
+        $(this.refs.container).animate({scrollTop: top}, 300);
       }
     }
   },
@@ -80,7 +80,7 @@ let Lyric = React.createClass({
             <div className="album overflow">专辑：{song.album.name}</div>
             <div className="artists overflow">歌手：{song.artists[0].name}</div>
           </div>
-          <div className="lyric" id="lyric-scroller" ref="container">
+          <div className="lyric" ref="container">
             <div className="lyric-scroll" ref="scroll">
               {lyric}
             </div>

@@ -11,11 +11,11 @@ let Radio = React.createClass({
     }
     else{
       this.song = this.props.radioList[this.props.radioNum];
-      this.props.action("getLyric", this.song.id);
-      this.props.action("getComments", {"rid": this.song.commentThreadId});
+      this.props.action("getFMLyric", this.song.id);
+      this.props.action("getFMComments", {"rid": this.song.commentThreadId});
     }
     return {
-
+      time: "00:00"
     }
   },
   componentDidUpdate: function(){
@@ -27,14 +27,28 @@ let Radio = React.createClass({
     if(song.id!=this.song.id){
       console.log("new song");
       this.song = song;
-      this.props.action("getLyric", song.id);
-      this.props.action("getComments", {"rid": song.commentThreadId});
+      this.props.action("getFMLyric", song.id);
+      this.props.action("getFMComments", {"rid": song.commentThreadId});
     }
   },
   play: function(e){
     var id = parseInt(e.target.id.split("-")[1]);
     //console.log("playRadio "+id);
     this.props.action('playRadio', id);
+  },
+  componentDidMount: function(){
+    this.pace = document.getElementById("timeSpan");
+    this.timer = window.setInterval(function(){
+      if(this.props.radio&&this.props.play){
+        //console.log(this.pace.innerHTML);
+        this.setState({time: this.pace.innerHTML})
+      }
+    }.bind(this), 500);
+  },
+  componentWillUnmount: function(){
+    if(this.timer){
+      clearInterval(this.timer);
+    }
   },
   render() {
     var buttonClass = "playButton glyphicon glyphicon-"+(this.props.play&&this.props.radio?"pause":"play");
@@ -50,11 +64,11 @@ let Radio = React.createClass({
             </div>
 
             <div className="info-container">
-              <Lyric lyric={this.props.lyric} song={this.song} play={this.props.play} time={this.props.time}/>
+              <Lyric lyric={this.props.FMlyric} song={this.song} play={this.props.play} time={this.state.time}/>
             </div>
           </div>
           <div className="bottom">
-            <Comment comments={this.props.comments} id={this.song.commentThreadId} />
+            <Comment comments={this.props.FMcomments} id={this.song.commentThreadId} />
           </div>
         </div>
     );

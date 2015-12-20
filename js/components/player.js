@@ -118,7 +118,7 @@ let Player = React.createClass({
     }
   },
   componentDidUpdate: function(){
-    console.log("player update");
+    //console.log("player update");
   },
   componentDidMount: function () {
     console.log("player mount");
@@ -274,7 +274,7 @@ let Player = React.createClass({
         <i onClick={this.playClick} className={playerClass}></i>
         <i onClick={this.nextClick} className="control next glyphicon glyphicon-step-forward"></i>
 
-        <audio ref="audio"/>
+        <audio id="audio" ref="audio"/>
 
         <ReactCSSTransitionGroup transitionName="song-container" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
           {this.state.song?<Song song={song} comments={this.props.comments} lyric={this.props.lyric} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
@@ -288,7 +288,7 @@ let Player = React.createClass({
               </div>
             </div>
             <div className="time">
-              <span>{this.state.time}</span> / <span>{this.state.duration}</span>
+              <span id="timeSpan">{this.state.time}</span> / <span>{this.state.duration}</span>
             </div>
           </div>
         </div>

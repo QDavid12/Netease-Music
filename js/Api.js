@@ -132,17 +132,17 @@ function transfer(results) {
 }
 
 function songsDetail(ids, callback) {
-        var url = 'http://music.163.com/api/song/detail';
-        httpRequest('get', url, {ids: '[' + ids.join() + ']'}, function (err, res) {
-            if (err) {
-                callback({msg: '[songsDetail]http error ' + err, type: 1});
-                return;
-            }
-            var doc = JSON.parse(res.text);
-            if (doc.code != 200)callback({msg: '[songsDetail]http code ' + doc.code, type: 1});
-            else callback(null, doc.songs);
-        });
-    }
+    var url = 'http://music.163.com/api/song/detail';
+    httpRequest('get', url, {ids: '[' + ids.join() + ']'}, function (err, res) {
+        if (err) {
+            callback({msg: '[songsDetail]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200)callback({msg: '[songsDetail]http code ' + doc.code, type: 1});
+        else callback(null, doc.songs);
+    });
+}
 
 function getSongDetail(ids, callback){
     var url = 'http://music.163.com/api/song/detail';
@@ -170,6 +170,19 @@ function getLyric(id, callback){
     });
 }
 
+function getFMLyric(id, callback){
+    var url = 'http://music.163.com/api/song/media';
+    httpRequest('get', url, {id: id}, function (err, res) {
+        if (err) {
+            callback({msg: '[songLyric]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200)callback({msg: '[songLyric]http code ' + doc.code, type: 1});
+        else callback({FMlyric: doc});
+    });
+}
+
 export function getComments(data, callback) {
     if(!data.rid){return callback({msg: "params error"});}
     var url = 'http://music.163.com/weapi/v1/resource/comments/'+data.rid;
@@ -182,6 +195,21 @@ export function getComments(data, callback) {
         var doc = JSON.parse(res.text);
         if (doc.code != 200)callback({msg: '[comments]http code ' + doc.code, type: 1});
         else callback({comments: doc});
+    });
+}
+
+export function getFMComments(data, callback) {
+    if(!data.rid){return callback({msg: "params error"});}
+    var url = 'http://music.163.com/weapi/v1/resource/comments/'+data.rid;
+    var body = ipcRenderer.sendSync('encrypt', {"rid": data.rid, "offset": data.offset||0});
+    httpRequest('post', url, body, function (err, res) {
+        if (err) {
+            callback({msg: '[comments]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200)callback({msg: '[comments]http code ' + doc.code, type: 1});
+        else callback({FMcomments: doc});
     });
 }
 
@@ -231,9 +259,21 @@ export function dispatch(method, data, callback){
         "close": close,
         "minimize": minimize,
         "getLyric": getLyric,
-        "getComments": getComments
+        "getFMLyric": getFMLyric,
+        "getComments": getComments,
+        "getFMComments": getFMComments,
+        "radioLike": radioLike,
+        "radioTrash": radioTrash,
     }
     map[method](data, callback);
+}
+
+function radioLike(){
+
+}
+
+function radioTrash(){
+    
 }
 
 function maximize(data, callback){

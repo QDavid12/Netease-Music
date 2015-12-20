@@ -7,7 +7,7 @@ let Comment = React.createClass({
             var x = p[i];
             var t = new Date(x.time).toLocaleString();
             a.push(
-                <div className="comment" key={x.commentId}>
+                <div className="comment" key={i+t.toString()}>
                     <img className="avatar" src={x.user.avatarUrl}/>
                     <div className="content-container">
                         <span className="nickname" id={x.user.userId}>{x.user.nickname}</span>
@@ -28,13 +28,13 @@ let Comment = React.createClass({
         var comments="loading";
         if(this.props.comments!=undefined){
             comments = [];
-            comments.push(<div className="title"><span className="big">听友评论</span>(已有{this.props.comments.total}条评论)</div>);
+            comments.push(<div key="title0" className="title"><span className="big">听友评论</span>(已有{this.props.comments.total}条评论)</div>);
             if(this.props.comments.hotComments!=undefined){
-                comments.push(<div className="sub-title">热门评论</div>);
+                comments.push(<div key="sub-title0" className="sub-title">热门评论</div>);
                 comments.push(this.comments(this.props.comments.hotComments));
             }
             if(this.props.comments.comments!=undefined){
-                comments.push(<div className="sub-title">最新评论</div>);
+                comments.push(<div key="sub-title1" className="sub-title">最新评论</div>);
                 comments.push(this.comments(this.props.comments.comments));
             }
         }

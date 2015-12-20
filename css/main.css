@@ -253,7 +253,6 @@
   width: 1000px;
   height: 500px;
   background: #fff;
-  /* padding: 50px; */
   margin: 0 auto;
 }
 .radio-container .bottom{
@@ -267,10 +266,9 @@
   left: 80px;
   top: 50px;
   display: inline-block;  
-  z-index: 50;
 }
 .radio-container .radioCover.active{
-  z-index: 51;
+  z-index: 0;
 }
 .radio-container .radioCover img{
   width: 100%;
