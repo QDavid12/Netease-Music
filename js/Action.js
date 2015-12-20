@@ -14,6 +14,9 @@ const methods = {
     "playRadio": playRadio
 }
 
+export function getUrl(id){
+    return api.getUrl(id);
+}
 
 function like(){
     

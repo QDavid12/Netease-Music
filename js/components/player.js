@@ -112,7 +112,7 @@ let Player = React.createClass({
     }
     if(song!=undefined){
       this.setState({pace: 0, time: "00:00"})
-      audio.src = song.mp3Url;
+      audio.src = this.props.getUrl(song.hMusic.dfsId);
       audio.load();
       audio.play();
     }

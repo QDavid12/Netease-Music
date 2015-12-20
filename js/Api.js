@@ -36,7 +36,7 @@ var httpRequest = function (method, url, data, callback) {
     req.set(header).timeout(10000).end(callback);
 }
 
-export function getNewRadio(data, callback) {
+function getNewRadio(data, callback) {
     var url = 'http://music.163.com/api/radio/get';
     httpRequest('get', url, null, function (err, res) {
         if (err) {
@@ -49,7 +49,7 @@ export function getNewRadio(data, callback) {
     });
 }
 
-export function userSonglist(data, callback) {
+function userSonglist(data, callback) {
     // [uid],[offset],[limit],callback
     var uid = config.profile.userId;
     if (!uid) {
@@ -78,7 +78,7 @@ export function userSonglist(data, callback) {
     });
 }
 
-export function songlistDetail(id, callback) {
+function songlistDetail(id, callback) {
     var url = 'http://music.163.com/api/playlist/detail';
     var data = {"id": id}
     //var that = this;
@@ -183,7 +183,7 @@ function getFMLyric(id, callback){
     });
 }
 
-export function getComments(data, callback) {
+function getComments(data, callback) {
     if(!data.rid){return callback({msg: "params error"});}
     var url = 'http://music.163.com/weapi/v1/resource/comments/'+data.rid;
     var body = ipcRenderer.sendSync('encrypt', {"rid": data.rid, "offset": data.offset||0});
@@ -198,7 +198,7 @@ export function getComments(data, callback) {
     });
 }
 
-export function getFMComments(data, callback) {
+function getFMComments(data, callback) {
     if(!data.rid){return callback({msg: "params error"});}
     var url = 'http://music.163.com/weapi/v1/resource/comments/'+data.rid;
     var body = ipcRenderer.sendSync('encrypt', {"rid": data.rid, "offset": data.offset||0});
@@ -210,6 +210,62 @@ export function getFMComments(data, callback) {
         var doc = JSON.parse(res.text);
         if (doc.code != 200)callback({msg: '[comments]http code ' + doc.code, type: 1});
         else callback({FMcomments: doc});
+    });
+}
+
+function like(data, callback){
+    var url = 'http://music.163.com/api/radio/like';
+    var params = {
+        like: data.like.toString()||"true",
+        trackId: data.id,
+        alg: data.alg||"itembased",
+        time: 25
+    }
+    httpRequest('get', url, params, function (err, res) {
+        if (err) {
+            callback({msg: '[songsDetail]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code == 502) {return callback(doc);}
+        if (doc.code != 200) {return callback({msg: '[like]http code ' + doc.code, type: 1});}
+        else {return callback(doc);}
+    });
+}
+
+function trash(data, callback){
+    var url = 'http://music.163.com/api/trash/add';
+    var params = {
+        songId: data.id,
+        alg: data.alg||"itembased",
+        time: 25
+    }
+    httpRequest('get', url, params, function (err, res) {
+        if (err) {
+            callback({msg: '[trash]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200) {return callback(doc);}
+        else {return callback(doc);}
+    });
+}
+
+function getTrash(data, callback){
+    var url = 'http://music.163.com/api/trash/add';
+    var params = {
+        limit: data.limit||100,
+        total: data.total||true,
+        offset: data.offset||0
+    }
+    httpRequest('get', url, params, function (err, res) {
+        if (err) {
+            callback({msg: '[getTrash]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200) {return callback(doc);}
+        else {return callback(doc);}
     });
 }
 
@@ -227,6 +283,10 @@ export function login(username, password, callback){
         });
         callback(res.body);
     });
+}
+
+export function getUrl(id){
+    return ipcRenderer.sendSync('getUrl', id);
 }
 
 export function init(){
@@ -262,18 +322,10 @@ export function dispatch(method, data, callback){
         "getFMLyric": getFMLyric,
         "getComments": getComments,
         "getFMComments": getFMComments,
-        "radioLike": radioLike,
-        "radioTrash": radioTrash,
+        "like": like,
+        "trash": trash
     }
     map[method](data, callback);
-}
-
-function radioLike(){
-
-}
-
-function radioTrash(){
-    
 }
 
 function maximize(data, callback){

@@ -41,6 +41,9 @@ let App = React.createClass({
   action: function(method, data){
     action.dispatch(method, data);
   },
+  getUrl: function(id){
+    return action.getUrl(id);
+  },
   componentDidMount: function(){
     document.location = "#/discover";
     if(this.state.isLogin==true){
@@ -84,7 +87,7 @@ let App = React.createClass({
         <Nav {...other} login={this.login}/>
           <Sidebar userSonglist={this.state.userSonglist} action={this.action}/>
           <RouteHandler {...other} action={this.action}/>
-        <Player {...other} action={this.action}/>
+        <Player {...other} getUrl={this.getUrl} action={this.action}/>
       </div>
     )
   }

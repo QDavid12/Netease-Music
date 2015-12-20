@@ -154,6 +154,9 @@
 	  action: function action(method, data) {
 	    _action.dispatch(method, data);
 	  },
+	  getUrl: function getUrl(id) {
+	    return _action.getUrl(id);
+	  },
 	  componentDidMount: function componentDidMount() {
 	    document.location = "#/discover";
 	    if (this.state.isLogin == true) {
@@ -193,7 +196,7 @@
 
 	    var other = _objectWithoutProperties(this.state, []);
 
-	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], { action: this.action }), _react2['default'].createElement(_componentsNavJs2['default'], _extends({}, other, { login: this.login })), _react2['default'].createElement(_componentsSidebarJs2['default'], { userSonglist: this.state.userSonglist, action: this.action }), _react2['default'].createElement(_reactRouter.RouteHandler, _extends({}, other, { action: this.action })), _react2['default'].createElement(_componentsPlayerJs2['default'], _extends({}, other, { action: this.action })));
+	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], { action: this.action }), _react2['default'].createElement(_componentsNavJs2['default'], _extends({}, other, { login: this.login })), _react2['default'].createElement(_componentsSidebarJs2['default'], { userSonglist: this.state.userSonglist, action: this.action }), _react2['default'].createElement(_reactRouter.RouteHandler, _extends({}, other, { action: this.action })), _react2['default'].createElement(_componentsPlayerJs2['default'], _extends({}, other, { getUrl: this.getUrl, action: this.action })));
 	  }
 	});
 
@@ -23282,7 +23285,7 @@
 	    if (nextProps.lyric != undefined) {
 	      if (nextProps.lyric.lyric != undefined) {
 	        //update lyric
-	        (0, _jquery2['default'])("#lyric-scroller").animate({ scrollTop: 0 }, 300);
+	        (0, _jquery2['default'])(this.refs.container).animate({ scrollTop: 0 }, 800);
 	        this.lyric = this.transfer(nextProps.lyric.lyric);
 	      } else {
 	        this.lyric = false;
@@ -32965,7 +32968,7 @@
 	    }
 	    if (song != undefined) {
 	      this.setState({ pace: 0, time: "00:00" });
-	      audio.src = song.mp3Url;
+	      audio.src = this.props.getUrl(song.hMusic.dfsId);
 	      audio.load();
 	      audio.play();
 	    }
@@ -34099,6 +34102,7 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	exports.getUrl = getUrl;
 	exports.dispatch = dispatch;
 	exports.login = login;
 	exports.init = init;
@@ -34117,6 +34121,10 @@
 	    "getNewRadio": getNewRadio,
 	    "playRadio": playRadio
 	};
+
+	function getUrl(id) {
+	    return api.getUrl(id);
+	}
 
 	function like() {}
 
@@ -34278,12 +34286,8 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
-	exports.getNewRadio = getNewRadio;
-	exports.userSonglist = userSonglist;
-	exports.songlistDetail = songlistDetail;
-	exports.getComments = getComments;
-	exports.getFMComments = getFMComments;
 	exports.login = login;
+	exports.getUrl = getUrl;
 	exports.init = init;
 	exports.dispatch = dispatch;
 	var ipcRenderer = require('electron').ipcRenderer;
@@ -34496,6 +34500,73 @@
 	    });
 	}
 
+	function like(data, callback) {
+	    var url = 'http://music.163.com/api/radio/like';
+	    var params = {
+	        like: data.like.toString() || "true",
+	        trackId: data.id,
+	        alg: data.alg || "itembased",
+	        time: 25
+	    };
+	    httpRequest('get', url, params, function (err, res) {
+	        if (err) {
+	            callback({ msg: '[songsDetail]http error ' + err, type: 1 });
+	            return;
+	        }
+	        var doc = JSON.parse(res.text);
+	        if (doc.code == 502) {
+	            return callback(doc);
+	        }
+	        if (doc.code != 200) {
+	            return callback({ msg: '[like]http code ' + doc.code, type: 1 });
+	        } else {
+	            return callback(doc);
+	        }
+	    });
+	}
+
+	function trash(data, callback) {
+	    var url = 'http://music.163.com/api/trash/add';
+	    var params = {
+	        songId: data.id,
+	        alg: data.alg || "itembased",
+	        time: 25
+	    };
+	    httpRequest('get', url, params, function (err, res) {
+	        if (err) {
+	            callback({ msg: '[trash]http error ' + err, type: 1 });
+	            return;
+	        }
+	        var doc = JSON.parse(res.text);
+	        if (doc.code != 200) {
+	            return callback(doc);
+	        } else {
+	            return callback(doc);
+	        }
+	    });
+	}
+
+	function getTrash(data, callback) {
+	    var url = 'http://music.163.com/api/trash/add';
+	    var params = {
+	        limit: data.limit || 100,
+	        total: data.total || true,
+	        offset: data.offset || 0
+	    };
+	    httpRequest('get', url, params, function (err, res) {
+	        if (err) {
+	            callback({ msg: '[getTrash]http error ' + err, type: 1 });
+	            return;
+	        }
+	        var doc = JSON.parse(res.text);
+	        if (doc.code != 200) {
+	            return callback(doc);
+	        } else {
+	            return callback(doc);
+	        }
+	    });
+	}
+
 	function login(username, password, callback) {
 	    //console.log(username);
 	    var body = ipcRenderer.sendSync('encode', username, password);
@@ -34510,6 +34581,10 @@
 	        });
 	        callback(res.body);
 	    });
+	}
+
+	function getUrl(id) {
+	    return ipcRenderer.sendSync('getUrl', id);
 	}
 
 	function init() {
@@ -34544,15 +34619,11 @@
 	        "getFMLyric": getFMLyric,
 	        "getComments": getComments,
 	        "getFMComments": getFMComments,
-	        "radioLike": radioLike,
-	        "radioTrash": radioTrash
+	        "like": like,
+	        "trash": trash
 	    };
 	    map[method](data, callback);
 	}
-
-	function radioLike() {}
-
-	function radioTrash() {}
 
 	function maximize(data, callback) {
 	    callback(ipcRenderer.sendSync('maximize'));

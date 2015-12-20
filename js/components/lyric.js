@@ -18,7 +18,7 @@ let Lyric = React.createClass({
     if(nextProps.lyric!=undefined){
       if(nextProps.lyric.lyric!=undefined){
         //update lyric
-        $("#lyric-scroller").animate({scrollTop: 0}, 300);
+        $(this.refs.container).animate({scrollTop: 0}, 800);
         this.lyric = this.transfer(nextProps.lyric.lyric);
       }
       else{

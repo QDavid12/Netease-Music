@@ -85,4 +85,34 @@ app.on('ready', function() {
     mainWindow.minimize();
     event.returnValue = "minimize";
   });
+
+  ipc.on('getUrl', function(event, id){
+    event.returnValue = "http://m2.music.126.net/"+encode(id)+"/"+id+".mp3";
+  })
+
+  function encode(id){
+    var magic = bytearray('3go8&$8*3*3h0k(2)2');
+    var song_id = bytearray(id.toString());
+    var len = magic.length;
+    for(var i=0;i<song_id.length;i++){
+        song_id[i] = song_id[i] ^ magic[i % len]
+    }
+    //YVc3rbICo1Blq8RMGjHLvA==
+    song_id = bytestring(song_id);
+    return Crypto.MD564(song_id).replace(/\//g, "_").replace(/\+/g, "-");
+  }
+  function bytearray(str){
+      var res = [];
+      for(var i=0;i<str.length;i++){
+          res.push(str.substr(i,1).charCodeAt());
+      }
+      return res;
+  }
+  function bytestring(array){
+      var res = "";
+      for(var x in array){
+          res += String.fromCharCode(array[x]);
+      }
+      return res;
+  }
 });
