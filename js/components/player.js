@@ -1,7 +1,11 @@
 import React from 'react';
 import PlayListBox from './playListBox';
 import Song from './song.js';
+import SmallAlbum from './smallAlbum.js';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+
+var api = require('../Api');
+var action = require('../Action');
 
 let Player = React.createClass({
   getInitialState: function(){
@@ -13,7 +17,10 @@ let Player = React.createClass({
       playListBox: false,
       mode: this.props.mode,
       volume: 30,
-      song: false
+      song: false,
+      like: false,
+      chooseList: false,
+      loading: false
     }
   },
   componentWillReceiveProps: function(nextProps){
@@ -100,6 +107,13 @@ let Player = React.createClass({
       this.props.action("last");
     }
   },
+  isLiked: function(){
+    action.isLiked(this.song.id, function(data){
+      console.log("isLiked");
+      console.log(data);
+      this.setState({like: data});
+    }.bind(this))
+  },
   reload: function(nextProps){
     //console.log("playSong");
     var audio = this.refs.audio;
@@ -110,9 +124,16 @@ let Player = React.createClass({
     else{
       var song = nextProps.playList[nextProps.num];
     }
+    this.song = song;
+    this.isLiked();
     if(song!=undefined){
       this.setState({pace: 0, time: "00:00"})
-      audio.src = this.props.getUrl(song.hMusic.dfsId);
+      if(nextProps.radio){
+        audio.src = this.props.getUrl(song.hMusic.dfsId);
+      }
+      else{
+        audio.src = this.props.getUrl(song.h.fid);
+      }
       audio.load();
       audio.play();
     }
@@ -130,9 +151,11 @@ let Player = React.createClass({
     }.bind(this));
     this.refs.audio.addEventListener("loadstart", function(){
       console.log("loadstart");
+      this.setState({loading: true});
     }.bind(this));
     this.refs.audio.addEventListener("canplay", function(){
       console.log("canplay");
+      this.setState({loading: false});
     }.bind(this));
     this.refs.audio.addEventListener("durationchange", function(){
       console.log("durationchange" + this.refs.audio.duration);
@@ -255,9 +278,48 @@ let Player = React.createClass({
     }
     this.setState({song: !this.state.song});
   },
+  like: function(){
+    var like = this.state.like?"false":"true";
+    api.like({"like": like, "id": this.song.id}, function(data){
+      console.log("radio like "+like);
+      console.log(data);
+      this.isLiked();
+      if(data.code==200){
+
+      }
+      else{
+        alert("already in there");
+      }
+    }.bind(this))
+  },
+  plus: function(){
+    this.setState({chooseList: !this.state.chooseList})
+  },
+  returnValue: function(res){
+    console.log("player returnValue");
+    console.log(res);
+    this.plus();
+    if(res=="close") return;
+    else{
+      console.log(res);
+      var song = this.song;
+      api.songlistFunc({trackIds: [song.id], pid: res, op: "add"}, function(res){
+        console.log(res);
+        this.isLiked();
+        if(res.code==200){
+          alert("add ok");
+        }
+        else{
+          alert("already add");
+        }
+      }.bind(this))
+    }
+  },
   render: function(){
     var playerClass = "control play glyphicon glyphicon-" + (!this.props.play?"play":"pause");
     var song = this.props.playList.length==0 ? {album: {picUrl: "./img/logo.png"}, name: "song", artists: [{name: "artist"}]} : this.props.playList[this.props.num];
+    song.album = song.al||song.album;
+    song.artists = song.ar||song.artists;
     if(this.props.radio){
       song = this.props.radioList[this.props.radioNum];
     }
@@ -278,14 +340,17 @@ let Player = React.createClass({
         <audio id="audio" ref="audio"/>
 
         <ReactCSSTransitionGroup transitionName="song-container" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-          {this.state.song?<Song song={song} comments={this.props.comments} lyric={this.props.lyric} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
+          {this.state.song?<Song returnValue={this.returnValue} chooseList={this.state.chooseList} account={this.props.account} userSonglist={this.props.userSonglist} song={song} like={this.like} plus={this.plus} liked={this.state.like} comments={this.props.comments} lyric={this.props.lyric} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
         </ReactCSSTransitionGroup>
 
         <div className="panel">
           <div className="pace-container">
             <div className="pace timePace" onClick={this.paceChange}>
               <div className="already" style={{width: this.state.pace+"%"}}>
-                <div className="cursor paceCursor" ref="paceCursor"><div className="point"></div></div>
+                <div className={"cursor paceCursor"+(this.state.loading?" loading":"")} ref="paceCursor">
+                  <div className="point"></div>
+                  <i className="glyphicon glyphicon-repeat"></i>
+                </div>
               </div>
             </div>
             <div className="time">
@@ -308,20 +373,9 @@ let Player = React.createClass({
           <span className="tasks-number">{this.props.playList.length}</span>
           { playListBox }
         </div>
-      <div className="small-album grey">
-        <div className="cover" onClick={this.toggleSong}>
-          <div className="resize"><i className="glyphicon glyphicon-resize-full"></i></div>
-          <img src={song.album.picUrl} />
-        </div>
-        <div className="info">
-          <a href="#" className="name overflow"><span>{song.name}</span></a>
-          <a href="#" className="artist overflow"><span>{song.artists[0].name}</span></a>
-        </div>
-        <div className="tools">
-          <i className="glyphicon glyphicon-share"></i>
-          <i className={"glyphicon glyphicon-heart"+(song.starred?"":"-empty")}></i>
-        </div>
-      </div>
+      <ReactCSSTransitionGroup transitionName="fade" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+        {this.props.radio?"":<SmallAlbum song={song} liked={this.state.like} toggleSong={this.toggleSong}/>}
+      </ReactCSSTransitionGroup>
     </div>
     );
   }

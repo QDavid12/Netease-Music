@@ -91,7 +91,7 @@ export function likeList(id, callback) {
     });
 }
 
-function songlistDetail(id, callback) {
+/*function songlistDetail(id, callback) {
     var url = 'http://music.163.com/api/playlist/detail';
     var data = {"id": id}
     //var that = this;
@@ -103,7 +103,21 @@ function songlistDetail(id, callback) {
             //else callback(transfer(res.body.result.tracks));
         }
     });
+}*/
+
+export function songlistDetail(id, callback) {
+    var url = 'http://music.163.com/weapi/v3/playlist/detail';
+    var data = {"id": id}
+    data = ipcRenderer.sendSync('encrypt', data);
+    httpRequest('post', url, data, function (err, res) {
+        if (err)callback({msg: '[playlistDetail]http timeout', type: 1});
+        else {
+            callback({currentSonglist: JSON.parse(res.text).playlist, mode: "playList"});
+            //else callback(transfer(res.body.result.tracks));
+        }
+    });
 }
+
 
 function transfer(results) {
     var songList = [];
@@ -319,6 +333,10 @@ export function login(username, password, callback){
 
 export function getUrl(id){
     return ipcRenderer.sendSync('getUrl', id);
+}
+
+export function getImgUrl(id){
+    return ipcRenderer.sendSync('getImgUrl', id);
 }
 
 export function init(){

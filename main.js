@@ -89,6 +89,9 @@ app.on('ready', function() {
   ipc.on('getUrl', function(event, id){
     event.returnValue = "http://m2.music.126.net/"+encode(id)+"/"+id+".mp3";
   })
+  ipc.on('getImgUrl', function(event, id){
+    event.returnValue = "http://p3.music.126.net/"+encode(id)+"/"+id+".jpg";
+  })
 
   function encode(id){
     var magic = bytearray('3go8&$8*3*3h0k(2)2');

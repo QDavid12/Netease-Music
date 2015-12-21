@@ -1,9 +1,23 @@
+/* animate */
+.fade-enter{
+  opacity: 0.01;
+  transition: all 0.3s ease;
+}
+.fade-enter.fade-enter-active{
+  opacity: 1;
+}
+.fade-leave{
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+.fade-leave.fade-leave-active{
+  opacity: 0.01;
+}
 /* song list choose */
 .listChoose{
   width: 400px;
   height: 400px;
   overflow: hidden;
-  border: 1px solid #222;
   position: fixed;
   z-index: 1000;
   top: 50%;
@@ -12,6 +26,7 @@
   margin-top: -200px;
   background: white;
   border-radius: 4px;
+  box-shadow: 0 0 100px #333;
 }
 .listChoose .title{
   width: 100%;
@@ -32,14 +47,14 @@
 .listChoose .title i:hover{
   color: white;
 }
-.listChoose .content{
+.listChoose .choose-content{
   margin-top: 40px;
   overflow-x: hidden;
   overflow-y: scroll;
   height: 360px;
   background: #eee;
 }
-.listChoose .content .item{
+.listChoose .choose-content .item{
   border-bottom: 1px solid #aaa;
   height: 60px;
   cursor: pointer;
@@ -47,29 +62,57 @@
   background: white;
   transition: all ease 0.2s;
 }
-.listChoose .content .item:hover{
+.listChoose .choose-content .item:hover{
   background: #eaeaea;
 }
-.listChoose .content .item img{
+.listChoose .choose-content .item img{
   width: 46px;
   height: 46px;
   position: absolute;
   margin-left: 20px;
   margin-top: 7px;
 }
-.listChoose .content .item .name{
+.listChoose .choose-content .item .name{
   position: relative;
   left: 80px;
   top: 7px;
   font-size: 16px;
 }
-.listChoose .content .item .count{
+.listChoose .choose-content .item .count{
   position: absolute;
   left: 80px;
   top: 30px;
   color: #888;
 }
 /* song container */
+.song-container .song-tools{
+  position: absolute;
+  bottom: 50px;
+  left: 47px;
+}
+.song-container .song-tools .item{
+  background: #fafafa;
+  border-radius: 4px;
+  width: 70px;
+  height: 36px;
+  border: 1px solid #BDBDBD;
+  display: inline-block;
+  margin-right: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px 0 0 10px;
+  color: #555;
+}
+.song-container .song-tools .item:hover{
+  background: #eaeaea;
+  color: #444;
+}
+.song-container .song-tools .item i{
+  font-size: 18px;
+  position: relative;
+  left: -2px;
+  top: 2px;
+}
 @keyframes rotate{
   from{transform:rotate(0deg);}
   to{transform:rotate(360deg);}
@@ -186,6 +229,7 @@
   position: relative;
   width: 100%;
   height: auto;
+  min-height: 1200px;
   margin: 0 auto;
 }
 /* lyric */
@@ -659,6 +703,7 @@
   z-index: 105;
   border: 1px solid #d2d2d2;
   border-left: 0 solid #fff;
+  transition: all 0.5s ease;
 }
 .small-album .tools {
   /* background: white; */
@@ -669,6 +714,11 @@
   top: 16px;
   color: #9b9b9b;
   font-size: 20px;
+}
+.small-album .tools i:last-child{
+  font-size: 22px;
+  position: relative;
+  left: -2px;
 }
 .small-album .cover {
   width: 76px;
@@ -899,6 +949,21 @@
 .player .pace{
   cursor: pointer;
 }
+.player .panel .pace .already .cursor.loading i{
+  display: inline;
+}
+.player .panel .pace .already .cursor.loading .point{
+  display: none;
+}
+.player .panel .pace .already .cursor i{
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  font-size: 13px;
+  color: #999;
+  animation:1.5s linear infinite rotate;
+  display: none;
+}
 .player .panel .pace .cursor .point {
   width: 7px;
   height: 7px;
@@ -944,7 +1009,6 @@
   top: 14px;
   /* background: white; */
 }
-
 .player .panel {
   position: absolute;
   background: transparent!important;
@@ -1213,6 +1277,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   border-right: 1px solid #d2d2d2;
+  transition: all ease 0.3s;
 }
 .sidebar .section {
   margin-bottom: 20px;
@@ -1280,12 +1345,10 @@
   width: 100%;
   height: 80px;
   border-top: 1px solid #d2d2d2;
-  /* border-bottom-left-radius: 5px; */
-  /* border-bottom-right-radius: 5px; */
 }
 /* global */
 .blur{
-  -webkit-filter: blur(25px);
+  -webkit-filter: blur(15px);
 }
 .reflect{
   -webkit-box-reflect: below 0 -webkit-linear-gradient(transparent,transparent 85%,rgba(255,255,255,.2));
@@ -1294,7 +1357,7 @@
   margin: 0;
   padding: 0;
   border: 0;
-  -webkit-user-select:none;/*webkit浏览器*/
+  -webkit-user-select:none;
 }
 html, body, .full {
   overflow: hidden;

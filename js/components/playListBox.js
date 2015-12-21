@@ -16,7 +16,7 @@ let PlayListBox = React.createClass({
                       <tr key={i} className={(i==this.props.num?"active":"")+" tr"+i%2}>
                         <td className="status"><i className="glyphicon glyphicon-play"></i></td>
                         <td className="name" id={"song-"+i} onClick={this.props.switchPlay}>{song.name}</td>
-                        <td className="artists">{song.artists[0].name}</td>
+                        <td className="artists">{song.ar[0].name}</td>
                       </tr>
                     )
                   }.bind(this))

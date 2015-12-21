@@ -6,7 +6,7 @@ let Sidebar = React.createClass({
     console.log("sidebar");
     //console.log(this.props.userSonglist);
     return(
-        <div className="sidebar grey">
+        <div className="sidebar grey" style={{height: "-webkit-calc(100% - "+(this.props.radio?"152px":"252px")+")"}}>
         <div className="section">
 
           <div className="title">推荐</div>

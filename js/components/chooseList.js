@@ -17,7 +17,7 @@ let ChooseList = React.createClass({
         return (
           <div className="listChoose">
             <div className="title">添加到歌单<i className="glyphicon glyphicon-remove" id="close" onClick={this.returnValue}></i></div>
-            <div className="content">
+            <div className="choose-content">
               {
                 userList.map(function(list){
                   return(
