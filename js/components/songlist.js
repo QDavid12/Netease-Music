@@ -42,11 +42,10 @@ let Songlist = React.createClass({
     if(this.props.currentSonglist){
       var songlist = this.props.currentSonglist;
       var j=0;
-      var imgUrl = api.getImgUrl(songlist.coverImgId);
       return (
         <div className="main-content-container songlist">
           <div className="info-container">
-            <div className="cover"><img className="reflect" src={imgUrl}/></div>
+            <div className="cover"><img className="reflect" src={songlist.coverImgUrl}/></div>
             <div className="info">
               <div className="songlabel">歌单</div>
               <span className="triangle-up"></span>
@@ -74,14 +73,14 @@ let Songlist = React.createClass({
                   songlist.tracks.map(function(song){
                     var artists = "";
                     j+=1;
-                    for(var i=0;i<song.ar.length;i++){artists+=(i==0?"":", ")+song.ar[i].name}
+                    for(var i=0;i<song.artists.length;i++){artists+=(i==0?"":", ")+song.artists[i].name}
                     return (
                       <tr className={"song tr"+j%2} key={song.id}>
                         <td className="number">{j<10?"0"+j:j}</td>
                         <td className="controls">操作</td>
                         <td className="name" onClick={this.add} id={song.id}>{song.name}</td>
                         <td className="artists">{artists}</td>
-                        <td className="album">{song.al.name}</td>
+                        <td className="album">{song.album.name}</td>
                         <td className="duration">时长</td>
                         <td className="heat">热度</td>
                       </tr>

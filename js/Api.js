@@ -91,7 +91,7 @@ export function likeList(id, callback) {
     });
 }
 
-/*function songlistDetail(id, callback) {
+export function songlistDetail(id, callback) {
     var url = 'http://music.163.com/api/playlist/detail';
     var data = {"id": id}
     //var that = this;
@@ -103,9 +103,9 @@ export function likeList(id, callback) {
             //else callback(transfer(res.body.result.tracks));
         }
     });
-}*/
+}
 
-export function songlistDetail(id, callback) {
+/*export function songlistDetail(id, callback) {
     var url = 'http://music.163.com/weapi/v3/playlist/detail';
     var data = {"id": id}
     data = ipcRenderer.sendSync('encrypt', data);
@@ -116,7 +116,7 @@ export function songlistDetail(id, callback) {
             //else callback(transfer(res.body.result.tracks));
         }
     });
-}
+}*/
 
 
 function transfer(results) {

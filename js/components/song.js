@@ -7,7 +7,7 @@ let Song = React.createClass({
   getInitialState: function(){
     console.log("Song init");
     this.props.action("getLyric", this.props.song.id);
-    this.props.action("getComments", {"rid": "R_SO_4_"+this.props.song.id});
+    this.props.action("getComments", {"rid": this.props.song.commentThreadId});
     return {
       song: this.props.song
     }
@@ -17,7 +17,7 @@ let Song = React.createClass({
       console.log("new song");
       this.setState({song: nextProps.song});
       this.props.action("getLyric", nextProps.song.id);
-      this.props.action("getComments", {"rid": "R_SO_4_"+nextProps.song.id});
+      this.props.action("getComments", {"rid": nextProps.song.commentThreadId});
     }
   },
   returnValue: function(res){
@@ -38,7 +38,7 @@ let Song = React.createClass({
     }
     return(
         <div className="song-container">
-          <div className="background blur" style={{backgroundImage: "url(http://music.163.com/api/img/blur/"+this.props.song.album.pic+")"}}></div>
+          <div className="background blur" style={{backgroundImage: "url("+this.props.song.album.blurPicUrl+")"}}></div>
           <div className="toggle" onClick={this.props.toggleSong}>
             <i className="glyphicon glyphicon-resize-small"></i>
           </div>
@@ -61,7 +61,7 @@ let Song = React.createClass({
             </div> 
             <div className="bottom">   
               <div className="song-comment">
-                  <Comment comments={this.props.comments} id={"R_SO_4_"+this.props.song.id} />
+                  <Comment comments={this.props.comments} id={this.props.song.commentThreadId} />
               </div>
             </div>
           </div>

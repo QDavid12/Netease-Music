@@ -128,12 +128,7 @@ let Player = React.createClass({
     this.isLiked();
     if(song!=undefined){
       this.setState({pace: 0, time: "00:00"})
-      if(nextProps.radio){
-        audio.src = this.props.getUrl(song.hMusic.dfsId);
-      }
-      else{
-        audio.src = this.props.getUrl(song.h.fid);
-      }
+      audio.src = this.props.getUrl(song.hMusic.dfsId);
       audio.load();
       audio.play();
     }
@@ -318,8 +313,6 @@ let Player = React.createClass({
   render: function(){
     var playerClass = "control play glyphicon glyphicon-" + (!this.props.play?"play":"pause");
     var song = this.props.playList.length==0 ? {album: {picUrl: "./img/logo.png"}, name: "song", artists: [{name: "artist"}]} : this.props.playList[this.props.num];
-    song.album = song.al||song.album;
-    song.artists = song.ar||song.artists;
     if(this.props.radio){
       song = this.props.radioList[this.props.radioNum];
     }
