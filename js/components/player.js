@@ -203,6 +203,7 @@ let Player = React.createClass({
     document.addEventListener("mousedown", function(){
       
     }.bind(this))
+    this.refs.audio.volume = this.state.volume/100;
   },
   paceChange: function(e){
     //bug

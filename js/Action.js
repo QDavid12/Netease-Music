@@ -14,20 +14,28 @@ const methods = {
     "playRadio": playRadio
 }
 
-export function getUrl(id){
-    return api.getUrl(id);
+export function isLiked(id, callback){
+    var lid = store.getState("userSonglist")[0].id;
+    api.likeList(lid, function(data){
+        console.log("likelist refresh");
+        for(var x in data){
+            if(data[x].id==id) return callback(true);
+        }
+        callback(false);
+    })
 }
 
-function like(){
-    
+export function getUrl(id){
+    return api.getUrl(id);
 }
 
 function playRadio(id){
     var play = store.getState("play");
     var radio = store.getState("radio");
+    var radioNum = store.getState("radioNum");
     if(!radio){
         return store.setState({
-            radioNum: id, 
+            radioNum: id||radioNum, 
             play: true, 
             restart: true,
             radio: true

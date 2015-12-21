@@ -23180,6 +23180,13 @@
 
 	var _commentJs2 = _interopRequireDefault(_commentJs);
 
+	var _chooseListJs = __webpack_require__(226);
+
+	var _chooseListJs2 = _interopRequireDefault(_chooseListJs);
+
+	var api = __webpack_require__(225);
+	var action = __webpack_require__(224);
+
 	var Radio = _react2['default'].createClass({
 	  displayName: 'Radio',
 
@@ -23190,30 +23197,29 @@
 	      this.props.action("getNewRadio", {});
 	    } else {
 	      this.song = this.props.radioList[this.props.radioNum];
+	      this.isLiked();
 	      this.props.action("getFMLyric", this.song.id);
 	      this.props.action("getFMComments", { "rid": this.song.commentThreadId });
 	    }
 	    return {
-	      time: "00:00"
+	      time: "00:00",
+	      like: false,
+	      chooseList: false
 	    };
 	  },
 	  componentDidUpdate: function componentDidUpdate() {
-	    console.log("Radio update");
-	    console.log(this.props.radioList);
+	    //console.log("Radio update");
+	    //console.log(this.props.radioList);
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    var song = nextProps.radioList[nextProps.radioNum];
 	    if (song.id != this.song.id) {
 	      console.log("new song");
 	      this.song = song;
+	      this.isLiked();
 	      this.props.action("getFMLyric", song.id);
 	      this.props.action("getFMComments", { "rid": song.commentThreadId });
 	    }
-	  },
-	  play: function play(e) {
-	    var id = parseInt(e.target.id.split("-")[1]);
-	    //console.log("playRadio "+id);
-	    this.props.action('playRadio', id);
 	  },
 	  componentDidMount: function componentDidMount() {
 	    this.pace = document.getElementById("timeSpan");
@@ -23229,11 +23235,80 @@
 	      clearInterval(this.timer);
 	    }
 	  },
+	  isLiked: function isLiked() {
+	    action.isLiked(this.song.id, (function (data) {
+	      console.log("isLiked");
+	      console.log(data);
+	      this.setState({ like: data });
+	    }).bind(this));
+	  },
+	  play: function play(e) {
+	    var id = parseInt(e.target.id.split("-")[1]);
+	    //console.log("playRadio "+id);
+	    this.props.action('playRadio', id);
+	  },
+	  like: function like() {
+	    var like = this.state.like ? "false" : "true";
+	    api.like({ "like": like, "id": this.props.radioList[this.props.radioNum].id }, (function (data) {
+	      console.log("radio like " + like);
+	      console.log(data);
+	      this.isLiked();
+	      if (data.code == 200) {} else {
+	        alert("already in there");
+	      }
+	    }).bind(this));
+	  },
+	  trash: function trash() {
+	    api.trash({ "id": this.props.radioList[this.props.radioNum].id }, (function (data) {
+	      console.log("radio trash");
+	      console.log(data);
+	      if (data.code == 200) {
+	        console.log("trashed");
+	        this.next();
+	      } else {
+	        alert("trash fail");
+	      }
+	    }).bind(this));
+	  },
+	  next: function next() {
+	    if (!this.props.radio) {
+	      this.props.action("playRadio");
+	    }
+	    if (this.props.radioList[this.props.radioNum + 2] == undefined) {
+	      console.log("getNewRadio");
+	      this.props.action("getNewRadio");
+	    }
+	    this.props.action('next');
+	  },
+	  plus: function plus() {
+	    this.setState({ chooseList: !this.state.chooseList });
+	  },
+	  returnValue: function returnValue(res) {
+	    this.plus();
+	    if (res == "close") return;else {
+	      console.log(res);
+	      var song = this.props.radioList[this.props.radioNum];
+	      api.songlistFunc({ trackIds: [song.id], pid: res, op: "add" }, (function (res) {
+	        console.log(res);
+	        this.isLiked();
+	        if (res.code == 200) {
+	          alert("add ok");
+	        } else {
+	          alert("already add");
+	        }
+	      }).bind(this));
+	    }
+	  },
 	  render: function render() {
 	    var buttonClass = "playButton glyphicon glyphicon-" + (this.props.play && this.props.radio ? "pause" : "play");
 	    var thisSong = this.props.radioList[this.props.radioNum];
-	    console.log(thisSong);
-	    return _react2['default'].createElement('div', { className: 'main-content-container radio-container' }, _react2['default'].createElement('div', { className: 'top' }, _react2['default'].createElement('div', { key: thisSong.id, className: 'radioCover active' }, _react2['default'].createElement('img', { src: thisSong.album.picUrl }), _react2['default'].createElement('i', { className: buttonClass, onClick: this.play, id: "radio-" + this.props.radioNum })), _react2['default'].createElement('div', { className: 'info-container' }, _react2['default'].createElement(_lyricJs2['default'], { lyric: this.props.FMlyric, song: this.song, play: this.props.play, time: this.state.time }))), _react2['default'].createElement('div', { className: 'bottom' }, _react2['default'].createElement(_commentJs2['default'], { comments: this.props.FMcomments, id: this.song.commentThreadId })));
+	    //console.log(thisSong);
+	    var like = this.state.like ? "glyphicon glyphicon-heart" : "glyphicon glyphicon-heart-empty";
+	    var chooseList = "";
+	    if (this.state.chooseList) {
+	      chooseList = _react2['default'].createElement(_chooseListJs2['default'], { returnValue: this.returnValue, uid: this.props.account.id, userSonglist: this.props.userSonglist });
+	    }
+	    return _react2['default'].createElement('div', { className: 'main-content-container radio-container' }, _react2['default'].createElement('div', { className: 'top' }, _react2['default'].createElement('div', { key: thisSong.id, className: 'radioCover active' }, _react2['default'].createElement('img', { src: thisSong.album.picUrl }), _react2['default'].createElement('i', { className: buttonClass, onClick: this.play, id: "radio-" + this.props.radioNum })), _react2['default'].createElement('div', { className: 'buttons' }, _react2['default'].createElement('div', { className: 'button like', onClick: this.like }, _react2['default'].createElement('i', { className: like })), _react2['default'].createElement('div', { className: 'button trash', onClick: this.trash }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-trash' })), _react2['default'].createElement('div', { className: 'button next', onClick: this.next }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-step-forward' })), _react2['default'].createElement('div', { className: 'button plus', onClick: this.plus }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-plus' }))), _react2['default'].createElement('div', { className: 'info-container' }, _react2['default'].createElement(_lyricJs2['default'], { lyric: this.props.FMlyric, song: this.song, play: this.props.play, time: this.state.time }))), _react2['default'].createElement('div', { className: 'bottom' }, _react2['default'].createElement(_commentJs2['default'], { comments: this.props.FMcomments, id: this.song.commentThreadId })), chooseList);
 	  }
 	});
 
@@ -32598,7 +32673,7 @@
 	            comments = [];
 	            comments.push(_react2["default"].createElement("div", { key: "title0", className: "title" }, _react2["default"].createElement("span", { className: "big" }, "听友评论"), "(已有", this.props.comments.total, "条评论)"));
 	            if (this.props.comments.hotComments != undefined) {
-	                comments.push(_react2["default"].createElement("div", { key: "sub-title0", className: "sub-title" }, "热门评论"));
+	                comments.push(_react2["default"].createElement("div", { key: "sub-title0", className: "sub-title" }, "精彩评论"));
 	                comments.push(this.comments(this.props.comments.hotComments));
 	            }
 	            if (this.props.comments.comments != undefined) {
@@ -33055,6 +33130,7 @@
 	      }
 	    }).bind(this));
 	    document.addEventListener("mousedown", (function () {}).bind(this));
+	    this.refs.audio.volume = this.state.volume / 100;
 	  },
 	  paceChange: function paceChange(e) {
 	    //bug
@@ -34102,6 +34178,7 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	exports.isLiked = isLiked;
 	exports.getUrl = getUrl;
 	exports.dispatch = dispatch;
 	exports.login = login;
@@ -34122,18 +34199,28 @@
 	    "playRadio": playRadio
 	};
 
+	function isLiked(id, callback) {
+	    var lid = store.getState("userSonglist")[0].id;
+	    api.likeList(lid, function (data) {
+	        console.log("likelist refresh");
+	        for (var x in data) {
+	            if (data[x].id == id) return callback(true);
+	        }
+	        callback(false);
+	    });
+	}
+
 	function getUrl(id) {
 	    return api.getUrl(id);
 	}
 
-	function like() {}
-
 	function playRadio(id) {
 	    var play = store.getState("play");
 	    var radio = store.getState("radio");
+	    var radioNum = store.getState("radioNum");
 	    if (!radio) {
 	        return store.setState({
-	            radioNum: id,
+	            radioNum: id || radioNum,
 	            play: true,
 	            restart: true,
 	            radio: true
@@ -34286,6 +34373,11 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	exports.likeList = likeList;
+	exports.like = like;
+	exports.trash = trash;
+	exports.getTrash = getTrash;
+	exports.songlistFunc = songlistFunc;
 	exports.login = login;
 	exports.getUrl = getUrl;
 	exports.init = init;
@@ -34365,6 +34457,18 @@
 	        if (res.body.code != 200) callback({ msg: '[userPlaylist]http code ' + data.code, type: 1 });else {
 	            res.body.playlist[0].isFirst = true;
 	            callback({ userSonglist: res.body.playlist });
+	        }
+	    });
+	}
+
+	function likeList(id, callback) {
+	    var url = 'http://music.163.com/weapi/v3/playlist/detail';
+	    var data = { "id": id };
+	    data = ipcRenderer.sendSync('encrypt', data);
+	    httpRequest('post', url, data, function (err, res) {
+	        if (err) callback({ msg: '[playlistDetail]http timeout', type: 1 });else {
+	            callback(JSON.parse(res.text).playlist.trackIds);
+	            //else callback(transfer(res.body.result.tracks));
 	        }
 	    });
 	}
@@ -34526,7 +34630,7 @@
 	}
 
 	function trash(data, callback) {
-	    var url = 'http://music.163.com/api/trash/add';
+	    var url = 'http://music.163.com/api/radio/trash/add';
 	    var params = {
 	        songId: data.id,
 	        alg: data.alg || "itembased",
@@ -34564,6 +34668,24 @@
 	        } else {
 	            return callback(doc);
 	        }
+	    });
+	}
+
+	function songlistFunc(data, callback) {
+	    var url = 'http://music.163.com/weapi/playlist/manipulate/tracks';
+	    var data = {
+	        "trackIds": data.trackIds,
+	        "pid": data.pid,
+	        "op": data.op || "add"
+	    };
+	    data = ipcRenderer.sendSync('encrypt', data);
+	    httpRequest('post', url, data, function (err, res) {
+	        if (err) {
+	            callback({ msg: '[songsDetail]http error ' + err, type: 1 });
+	            return;
+	        }
+	        var doc = JSON.parse(res.text);
+	        if (doc.code != 200) callback(doc);else callback(doc);
 	    });
 	}
 
@@ -34638,6 +34760,53 @@
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (module.hot) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Api.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 226 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { "default": obj };
+	}
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var ChooseList = _react2["default"].createClass({
+	  displayName: "ChooseList",
+
+	  returnValue: function returnValue(e) {
+	    var id = e.target.id;
+	    this.props.returnValue(id);
+	  },
+	  render: function render() {
+	    var userList = [];
+	    console.log("chooseList render");
+	    console.log(this.props.uid);
+	    for (var i in this.props.userSonglist) {
+	      if (this.props.userSonglist[i].userId == this.props.uid) {
+	        userList.push(this.props.userSonglist[i]);
+	      }
+	    }
+	    return _react2["default"].createElement("div", { className: "listChoose" }, _react2["default"].createElement("div", { className: "title" }, "添加到歌单", _react2["default"].createElement("i", { className: "glyphicon glyphicon-remove", id: "close", onClick: this.returnValue })), _react2["default"].createElement("div", { className: "content" }, userList.map((function (list) {
+	      return _react2["default"].createElement("div", { key: list.id, id: list.id, className: "item", onClick: this.returnValue }, _react2["default"].createElement("img", { src: list.coverImgUrl }), _react2["default"].createElement("span", { className: "name" }, list.name), _react2["default"].createElement("span", { className: "count" }, list.trackCount, "首"));
+	    }).bind(this))));
+	  }
+	});
+
+	exports["default"] = ChooseList;
+	module.exports = exports["default"];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "chooseList.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }
 /******/ ]);

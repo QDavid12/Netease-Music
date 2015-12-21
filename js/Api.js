@@ -78,6 +78,19 @@ function userSonglist(data, callback) {
     });
 }
 
+export function likeList(id, callback) {
+    var url = 'http://music.163.com/weapi/v3/playlist/detail';
+    var data = {"id": id}
+    data = ipcRenderer.sendSync('encrypt', data);
+    httpRequest('post', url, data, function (err, res) {
+        if (err)callback({msg: '[playlistDetail]http timeout', type: 1});
+        else {
+            callback(JSON.parse(res.text).playlist.trackIds);
+            //else callback(transfer(res.body.result.tracks));
+        }
+    });
+}
+
 function songlistDetail(id, callback) {
     var url = 'http://music.163.com/api/playlist/detail';
     var data = {"id": id}
@@ -213,7 +226,7 @@ function getFMComments(data, callback) {
     });
 }
 
-function like(data, callback){
+export function like(data, callback){
     var url = 'http://music.163.com/api/radio/like';
     var params = {
         like: data.like.toString()||"true",
@@ -233,8 +246,8 @@ function like(data, callback){
     });
 }
 
-function trash(data, callback){
-    var url = 'http://music.163.com/api/trash/add';
+export function trash(data, callback){
+    var url = 'http://music.163.com/api/radio/trash/add';
     var params = {
         songId: data.id,
         alg: data.alg||"itembased",
@@ -251,7 +264,7 @@ function trash(data, callback){
     });
 }
 
-function getTrash(data, callback){
+export function getTrash(data, callback){
     var url = 'http://music.163.com/api/trash/add';
     var params = {
         limit: data.limit||100,
@@ -266,6 +279,25 @@ function getTrash(data, callback){
         var doc = JSON.parse(res.text);
         if (doc.code != 200) {return callback(doc);}
         else {return callback(doc);}
+    });
+}
+
+export function songlistFunc(data, callback) {
+    var url = 'http://music.163.com/weapi/playlist/manipulate/tracks';
+    var data = {
+        "trackIds": data.trackIds,
+        "pid": data.pid,
+        "op": data.op||"add"
+    }
+    data = ipcRenderer.sendSync('encrypt', data);
+    httpRequest('post', url, data, function (err, res) {
+        if (err) {
+            callback({msg: '[songsDetail]http error ' + err, type: 1});
+            return;
+        }
+        var doc = JSON.parse(res.text);
+        if (doc.code != 200)callback(doc);
+        else callback(doc);
     });
 }
 

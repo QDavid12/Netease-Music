@@ -30,7 +30,7 @@ let Comment = React.createClass({
             comments = [];
             comments.push(<div key="title0" className="title"><span className="big">听友评论</span>(已有{this.props.comments.total}条评论)</div>);
             if(this.props.comments.hotComments!=undefined){
-                comments.push(<div key="sub-title0" className="sub-title">热门评论</div>);
+                comments.push(<div key="sub-title0" className="sub-title">精彩评论</div>);
                 comments.push(this.comments(this.props.comments.hotComments));
             }
             if(this.props.comments.comments!=undefined){

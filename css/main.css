@@ -1,3 +1,74 @@
+/* song list choose */
+.listChoose{
+  width: 400px;
+  height: 400px;
+  overflow: hidden;
+  border: 1px solid #222;
+  position: fixed;
+  z-index: 1000;
+  top: 50%;
+  left: 50%;
+  margin-left: -150px;
+  margin-top: -200px;
+  background: white;
+  border-radius: 4px;
+}
+.listChoose .title{
+  width: 100%;
+  height: 40px;
+  background: #222;
+  font-size: 18px;
+  color: #fff;
+  padding: 7px 0 0 10px;
+  position: absolute;
+}
+.listChoose .title i{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #eee;
+  cursor: pointer;
+}
+.listChoose .title i:hover{
+  color: white;
+}
+.listChoose .content{
+  margin-top: 40px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: 360px;
+  background: #eee;
+}
+.listChoose .content .item{
+  border-bottom: 1px solid #aaa;
+  height: 60px;
+  cursor: pointer;
+  position: relative;
+  background: white;
+  transition: all ease 0.2s;
+}
+.listChoose .content .item:hover{
+  background: #eaeaea;
+}
+.listChoose .content .item img{
+  width: 46px;
+  height: 46px;
+  position: absolute;
+  margin-left: 20px;
+  margin-top: 7px;
+}
+.listChoose .content .item .name{
+  position: relative;
+  left: 80px;
+  top: 7px;
+  font-size: 16px;
+}
+.listChoose .content .item .count{
+  position: absolute;
+  left: 80px;
+  top: 30px;
+  color: #888;
+}
 /* song container */
 @keyframes rotate{
   from{transform:rotate(0deg);}
@@ -11,14 +82,10 @@
   height: 0;*/
 }
 .song-container.song-container-enter.song-container-enter-active{
-  /*   width: 100%;
-  height: -webkit-calc(100% - 70px - 80px); */
   overflow: hidden;
   opacity: 1;
 }
 .song-container.song-container-leave{
-  /* width: 100%;
-  height: -webkit-calc(100% - 70px - 80px); */
   transition: all 0.3s ease;
   opacity: 1;
 }
@@ -254,10 +321,43 @@
   height: 500px;
   background: #fff;
   margin: 0 auto;
+  position: relative;
 }
 .radio-container .bottom{
-  width: 800px;
+  width: 900px;
   margin: 0 auto;
+  position: relative;
+  left: 10px;
+}
+.radio-container .buttons{
+  position: absolute;
+  top: 400px;
+  left: 82px;
+}
+.radio-container .buttons .button{
+  display: inline-block;
+  margin-right: 40px;
+  font-size: 24px;
+  color: #888;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #eee;
+  padding: 6px 0 0 7px;
+  cursor: pointer;
+  box-shadow: 0 0 5px #ddd;
+}
+.radio-container .buttons .button:hover{
+  border: 2px solid #ddd;
+}
+.radio-container .buttons .button.like{
+  padding: 7px 0 0 7px;
+}
+.radio-container .buttons .button.next{
+  padding: 5px 0 0 7px;
+}
+.radio-container .buttons .button.plus{
+  padding: 4px 0 0 9px;
 }
 .radio-container .radioCover{
   position: relative;
@@ -282,10 +382,10 @@
   position: absolute;
   display: block;
   border: 2px white solid;
-  width: 50px;
-  height: 50px;
+  width: 51px;
+  height: 51px;
   font-size: 30px;
-  padding: 7px 0 0 9px;
+  padding: 7px 0 0 10px;
   margin-left: -25px;
   margin-top: -25px;
   border-radius: 50%;
