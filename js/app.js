@@ -13,10 +13,6 @@ import Nav from './components/nav.js';
 import Sidebar from './components/sidebar.js';
 import Player from './components/player.js';
 
-function alert(text){
-  console.log(text);
-}
-
 var store = require('./Store');
 var action = require('./Action');
 action.init();
@@ -89,7 +85,7 @@ let App = React.createClass({
       <div className="full">
         <Toolbar action={this.action} />
         <Nav {...other} login={this.login}/>
-          <Sidebar radio={this.state.radio} userSonglist={this.state.userSonglist} action={this.action}/>
+          <Sidebar uid={this.state.account.id} radio={this.state.radio} userSonglist={this.state.userSonglist} action={this.action}/>
           <RouteHandler {...other} action={this.action}/>
         <Player {...other} getUrl={this.getUrl} action={this.action}/>
       </div>

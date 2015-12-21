@@ -3,6 +3,8 @@ import Lyric from './lyric.js';
 import Comment from './comment.js';
 import ChooseList from './chooseList.js';
 
+var alert = require('./alert').alert;
+
 let Song = React.createClass({
   getInitialState: function(){
     console.log("Song init");
@@ -24,10 +26,11 @@ let Song = React.createClass({
     this.props.returnValue(res);
   },
   download: function(){
-    alert("download not work now");
+    console.log(alert);
+    alert("下载暂时不可用哦");
   },
   share: function(){
-    alert("share not work now");
+    alert("分享暂时不可用哦");
   },
   render() {
     //console.log("Song render");

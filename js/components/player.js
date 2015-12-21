@@ -6,6 +6,7 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 var api = require('../Api');
 var action = require('../Action');
+var alert = require('./alert').alert;
 
 let Player = React.createClass({
   getInitialState: function(){
@@ -280,10 +281,10 @@ let Player = React.createClass({
       console.log(data);
       this.isLiked();
       if(data.code==200){
-
+        alert(like=="true"?"收藏成功":"已取消收藏");
       }
       else{
-        alert("already in there");
+        alert("已经喜欢过了哦");
       }
     }.bind(this))
   },
@@ -302,10 +303,10 @@ let Player = React.createClass({
         console.log(res);
         this.isLiked();
         if(res.code==200){
-          alert("add ok");
+          alert("收藏成功");
         }
         else{
-          alert("already add");
+          alert("已经在歌单中啦");
         }
       }.bind(this))
     }

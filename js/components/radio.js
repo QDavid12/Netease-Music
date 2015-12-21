@@ -5,6 +5,7 @@ import ChooseList from './chooseList.js';
 
 var api = require('../Api');
 var action = require('../Action');
+var alert = require('./alert').alert;
 
 let Radio = React.createClass({
   getInitialState: function(){
@@ -72,10 +73,10 @@ let Radio = React.createClass({
       console.log(data);
       this.isLiked()
       if(data.code==200){
-
+        alert(like=="true"?"收藏成功":"已取消收藏");
       }
       else{
-        alert("already in there");
+        alert("已经在列表中啦");
       }
     }.bind(this))
   },
@@ -84,11 +85,11 @@ let Radio = React.createClass({
       console.log("radio trash");
       console.log(data);
       if(data.code==200){
-        console.log("trashed");
+        alert("已放入垃圾箱");
         this.next();
       }
       else{
-        alert("trash fail");
+        alert("放入垃圾箱失败");
       }
     }.bind(this))
   },
@@ -115,10 +116,10 @@ let Radio = React.createClass({
         console.log(res);
         this.isLiked();
         if(res.code==200){
-          alert("add ok");
+          alert("收藏成功");
         }
         else{
-          alert("already add");
+          alert("已经在列表中啦");
         }
       }.bind(this))
     }

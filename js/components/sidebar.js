@@ -5,6 +5,17 @@ let Sidebar = React.createClass({
   render() {
     console.log("sidebar");
     //console.log(this.props.userSonglist);
+    var subscribedLists = [];
+    var myLists = [];
+    for(var i in this.props.userSonglist){
+      var list = this.props.userSonglist[i];
+      if(list.userId == this.props.uid){
+        myLists.push(list);
+      }
+      else{
+        subscribedLists.push(list);
+      }
+    }
     return(
         <div className="sidebar grey" style={{height: "-webkit-calc(100% - "+(this.props.radio?"152px":"252px")+")"}}>
         <div className="section">
@@ -76,13 +87,34 @@ let Sidebar = React.createClass({
           <div className="title">创建的歌单<i className="glyphicon glyphicon-plus-sign"></i></div>
 
           {
-            this.props.userSonglist.map(function (list) {
+            myLists.map(function (list) {
               var listClass = "glyphicon glyphicon-" + (list["isFirst"]?"heart-empty":"list");
               return (
-                <Link to={"/songlist/"+list.id} key={list.id}>
+                <Link to={"/songlist/"+list.id} query={list} key={list.id}>
                   <div className="list">
                     <div className="content">
                       <i className={listClass}></i>
+                      <span className="name">{list.name}</span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })
+          }
+
+        </div>
+
+        <div className="section">
+
+          <div className="title">收藏的歌单</div>
+
+          {
+            subscribedLists.map(function (list) {
+              return (
+                <Link to={"/songlist/"+list.id} query={list} key={list.id}>
+                  <div className="list">
+                    <div className="content">
+                      <i className="glyphicon glyphicon-list"></i>
                       <span className="name">{list.name}</span>
                     </div>
                   </div>
