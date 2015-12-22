@@ -124,6 +124,10 @@
   padding: 5px 0 0 10px;
   color: #555;
 }
+.song-container .song-tools .item.downloaded{
+  background: #eaeaea;
+  color: #444;
+}
 .song-container .song-tools .item:hover{
   background: #eaeaea;
   color: #444;
@@ -525,7 +529,24 @@
 }
 .songlist .tracklist table .controls{
   width: 80px;
-  width: -webkit-calc(8%);
+  width: -webkit-calc(8%);    
+  color: #aaa;
+  font-size: 18px;
+  padding: 0 5px 0 15px;
+}
+.songlist .tracklist table .controls i:first-child{
+  margin-right: 10px;
+  cursor: pointer;
+}
+.songlist .tracklist table .controls .glyphicon-ok{
+  color: #4040C3;
+}
+.songlist .tracklist table .controls .glyphicon-download-alt:hover{
+  color: #333;
+  cursor: pointer;
+}
+.songlist .tracklist table .controls .glyphicon-heart-empty:hover{
+  color: #333;
 }
 .songlist .tracklist table .name{
   width: 200px;

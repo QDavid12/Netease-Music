@@ -4,6 +4,7 @@ import Comment from './comment.js';
 import ChooseList from './chooseList.js';
 
 var alert = require('./alert').alert;
+var action = require('../Action');
 
 let Song = React.createClass({
   getInitialState: function(){
@@ -26,8 +27,12 @@ let Song = React.createClass({
     this.props.returnValue(res);
   },
   download: function(){
-    console.log(alert);
-    alert("下载暂时不可用哦");
+    //console.log(alert);
+    if(this.props.downloaded){
+      return alert("已经下载过啦");
+    }
+    alert("已添加到下载列表");
+    action.download(this.state.song);
   },
   share: function(){
     alert("分享暂时不可用哦");
@@ -58,7 +63,7 @@ let Song = React.createClass({
               <div className="song-tools">
                 <div className="item" onClick={this.props.like}><i className={"glyphicon glyphicon-heart"+(this.props.liked?"":"-empty")}></i>喜欢</div>
                 <div className="item" onClick={this.props.plus}><i className="glyphicon glyphicon-plus-sign"></i>收藏</div>
-                <div className="item" onClick={this.download}><i className="glyphicon glyphicon-download-alt"></i>下载</div>
+                <div className={"item"+(this.props.downloaded?" downloaded":"")} onClick={this.download}><i className="glyphicon glyphicon-download-alt"></i>下载</div>
                 <div className="item" onClick={this.share}><i className="glyphicon glyphicon-share"></i>分享</div>
               </div>
             </div> 

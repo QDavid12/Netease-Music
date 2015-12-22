@@ -1,5 +1,6 @@
 'use strict';
 const electron = require('electron');
+const fs = require('fs');
 const app = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
 
@@ -91,6 +92,14 @@ app.on('ready', function() {
   })
   ipc.on('getImgUrl', function(event, id){
     event.returnValue = "http://p3.music.126.net/"+encode(id)+"/"+id+".jpg";
+  })
+
+  ipc.on('saveConfig', function(event, config, path){
+    fs.writeFileSync(path, config, {flag: "w+"});
+    /*var fileWriteStream = fs.createWriteStream(path.config, {flag: "w+"});
+    fileWriteStream.write(JSON.stringify(config, null, 0));
+    fileWriteStream.end();*/
+    event.returnValue = true;
   })
 
   function encode(id){

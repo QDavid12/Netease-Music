@@ -39,6 +39,11 @@ let Songlist = React.createClass({
   playAll: function(){
     this.props.action("changePlayList", this.props.currentSonglist.tracks);
   },
+  like: function(e){
+    var id = e.target.id;
+    console.log(id in this.props.likelist);
+    action.like({like: !(id in this.props.likelist), id: id})
+  },
   render: function(){
     console.log("songlist render");
     console.log(this.props.currentSonglist);
@@ -57,7 +62,10 @@ let Songlist = React.createClass({
           list.push(
             <tr className={"song tr"+key%2} key={song.id}>
               <td className="number">{key<10?"0"+(key+1):(key+1)}</td>
-              <td className="controls">操作</td>
+              <td className="controls">
+                <i id={song.id} onClick={this.like} className={"glyphicon glyphicon-heart"+(song.id in this.props.likelist?"":"-empty")}></i>
+                <i className={"glyphicon glyphicon-"+(song.id in this.props.downloadedList?"ok":"download-alt")}></i>
+              </td>
               <td className="name" onClick={this.add} id={song.id}>{song.name}</td>
               <td className="artists">{artists}</td>
               <td className="album">{song.album.name}</td>

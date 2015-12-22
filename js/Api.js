@@ -24,6 +24,50 @@ try{
 }
 catch(e){
     console.log("config not found");
+/*    if (!fs.existsSync(path.config)) {
+        fs.mkdirSync(path.config);
+    }*/
+}
+// init some config and timer
+path.music = config.music||"./music/"
+var connected = true
+
+function saveConfig(){
+    var data = JSON.stringify(config);
+    console.log(data.length);
+/*    fs.writeFile(path.config, data, {flag: "w+"}, function(err){
+        console.log("save success");
+    });*/
+    var pace = 1600;
+    var times = parseInt(data.length/pace)+1;
+    console.log(times);
+    for(var i=0;i<times;i++){
+        fs.writeFileSync(path.config, data.substr(pace*i, pace), {flag: i==0?"w+":"a"});
+    }
+    /*var fileWriteStream = fs.createWriteStream(path.config, {flag: "w+"});
+    fileWriteStream.write();
+    fileWriteStream.end();*/
+    //ipcRenderer.sendSync('saveConfig', data, path.config);
+}
+
+export function init(){
+    var res;
+    if(config.remember){
+        res = {
+            remember: true,
+            profile: config.profile,
+            account: config.account,
+            playList: config.playList
+        }
+        console.log("api init");
+        console.log(res);
+    }
+    else{
+        res = {
+            remember: false
+        }
+    }
+    return res;
 }
 
 var httpRequest = function (method, url, data, callback) {
@@ -37,37 +81,52 @@ var httpRequest = function (method, url, data, callback) {
     req.set(header).timeout(10000).end(callback);
 }
 
-function download(song, action){
-    var dir = root+"/music";
+export function getDonwnloadedList(){
+    return config.downloadedList;
+}
+
+export function download(song, callback, endcall){
+    var dir = config.music||"./music/";
     var id = song.hMusic.dfsId;
     //id = "6039617371462119";
     console.log(id);
-    var url = "http://m2.music.126.net/"+encode(id)+"/"+id+".mp3";
+    var url = ipcRenderer.sendSync('getUrl', id);
     console.log(url);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
     }
-    var filename = dir + "/" + song.name + "-" + song.artists[0].name + ".mp3";
+    var filename = song.name + "-" + song.artists[0].name + ".mp3";
     //requests(url).pipe(fs.createWriteStream(filename));
     var pass = 0;
     var total = 0;
     var percent = 0;
+    var writeStream = fs.createWriteStream(dir+filename);
     requests(url)
         .on('response', function(res) {
             console.log(res.statusCode) // 200
             total = parseInt(res.headers["content-length"]);
-            console.log(total) // 'image/png'
+            console.log(total); 
+
           })
         .on('data', function(chunk){
             //console.log(chunk.length);
             pass += chunk.length;
             percent = ((pass/total)*100).toFixed(2);
             console.log(percent+"%");
+            if(callback) callback(song.id, pass, total);
         })
-        .pipe(fs.createWriteStream(filename));
+        .on('end', function(){
+            writeStream.end();
+            config.downloadedList[song.id] = filename;
+            console.log("config");
+            console.log(config);
+            saveConfig();
+            if(endcall) endcall(config.downloadedList);
+        })
+        .pipe(writeStream);
 }
 
-function getNewRadio(data, callback) {
+export function getNewRadio(callback) {
     var url = 'http://music.163.com/api/radio/get';
     httpRequest('get', url, null, function (err, res) {
         if (err) {
@@ -80,7 +139,7 @@ function getNewRadio(data, callback) {
     });
 }
 
-function userSonglist(data, callback) {
+export function userSonglist(callback) {
     // [uid],[offset],[limit],callback
     var uid = config.profile.userId;
     if (!uid) {
@@ -103,20 +162,28 @@ function userSonglist(data, callback) {
         }
         if (res.body.code != 200)callback({msg: '[userPlaylist]http code ' + data.code, type: 1});
         else {
-            res.body.playlist[0].isFirst = true;
-            callback({userSonglist: res.body.playlist});
+            //res.body.playlist[0].isFirst = true;
+            if(callback) callback(res.body.playlist);
+            localStorage.setItem("userSonglist", JSON.stringify(res.body.playlist))
         }
     });
 }
 
-export function likeList(id, callback) {
+export function likelist(id, callback) {
     var url = 'http://music.163.com/weapi/v3/playlist/detail';
     var data = {"id": id}
     data = ipcRenderer.sendSync('encrypt', data);
     httpRequest('post', url, data, function (err, res) {
         if (err)callback({msg: '[playlistDetail]http timeout', type: 1});
         else {
-            callback(JSON.parse(res.text).playlist.trackIds);
+            var likelist = {};
+            var data = JSON.parse(res.text).playlist.trackIds;
+            for(var x in data){
+                likelist[data[x].id] = 1;
+            }
+            callback(likelist);
+            config.likelist = likelist;
+            saveConfig();
             //else callback(transfer(res.body.result.tracks));
         }
     });
@@ -354,41 +421,30 @@ export function login(username, password, callback){
         config["profile"] = res.body.profile;
         config["account"] = res.body.account;
         config["remember"] = true;
+        config["userSonglist"] = [];
+        config["downloadedList"] = {};
+        config["likelist"] = [];
         console.log(res.header['set-cookie']);
-        fs.writeFile(path.config, JSON.stringify(config, null, 4), {flag: "w+"}, function(err) {
+        saveConfig();
+        /*fs.writeFile(path.config, JSON.stringify(config, null, 0), {flag: "w+"}, function(err) {
             console.log(err);
-        });
+        });*/
         callback(res.body);
     });
 }
 
-export function getUrl(id){
-    return ipcRenderer.sendSync('getUrl', id);
+export function getUrl(song){
+    if(song.id in config.downloadedList){
+        //console.log(config.downloadedList);
+        return path.music+config.downloadedList[song.id];
+    }
+    return ipcRenderer.sendSync('getUrl', song.hMusic.dfsId);
 }
 
 export function getImgUrl(id){
     return ipcRenderer.sendSync('getImgUrl', id);
 }
 
-export function init(){
-    var res;
-    if(config.remember){
-        res = {
-            remember: true,
-            profile: config.profile,
-            account: config.account,
-            playList: config.playList
-        }
-        console.log("api init");
-        console.log(res);
-    }
-    else{
-        res = {
-            remember: false
-        }
-    }
-    return res;
-}
 
 export function dispatch(method, data, callback){
     const map = {

@@ -16,13 +16,12 @@ let Radio = React.createClass({
     }
     else{
       this.song = this.props.radioList[this.props.radioNum];
-      this.isLiked();
+      //this.isLiked();
       this.props.action("getFMLyric", this.song.id);
       this.props.action("getFMComments", {"rid": this.song.commentThreadId});
     }
     return {
       time: "00:00",
-      like: false,
       chooseList: false
     }
   },
@@ -35,7 +34,7 @@ let Radio = React.createClass({
     if(song.id!=this.song.id){
       console.log("new song");
       this.song = song;
-      this.isLiked();
+      //this.isLiked();
       this.props.action("getFMLyric", song.id);
       this.props.action("getFMComments", {"rid": song.commentThreadId});
     }
@@ -54,24 +53,17 @@ let Radio = React.createClass({
       clearInterval(this.timer);
     }
   },
-  isLiked: function(){
-    action.isLiked(this.song.id, function(data){
-      console.log("isLiked");
-      console.log(data);
-      this.setState({like: data});
-    }.bind(this))
-  },
   play: function(e){
     var id = parseInt(e.target.id.split("-")[1]);
     //console.log("playRadio "+id);
     this.props.action('playRadio', id);
   },
   like: function(){
-    var like = this.state.like?"false":"true";
-    api.like({"like": like, "id": this.props.radioList[this.props.radioNum].id}, function(data){
+    var like = (this.song.id in this.props.likelist)?"false":"true";
+    action.like({"like": like, "id": this.song.id}, function(data){
       console.log("radio like "+like);
       console.log(data);
-      this.isLiked()
+      //this.isLiked()
       if(data.code==200){
         alert(like=="true"?"收藏成功":"已取消收藏");
       }
@@ -112,9 +104,9 @@ let Radio = React.createClass({
     else{
       console.log(res);
       var song = this.props.radioList[this.props.radioNum];
-      api.songlistFunc({trackIds: [song.id], pid: res, op: "add"}, function(res){
+      action.songlistFunc({trackIds: [song.id], pid: res, op: "add"}, function(res){
         console.log(res);
-        this.isLiked();
+        //this.isLiked();
         if(res.code==200){
           alert("收藏成功");
         }
@@ -128,7 +120,7 @@ let Radio = React.createClass({
     var buttonClass = "playButton glyphicon glyphicon-"+(this.props.play&&this.props.radio?"pause":"play");
     var thisSong = this.props.radioList[this.props.radioNum];
     //console.log(thisSong);
-    var like = this.state.like?"glyphicon glyphicon-heart":"glyphicon glyphicon-heart-empty";
+    var like = (thisSong.id in this.props.likelist)?"glyphicon glyphicon-heart":"glyphicon glyphicon-heart-empty";
     var chooseList = "";
     if(this.state.chooseList){
       chooseList = <ChooseList returnValue={this.returnValue} uid={this.props.account.id} userSonglist={this.props.userSonglist}/>

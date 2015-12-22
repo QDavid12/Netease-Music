@@ -10,7 +10,7 @@ var alert = require('./alert').alert;
 
 let Player = React.createClass({
   getInitialState: function(){
-    //console.log(this.props);
+    this.song = {id: 0};
     return{
       pace: 0,
       time: "00:00",
@@ -108,13 +108,6 @@ let Player = React.createClass({
       this.props.action("last");
     }
   },
-  isLiked: function(){
-    action.isLiked(this.song.id, function(data){
-      console.log("isLiked");
-      console.log(data);
-      this.setState({like: data});
-    }.bind(this))
-  },
   reload: function(nextProps){
     //console.log("playSong");
     var audio = this.refs.audio;
@@ -126,10 +119,10 @@ let Player = React.createClass({
       var song = nextProps.playList[nextProps.num];
     }
     this.song = song;
-    this.isLiked();
+    //this.isLiked();
     if(song!=undefined){
-      this.setState({pace: 0, time: "00:00"})
-      audio.src = this.props.getUrl(song.hMusic.dfsId);
+      this.setState({pace: 0, time: "00:00", like: song.id in this.props.likelist});
+      audio.src = api.getUrl(song);
       audio.load();
       audio.play();
     }
@@ -275,11 +268,11 @@ let Player = React.createClass({
     this.setState({song: !this.state.song});
   },
   like: function(){
-    var like = this.state.like?"false":"true";
-    api.like({"like": like, "id": this.song.id}, function(data){
+    var like = (this.song.id in this.props.likelist)?"false":"true";
+    action.like({"like": like, "id": this.song.id}, function(data){
       console.log("radio like "+like);
       console.log(data);
-      this.isLiked();
+      //this.isLiked();
       if(data.code==200){
         alert(like=="true"?"收藏成功":"已取消收藏");
       }
@@ -299,9 +292,9 @@ let Player = React.createClass({
     else{
       console.log(res);
       var song = this.song;
-      api.songlistFunc({trackIds: [song.id], pid: res, op: "add"}, function(res){
+      action.songlistFunc({trackIds: [song.id], pid: res, op: "add"}, function(res){
         console.log(res);
-        this.isLiked();
+        //this.isLiked();
         if(res.code==200){
           alert("收藏成功");
         }
@@ -334,7 +327,7 @@ let Player = React.createClass({
         <audio id="audio" ref="audio"/>
 
         <ReactCSSTransitionGroup transitionName="song-container" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-          {this.state.song?<Song returnValue={this.returnValue} chooseList={this.state.chooseList} account={this.props.account} userSonglist={this.props.userSonglist} song={song} like={this.like} plus={this.plus} liked={this.state.like} comments={this.props.comments} lyric={this.props.lyric} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
+          {this.state.song?<Song returnValue={this.returnValue} chooseList={this.state.chooseList} account={this.props.account} userSonglist={this.props.userSonglist} song={song} like={this.like} plus={this.plus} liked={this.song.id in this.props.likelist} downloaded={this.song.id in this.props.downloadedList} comments={this.props.comments} lyric={this.props.lyric} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
         </ReactCSSTransitionGroup>
 
         <div className="panel">
@@ -368,7 +361,7 @@ let Player = React.createClass({
           { playListBox }
         </div>
       <ReactCSSTransitionGroup transitionName="fade" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-        {this.props.radio?"":<SmallAlbum song={song} liked={this.state.like} toggleSong={this.toggleSong}/>}
+        {this.props.radio?"":<SmallAlbum song={song} liked={this.song.id in this.props.likelist} toggleSong={this.toggleSong}/>}
       </ReactCSSTransitionGroup>
     </div>
     );

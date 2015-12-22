@@ -18,7 +18,9 @@ var store = (function(){
           comments: undefined,
           FMcomments: undefined,
           time: "00:00",
-          pace: 0
+          pace: 0,
+          likelist: {},
+          downloadedList: {}
         }
         for(var x in newstate){
             state[x] = newstate[x];

@@ -48,14 +48,13 @@ let App = React.createClass({
     //document.location = "#/discover";
     if(this.state.isLogin==true){
       this.isLogin = true;
-      this.action("userSonglist", {});
-      this.action("getNewRadio");
+      action.getUserState();
     }
   },
   componentDidUpdate: function(){
     if(this.isLogin==false&&this.state.isLogin==true){
       this.isLogin = true;
-      this.action("userSonglist", {});
+      action.getUserState();
     }
   },
   didRestart: function(){
@@ -85,7 +84,7 @@ let App = React.createClass({
       <div className="full">
         <Toolbar action={this.action} />
         <Nav {...other} login={this.login}/>
-          <Sidebar uid={this.state.account.id} radio={this.state.radio} userSonglist={this.state.userSonglist} action={this.action}/>
+          <Sidebar uid={this.state.isLogin?this.state.account.id:0} radio={this.state.radio} userSonglist={this.state.userSonglist} action={this.action}/>
           <RouteHandler {...other} action={this.action}/>
         <Player {...other} getUrl={this.getUrl} action={this.action}/>
       </div>

@@ -14,16 +14,57 @@ const methods = {
     "playRadio": playRadio
 }
 
-export function isLiked(id, callback){
+export function getUserState(){
+    api.userSonglist(function(data){
+        store.setState({userSonglist: data});
+        likelist();
+    })
+    getNewRadio();
+    store.setState({downloadedList: api.getDonwnloadedList()});
+}
+
+export function songlistFunc(data, callback){
+    api.songlistFunc(data, function(res){
+        likelist();
+        callback(res);
+    })
+}
+
+export function like(data, callback){
+    api.like(data, function(res){
+        likelist();
+        if(callback) callback(res);
+    })
+}
+
+export function likelist(){
     var lid = store.getState("userSonglist")[0].id;
-    api.likeList(lid, function(data){
+    api.likelist(lid, function(data){
+        console.log("likelist refresh");
+        store.setState({likelist: data});
+    })
+}
+
+function downloadUpdate(id, pass, total){
+    console.log("song "+id+" percent: "+((pass/total)*100).toFixed(2)+"%");
+}
+
+export function download(song){
+    api.download(song, downloadUpdate, function(downloadedList){
+        store.setState({downloadedList: downloadedList});
+    });
+}
+
+/*export function isLiked(id, callback){
+    var lid = store.getState("userSonglist")[0].id;
+    api.likelist(lid, function(data){
         console.log("likelist refresh");
         for(var x in data){
             if(data[x].id==id) return callback(true);
         }
         callback(false);
     })
-}
+}*/
 
 export function getUrl(id){
     return api.getUrl(id);
@@ -172,7 +213,7 @@ function changePlayList(list){
 function getNewRadio(data){
     console.log("getNewRadio");
     var oldRadio = store.getState("radioList");
-    api.dispatch("getNewRadio", [], function(data){
+    api.getNewRadio(function(data){
         console.log(data);
         for(var x in data.radio){
             oldRadio.push(data.radio[x]);
