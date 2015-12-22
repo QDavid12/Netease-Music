@@ -158,7 +158,7 @@
 	    return _action.getUrl(id);
 	  },
 	  componentDidMount: function componentDidMount() {
-	    document.location = "#/discover";
+	    //document.location = "#/discover";
 	    if (this.state.isLogin == true) {
 	      this.isLogin = true;
 	      this.action("userSonglist", {});
@@ -200,7 +200,7 @@
 	  }
 	});
 
-	var routes = _react2['default'].createElement(_reactRouter.Route, { name: 'app', path: '/', handler: App }, _react2['default'].createElement(_reactRouter.Route, { name: 'discover', path: '/discover', handler: _componentsDiscoverJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'songlist', path: '/songlist/:id', handler: _componentsSonglistJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'radio', path: '/radio', handler: _componentsRadioJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'artist', path: '/artist/:id', handler: _componentsArtistJs2['default'] }));
+	var routes = _react2['default'].createElement(_reactRouter.Route, { name: 'app', path: '/', handler: App }, _react2['default'].createElement(_reactRouter.Route, { name: 'discover', path: '/discover', handler: _componentsDiscoverJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'songlist', path: '/songlist/:id', handler: _componentsSonglistJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'radio', path: '/radio', handler: _componentsRadioJs2['default'] }), _react2['default'].createElement(_reactRouter.Route, { name: 'artist', path: '/artist/:id', handler: _componentsArtistJs2['default'] }), _react2['default'].createElement(_reactRouter.Redirect, { to: 'discover' }));
 
 	_reactRouter2['default'].run(routes, function (Handler) {
 	  _reactDom2['default'].render(_react2['default'].createElement(Handler, null), document.getElementById("app"));
@@ -23190,6 +23190,7 @@
 	exports.dispatch = dispatch;
 	var ipcRenderer = require('electron').ipcRenderer;
 	var request = require('superagent');
+	var requests = require('request');
 	var fs = require('fs');
 
 	var header = {
@@ -23226,6 +23227,33 @@
 	    }
 	    req.set(header).timeout(10000).end(callback);
 	};
+
+	function download(song, action) {
+	    var dir = root + "/music";
+	    var id = song.hMusic.dfsId;
+	    //id = "6039617371462119";
+	    console.log(id);
+	    var url = "http://m2.music.126.net/" + encode(id) + "/" + id + ".mp3";
+	    console.log(url);
+	    if (!fs.existsSync(dir)) {
+	        fs.mkdirSync(dir);
+	    }
+	    var filename = dir + "/" + song.name + "-" + song.artists[0].name + ".mp3";
+	    //requests(url).pipe(fs.createWriteStream(filename));
+	    var pass = 0;
+	    var total = 0;
+	    var percent = 0;
+	    requests(url).on('response', function (res) {
+	        console.log(res.statusCode); // 200
+	        total = parseInt(res.headers["content-length"]);
+	        console.log(total); // 'image/png'
+	    }).on('data', function (chunk) {
+	        //console.log(chunk.length);
+	        pass += chunk.length;
+	        percent = (pass / total * 100).toFixed(2);
+	        console.log(percent + "%");
+	    }).pipe(fs.createWriteStream(filename));
+	}
 
 	function getNewRadio(data, callback) {
 	    var url = 'http://music.163.com/api/radio/get';
@@ -33663,9 +33691,29 @@
 
 	var _reactRouter = __webpack_require__(160);
 
+	var _jquery = __webpack_require__(209);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
 	var Sidebar = _react2['default'].createClass({
 	  displayName: 'Sidebar',
 
+	  active: function active(e) {
+	    //console.log("active");
+	    (0, _jquery2['default'])('.songlist-links').removeClass("active");
+	    this.getlink((0, _jquery2['default'])(e.target)[0]);
+	  },
+	  getlink: function getlink(e) {
+	    console.log(e.tagName);
+	    if (e.tagName == "A") {
+	      //console.log("find");
+	      (0, _jquery2['default'])(e).addClass("active");
+	      return;
+	    } else {
+	      //console.log($(e).parent());
+	      this.getlink((0, _jquery2['default'])(e).parent()[0]);
+	    }
+	  },
 	  render: function render() {
 	    console.log("sidebar");
 	    //console.log(this.props.userSonglist);
@@ -33679,12 +33727,12 @@
 	        subscribedLists.push(list);
 	      }
 	    }
-	    return _react2['default'].createElement('div', { className: 'sidebar grey', style: { height: "-webkit-calc(100% - " + (this.props.radio ? "152px" : "252px") + ")" } }, _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '推荐'), _react2['default'].createElement(_reactRouter.Link, { to: '/discover' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-music' }), _react2['default'].createElement('span', { className: 'name' }, '发现音乐')))), _react2['default'].createElement(_reactRouter.Link, { to: '/radio' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-headphones' }), _react2['default'].createElement('span', { className: 'name' }, '私人FM')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-expand' }), _react2['default'].createElement('span', { className: 'name' }, 'MV')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-user' }), _react2['default'].createElement('span', { className: 'name' }, '朋友'))))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '我的音乐', _react2['default'].createElement('i', { className: 'glyphicon glyphicon-menu-right' })), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-folder-open' }), _react2['default'].createElement('span', { className: 'name' }, '本地音乐')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-download-alt' }), _react2['default'].createElement('span', { className: 'name' }, '下载的音乐'))))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '创建的歌单', _react2['default'].createElement('i', { className: 'glyphicon glyphicon-plus-sign' })), myLists.map(function (list) {
+	    return _react2['default'].createElement('div', { className: 'sidebar grey', style: { height: "-webkit-calc(100% - " + (this.props.radio ? "152px" : "252px") + ")" } }, _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '推荐'), _react2['default'].createElement(_reactRouter.Link, { to: '/discover' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-music' }), _react2['default'].createElement('span', { className: 'name' }, '发现音乐')))), _react2['default'].createElement(_reactRouter.Link, { to: '/radio' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-headphones' }), _react2['default'].createElement('span', { className: 'name' }, '私人FM')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-expand' }), _react2['default'].createElement('span', { className: 'name' }, 'MV')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-user' }), _react2['default'].createElement('span', { className: 'name' }, '朋友'))))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '我的音乐', _react2['default'].createElement('i', { className: 'glyphicon glyphicon-menu-right' })), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-folder-open' }), _react2['default'].createElement('span', { className: 'name' }, '本地音乐')))), _react2['default'].createElement(_reactRouter.Link, { to: '/' }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-download-alt' }), _react2['default'].createElement('span', { className: 'name' }, '下载的音乐'))))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '创建的歌单', _react2['default'].createElement('i', { className: 'glyphicon glyphicon-plus-sign' })), myLists.map((function (list) {
 	      var listClass = "glyphicon glyphicon-" + (list["isFirst"] ? "heart-empty" : "list");
-	      return _react2['default'].createElement(_reactRouter.Link, { to: "/songlist/" + list.id, query: list, key: list.id }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: listClass }), _react2['default'].createElement('span', { className: 'name' }, list.name))));
-	    })), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '收藏的歌单'), subscribedLists.map(function (list) {
-	      return _react2['default'].createElement(_reactRouter.Link, { to: "/songlist/" + list.id, query: list, key: list.id }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-list' }), _react2['default'].createElement('span', { className: 'name' }, list.name))));
-	    })));
+	      return _react2['default'].createElement(_reactRouter.Link, { onClick: this.active, className: 'songlist-links', to: "/songlist/" + list.id, query: list, key: list.id }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: listClass }), _react2['default'].createElement('span', { className: 'name' }, list.name))));
+	    }).bind(this))), _react2['default'].createElement('div', { className: 'section' }, _react2['default'].createElement('div', { className: 'title' }, '收藏的歌单'), subscribedLists.map((function (list) {
+	      return _react2['default'].createElement(_reactRouter.Link, { onClick: this.active, className: 'songlist-links', to: "/songlist/" + list.id, query: list, key: list.id }, _react2['default'].createElement('div', { className: 'list' }, _react2['default'].createElement('div', { className: 'content' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-list' }), _react2['default'].createElement('span', { className: 'name' }, list.name))));
+	    }).bind(this))));
 	  }
 	});
 

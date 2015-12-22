@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 import Router from 'react-router';
-import { DefaultRoute, Link, Route, RouteHandler, IndexRoute } from 'react-router';
+import { DefaultRoute, Link, Route, RouteHandler, Redirect } from 'react-router';
 
 import Discover from './components/discover.js';
 import Songlist from './components/songlist.js';
@@ -45,7 +45,7 @@ let App = React.createClass({
     return action.getUrl(id);
   },
   componentDidMount: function(){
-    document.location = "#/discover";
+    //document.location = "#/discover";
     if(this.state.isLogin==true){
       this.isLogin = true;
       this.action("userSonglist", {});
@@ -99,6 +99,7 @@ let routes = (
     <Route name="songlist" path="/songlist/:id" handler={Songlist}/>
     <Route name="radio" path="/radio" handler={Radio}/>
     <Route name="artist" path="/artist/:id" handler={Artist}/>
+    <Redirect to="discover"/>
   </Route>
 );
 

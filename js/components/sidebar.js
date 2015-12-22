@@ -1,7 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router';
+import $ from 'jquery'
 
 let Sidebar = React.createClass({
+  active(e) {
+    //console.log("active");
+    $('.songlist-links').removeClass("active");
+    this.getlink($(e.target)[0]);
+  },
+  getlink(e){
+    console.log(e.tagName);
+    if(e.tagName=="A"){
+      //console.log("find");
+      $(e).addClass("active");
+      return;
+    }
+    else{
+      //console.log($(e).parent());
+      this.getlink($(e).parent()[0]);
+    }
+  },
   render() {
     console.log("sidebar");
     //console.log(this.props.userSonglist);
@@ -90,7 +108,7 @@ let Sidebar = React.createClass({
             myLists.map(function (list) {
               var listClass = "glyphicon glyphicon-" + (list["isFirst"]?"heart-empty":"list");
               return (
-                <Link to={"/songlist/"+list.id} query={list} key={list.id}>
+                <Link onClick={this.active} className="songlist-links" to={"/songlist/"+list.id} query={list} key={list.id}>
                   <div className="list">
                     <div className="content">
                       <i className={listClass}></i>
@@ -99,7 +117,7 @@ let Sidebar = React.createClass({
                   </div>
                 </Link>
               )
-            })
+            }.bind(this))
           }
 
         </div>
@@ -111,7 +129,7 @@ let Sidebar = React.createClass({
           {
             subscribedLists.map(function (list) {
               return (
-                <Link to={"/songlist/"+list.id} query={list} key={list.id}>
+                <Link onClick={this.active} className="songlist-links" to={"/songlist/"+list.id} query={list} key={list.id}>
                   <div className="list">
                     <div className="content">
                       <i className="glyphicon glyphicon-list"></i>
@@ -120,7 +138,7 @@ let Sidebar = React.createClass({
                   </div>
                 </Link>
               )
-            })
+            }.bind(this))
           }
 
         </div>

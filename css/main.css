@@ -1329,6 +1329,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  transition: all ease 0.15s;
 }
 .sidebar .list:hover {
   background: #ccc;

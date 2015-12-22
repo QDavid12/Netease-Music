@@ -1,5 +1,6 @@
 var ipcRenderer = require('electron').ipcRenderer;
 var request = require('superagent');
+var requests = require('request');
 var fs = require('fs');
 
 var header = {
@@ -34,6 +35,36 @@ var httpRequest = function (method, url, data, callback) {
     }
     if (config.cookie) {req.set('Cookie', config.cookie);}
     req.set(header).timeout(10000).end(callback);
+}
+
+function download(song, action){
+    var dir = root+"/music";
+    var id = song.hMusic.dfsId;
+    //id = "6039617371462119";
+    console.log(id);
+    var url = "http://m2.music.126.net/"+encode(id)+"/"+id+".mp3";
+    console.log(url);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
+    var filename = dir + "/" + song.name + "-" + song.artists[0].name + ".mp3";
+    //requests(url).pipe(fs.createWriteStream(filename));
+    var pass = 0;
+    var total = 0;
+    var percent = 0;
+    requests(url)
+        .on('response', function(res) {
+            console.log(res.statusCode) // 200
+            total = parseInt(res.headers["content-length"]);
+            console.log(total) // 'image/png'
+          })
+        .on('data', function(chunk){
+            //console.log(chunk.length);
+            pass += chunk.length;
+            percent = ((pass/total)*100).toFixed(2);
+            console.log(percent+"%");
+        })
+        .pipe(fs.createWriteStream(filename));
 }
 
 function getNewRadio(data, callback) {
