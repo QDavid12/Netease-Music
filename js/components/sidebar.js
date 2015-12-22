@@ -40,7 +40,7 @@ let Sidebar = React.createClass({
 
           <div className="title">推荐</div>
 
-          <Link to="/discover">
+          <Link onClick={this.active} className="songlist-links" to="/discover">
           <div className="list">
             <div className="content">
               <i className="glyphicon glyphicon-music"></i>
@@ -49,7 +49,7 @@ let Sidebar = React.createClass({
           </div>
           </Link>
 
-          <Link to="/radio">
+          <Link onClick={this.active} className="songlist-links" to="/radio">
           <div className="list">
             <div className="content">
               <i className="glyphicon glyphicon-headphones"></i>
@@ -58,7 +58,7 @@ let Sidebar = React.createClass({
           </div>
           </Link>
 
-          <Link to="/">
+          <Link onClick={this.active} className="songlist-links" to="/">
           <div className="list">
             <div className="content">
               <i className="glyphicon glyphicon-expand"></i>
@@ -67,7 +67,7 @@ let Sidebar = React.createClass({
           </div>
           </Link>
 
-          <Link to="/">
+          <Link onClick={this.active} className="songlist-links" to="/">
           <div className="list">
             <div className="content">
               <i className="glyphicon glyphicon-user"></i>
@@ -81,7 +81,7 @@ let Sidebar = React.createClass({
 
           <div className="title">我的音乐<i className="glyphicon glyphicon-menu-right"></i></div>
 
-          <Link to="/">
+          <Link onClick={this.active} className="songlist-links" to="/">
           <div className="list">
             <div className="content">
               <i className="glyphicon glyphicon-folder-open"></i>
@@ -90,7 +90,7 @@ let Sidebar = React.createClass({
           </div>
           </Link>
 
-          <Link to="/">
+          <Link onClick={this.active} className="songlist-links" to="/">
           <div className="list">
             <div className="content">
               <i className="glyphicon glyphicon-download-alt"></i>
