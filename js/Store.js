@@ -20,7 +20,8 @@ var store = (function(){
           time: "00:00",
           pace: 0,
           likelist: {},
-          downloadedList: {}
+          downloadedList: {},
+          downloadingList: {}
         }
         for(var x in newstate){
             state[x] = newstate[x];

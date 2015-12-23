@@ -327,7 +327,7 @@ let Player = React.createClass({
         <audio id="audio" ref="audio"/>
 
         <ReactCSSTransitionGroup transitionName="song-container" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-          {this.state.song?<Song returnValue={this.returnValue} chooseList={this.state.chooseList} account={this.props.account} userSonglist={this.props.userSonglist} song={song} like={this.like} plus={this.plus} liked={this.song.id in this.props.likelist} downloaded={this.song.id in this.props.downloadedList} comments={this.props.comments} lyric={this.props.lyric} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
+          {this.state.song?<Song returnValue={this.returnValue} chooseList={this.state.chooseList} account={this.props.account} userSonglist={this.props.userSonglist} song={song} like={this.like} plus={this.plus} liked={this.song.id in this.props.likelist} downloading={this.song.id in this.props.downloadingList} downloaded={this.song.id in this.props.downloadedList} comments={this.props.comments} lyric={this.props.lyric} play={this.props.play} time={this.state.time} toggleSong={this.toggleSong} action={this.props.action}/>:""}
         </ReactCSSTransitionGroup>
 
         <div className="panel">

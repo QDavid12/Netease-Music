@@ -31,6 +31,7 @@ let Song = React.createClass({
     if(this.props.downloaded){
       return alert("已经下载过啦");
     }
+    if(this.props.downloading) return alert("已经在下载中啦");
     alert("已添加到下载列表");
     action.download(this.state.song);
   },

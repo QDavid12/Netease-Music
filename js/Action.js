@@ -20,7 +20,7 @@ export function getUserState(){
         likelist();
     })
     getNewRadio();
-    store.setState({downloadedList: api.getDonwnloadedList()});
+    store.setState({downloadedList: api.getDownloadedList()});
 }
 
 export function songlistFunc(data, callback){
@@ -45,26 +45,56 @@ export function likelist(){
     })
 }
 
-function downloadUpdate(id, pass, total){
-    console.log("song "+id+" percent: "+((pass/total)*100).toFixed(2)+"%");
-}
+//download part
+setInterval(function(){
+    var downloadingList = api.getDownloadingList();
+    var downloadedList = api.getDownloadedList();
+    //console.log(downloadingList.length);
+    if(downloadingList.length!=0){
+        updateDownload(downloadedList, downloadingList);
+    }
+}, 1000);
 
-export function download(song){
-    api.download(song, downloadUpdate, function(downloadedList){
-        store.setState({downloadedList: downloadedList});
+function updateDownload(downloadedList, downloadingList){
+    var downloading = {}
+    for(var i in downloadingList){
+        downloading[downloadingList[i].id] = downloadingList[i]
+    }
+    store.setState({
+        downloadingList: downloading,
+        downloadedList: downloadedList
     });
 }
 
-/*export function isLiked(id, callback){
-    var lid = store.getState("userSonglist")[0].id;
-    api.likelist(lid, function(data){
-        console.log("likelist refresh");
-        for(var x in data){
-            if(data[x].id==id) return callback(true);
+function downloadStart(downloadedList, downloadingList){
+    updateDownload(downloadedList, downloadingList);
+}
+
+function downloadUpdate(downloadedList, downloadingList){
+    //updateDownload(downloadedList, downloadingList);
+}
+
+function downloadEnd(downloadedList, downloadingList){
+    updateDownload(downloadedList, downloadingList);
+}
+
+export function download(songs){
+    if((songs instanceof Object)&&!(songs instanceof Array)) songs = [songs];
+    console.log(songs[0].name);
+    var queue = [];
+    var downloadingList = store.getState("downloadingList");
+    var downloadedList = store.getState("downloadedList");
+    for(var i in songs){
+        var song = songs[i];
+        if(song.id in downloadingList||song.id in downloadedList) continue;
+        else{
+            queue.push(song);
         }
-        callback(false);
-    })
-}*/
+    }
+    api.addToDownloadingList(queue);
+}
+
+//getUrl
 
 export function getUrl(id){
     return api.getUrl(id);
@@ -161,7 +191,7 @@ export function login(username, password){
 }
 
 export function init(){
-    var data = api.init();
+    var data = api.init(downloadStart, downloadUpdate, downloadEnd);
     if(data.remember){
         console.log("remember");
         console.log(data);

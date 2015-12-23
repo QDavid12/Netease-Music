@@ -23,34 +23,55 @@ try{
     config = JSON.parse(fs.readFileSync(path.config));
 }
 catch(e){
+    // not remember
+    config.remember = false;
     console.log("config not found");
-/*    if (!fs.existsSync(path.config)) {
-        fs.mkdirSync(path.config);
-    }*/
 }
-// init some config and timer
-path.music = config.music||"./music/"
-var connected = true
+// init some const and timer
+path.music = config.music||"./music/";
+var connected = true;
+var download = false;
+var action = {}; //some callback
+
+// timer part
+var downloader = setInterval(function(){
+    if(download){
+        var queue = config.downloadingList||[];
+        var max = config.max||3;
+        if(queue.length==0) return;
+        var count = 0;
+        for(var i in queue){
+            if(count>=max) break;
+            if(queue[i].started!=true){
+                console.log("start download "+queue[i].name);
+                download(queue[i], action.downloadStart||undefined, action.downloadUpdate||undefined, action.downloadEnd||undefined);
+            }
+            else{
+                count += 1;
+            }
+        }
+    }
+    
+}, 500);
+
 
 function saveConfig(){
     var data = JSON.stringify(config);
-    console.log(data.length);
-/*    fs.writeFile(path.config, data, {flag: "w+"}, function(err){
-        console.log("save success");
-    });*/
+    //console.log(data.length);
     var pace = 1600;
     var times = parseInt(data.length/pace)+1;
     console.log(times);
     for(var i=0;i<times;i++){
         fs.writeFileSync(path.config, data.substr(pace*i, pace), {flag: i==0?"w+":"a"});
     }
-    /*var fileWriteStream = fs.createWriteStream(path.config, {flag: "w+"});
-    fileWriteStream.write();
-    fileWriteStream.end();*/
-    //ipcRenderer.sendSync('saveConfig', data, path.config);
 }
 
-export function init(){
+export function init(downloadStart, downloadUpdate, downloadEnd){
+    action = {
+        downloadStart: downloadStart||undefined,
+        downloadUpdate: downloadUpdate||undefined,
+        downloadEnd: downloadEnd||undefined
+    }
     var res;
     if(config.remember){
         res = {
@@ -70,22 +91,27 @@ export function init(){
     return res;
 }
 
-var httpRequest = function (method, url, data, callback) {
-    var req;
-    if (method == 'post') {
-        req = request.post(url).send(data);
-    } else {
-        req = request.get(url).query(data);
+//download part
+
+export function addToDownloadingList(songs){
+    if(config.downloadingList==undefined){
+        config.downloadingList = []
     }
-    if (config.cookie) {req.set('Cookie', config.cookie);}
-    req.set(header).timeout(10000).end(callback);
+    for(var x in songs){
+        config.downloadingList.push(songs[x]);
+    }
+    download = true;
+    saveConfig();
 }
 
-export function getDonwnloadedList(){
+export function getDownloadedList(){
     return config.downloadedList;
 }
+export function getDownloadingList(){
+    return config.downloadingList;
+}
 
-export function download(song, callback, endcall){
+export function download(song, start, update, end){
     var dir = config.music||"./music/";
     var id = song.hMusic.dfsId;
     //id = "6039617371462119";
@@ -105,25 +131,58 @@ export function download(song, callback, endcall){
         .on('response', function(res) {
             console.log(res.statusCode) // 200
             total = parseInt(res.headers["content-length"]);
-            console.log(total); 
-
+            console.log(song.name + total);
+            //update downloading list
+            for(var i in config.downloadingList){
+                if(config.downloadingList[i].id==song.id){
+                    config.downloadingList[i].started = true;
+                    config.downloadingList[i].pass = pass;
+                    config.downloadingList[i].total = total;
+                    config.downloadingList[i].percent = percent;
+                    break;
+                }
+            }
+            if(start) start(config.downloadedList, config.downloadingList)
           })
         .on('data', function(chunk){
             //console.log(chunk.length);
             pass += chunk.length;
             percent = ((pass/total)*100).toFixed(2);
-            console.log(percent+"%");
-            if(callback) callback(song.id, pass, total);
+            if(percent%3<2.95) return;
+            for(var i in config.downloadingList){
+                if(config.downloadingList[i].id==song.id){
+                    config.downloadingList[i].pass = pass;
+                    config.downloadingList[i].percent = percent;
+                    break;
+                }
+            }
+            if(update) update(config.downloadedList, config.downloadingList)
         })
         .on('end', function(){
             writeStream.end();
             config.downloadedList[song.id] = filename;
-            console.log("config");
-            console.log(config);
+            for(var i in config.downloadingList){
+                if(config.downloadingList[i].id==song.id){
+                    config.downloadingList.splice(i, 1);
+                    break;
+                }
+            }
             saveConfig();
-            if(endcall) endcall(config.downloadedList);
+            console.log(song.name + " end");
+            if(end) end(config.downloadedList, config.downloadingList);
         })
         .pipe(writeStream);
+}
+
+var httpRequest = function (method, url, data, callback) {
+    var req;
+    if (method == 'post') {
+        req = request.post(url).send(data);
+    } else {
+        req = request.get(url).query(data);
+    }
+    if (config.cookie) {req.set('Cookie', config.cookie);}
+    req.set(header).timeout(10000).end(callback);
 }
 
 export function getNewRadio(callback) {
@@ -421,8 +480,8 @@ export function login(username, password, callback){
         config["profile"] = res.body.profile;
         config["account"] = res.body.account;
         config["remember"] = true;
-        config["userSonglist"] = [];
         config["downloadedList"] = {};
+        config["downloadingList"] = {};
         config["likelist"] = [];
         console.log(res.header['set-cookie']);
         saveConfig();

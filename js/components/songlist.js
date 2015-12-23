@@ -2,6 +2,7 @@ import React from 'react';
 
 var api = require('../Api');
 var action = require('../Action');
+var alert = require('./alert').alert;
 
 let Songlist = React.createClass({
   getInitialState: function() {
@@ -15,6 +16,7 @@ let Songlist = React.createClass({
     }
   },
   componentWillReceiveProps: function(nextProps){
+    console.log("should songlist receive");
     if(nextProps.params.id!=this.id){
       console.log("new List");
       console.log(nextProps.query);
@@ -44,12 +46,21 @@ let Songlist = React.createClass({
     console.log(id in this.props.likelist);
     action.like({like: !(id in this.props.likelist), id: id})
   },
+  download: function(e){
+    var id = e.target.id;
+    if(id in this.props.downloadingList) return alert("已经在下载中啦");
+    if(id in this.props.downloadedList) return alert("已经下载过啦");
+    for(var i in this.props.currentSonglist.tracks){
+      if(this.props.currentSonglist.tracks[i].id==id){
+        action.download(this.props.currentSonglist.tracks[i]);
+        break;
+      }
+    }
+  },
   render: function(){
     console.log("songlist render");
     console.log(this.props.currentSonglist);
     console.log(this.id);
-    console.log(this.props.params.id);
-    console.log(this.props.query);
     var songlist = this.props.query;
     var list = (<tr><td style={{width: "100%", textAlign: "center"}}><i className="rotate glyphicon glyphicon-refresh"></i></td></tr>);
     if(this.props.currentSonglist!=undefined){
@@ -58,19 +69,23 @@ let Songlist = React.createClass({
         list = [];
         songlist.tracks.map(function(song, key){
           var artists = "";
+          var percent = "";
+          if(song.id in this.props.downloadingList){
+            percent = this.props.downloadingList[song.id].percent+"%";
+          }
           for(var i=0;i<song.artists.length;i++){artists+=(i==0?"":", ")+song.artists[i].name}
           list.push(
             <tr className={"song tr"+key%2} key={song.id}>
               <td className="number">{key<10?"0"+(key+1):(key+1)}</td>
               <td className="controls">
                 <i id={song.id} onClick={this.like} className={"glyphicon glyphicon-heart"+(song.id in this.props.likelist?"":"-empty")}></i>
-                <i className={"glyphicon glyphicon-"+(song.id in this.props.downloadedList?"ok":"download-alt")}></i>
+                <i id={song.id} onClick={this.download} className={"glyphicon glyphicon-"+(song.id in this.props.downloadedList?"ok":"download-alt")}></i>
+                {percent}
               </td>
               <td className="name" onClick={this.add} id={song.id}>{song.name}</td>
               <td className="artists">{artists}</td>
               <td className="album">{song.album.name}</td>
               <td className="duration">时长</td>
-              <td className="heat">热度</td>
             </tr>
           )
         }.bind(this));
@@ -99,7 +114,6 @@ let Songlist = React.createClass({
                 <th className="artists">歌手</th>
                 <th className="album">专辑</th>
                 <th className="duration">时长</th>
-                <th className="heat">热度</th>
               </tr>
             </thead>
             <tbody>

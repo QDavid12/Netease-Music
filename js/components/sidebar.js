@@ -90,7 +90,7 @@ let Sidebar = React.createClass({
           </div>
           </Link>
 
-          <Link onClick={this.active} className="songlist-links" to="/">
+          <Link onClick={this.active} className="songlist-links" to="/download">
           <div className="list">
             <div className="content">
               <i className="glyphicon glyphicon-download-alt"></i>
