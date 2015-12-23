@@ -30,12 +30,12 @@ catch(e){
 // init some const and timer
 path.music = config.music||"./music/";
 var connected = true;
-var download = false;
+var downloading = false;
 var action = {}; //some callback
 
 // timer part
 var downloader = setInterval(function(){
-    if(download){
+    if(downloading){
         var queue = config.downloadingList||[];
         var max = config.max||3;
         if(queue.length==0) return;
@@ -100,7 +100,7 @@ export function addToDownloadingList(songs){
     for(var x in songs){
         config.downloadingList.push(songs[x]);
     }
-    download = true;
+    downloading = true;
     saveConfig();
 }
 
@@ -148,7 +148,7 @@ export function download(song, start, update, end){
             //console.log(chunk.length);
             pass += chunk.length;
             percent = ((pass/total)*100).toFixed(2);
-            if(percent%3<2.95) return;
+            if(percent%3<2.5) return;
             for(var i in config.downloadingList){
                 if(config.downloadingList[i].id==song.id){
                     config.downloadingList[i].pass = pass;
@@ -328,7 +328,7 @@ function songsDetail(ids, callback) {
     });
 }
 
-function getSongDetail(ids, callback){
+export function getSongDetail(ids, callback){
     var url = 'http://music.163.com/api/song/detail';
     httpRequest('get', url, {ids: '[' + ids.join() + ']'}, function (err, res) {
         if (err) {

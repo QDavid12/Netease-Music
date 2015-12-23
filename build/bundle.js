@@ -109,23 +109,23 @@
 
 	var _componentsArtistJs2 = _interopRequireDefault(_componentsArtistJs);
 
-	var _componentsDownloadJs = __webpack_require__(229);
+	var _componentsDownloadJs = __webpack_require__(214);
 
 	var _componentsDownloadJs2 = _interopRequireDefault(_componentsDownloadJs);
 
-	var _componentsToolbarJs = __webpack_require__(214);
+	var _componentsToolbarJs = __webpack_require__(215);
 
 	var _componentsToolbarJs2 = _interopRequireDefault(_componentsToolbarJs);
 
-	var _componentsNavJs = __webpack_require__(215);
+	var _componentsNavJs = __webpack_require__(216);
 
 	var _componentsNavJs2 = _interopRequireDefault(_componentsNavJs);
 
-	var _componentsSidebarJs = __webpack_require__(217);
+	var _componentsSidebarJs = __webpack_require__(218);
 
 	var _componentsSidebarJs2 = _interopRequireDefault(_componentsSidebarJs);
 
-	var _componentsPlayerJs = __webpack_require__(218);
+	var _componentsPlayerJs = __webpack_require__(219);
 
 	var _componentsPlayerJs2 = _interopRequireDefault(_componentsPlayerJs);
 
@@ -23171,12 +23171,12 @@
 	          var artists = "";
 	          var percent = "";
 	          if (song.id in this.props.downloadingList) {
-	            percent = this.props.downloadingList[song.id].percent + "%";
+	            percent = this.props.downloadingList[song.id].percent || 0 + "%";
 	          }
 	          for (var i = 0; i < song.artists.length; i++) {
 	            artists += (i == 0 ? "" : ", ") + song.artists[i].name;
 	          }
-	          list.push(_react2['default'].createElement('tr', { className: "song tr" + key % 2, key: song.id }, _react2['default'].createElement('td', { className: 'number' }, key < 10 ? "0" + (key + 1) : key + 1), _react2['default'].createElement('td', { className: 'controls' }, _react2['default'].createElement('i', { id: song.id, onClick: this.like, className: "glyphicon glyphicon-heart" + (song.id in this.props.likelist ? "" : "-empty") }), _react2['default'].createElement('i', { id: song.id, onClick: this.download, className: "glyphicon glyphicon-" + (song.id in this.props.downloadedList ? "ok" : "download-alt") }), percent), _react2['default'].createElement('td', { className: 'name', onClick: this.add, id: song.id }, song.name), _react2['default'].createElement('td', { className: 'artists' }, artists), _react2['default'].createElement('td', { className: 'album' }, song.album.name), _react2['default'].createElement('td', { className: 'duration' }, '时长')));
+	          list.push(_react2['default'].createElement('tr', { className: "song tr" + key % 2, key: song.id }, _react2['default'].createElement('td', { className: 'number' }, key < 9 ? "0" + (key + 1) : key + 1), _react2['default'].createElement('td', { className: 'controls' }, _react2['default'].createElement('i', { id: song.id, onClick: this.like, className: "glyphicon glyphicon-heart" + (song.id in this.props.likelist ? "" : "-empty") }), _react2['default'].createElement('i', { id: song.id, onClick: this.download, className: "glyphicon glyphicon-" + (song.id in this.props.downloadedList ? "ok" : "download-alt") }), percent), _react2['default'].createElement('td', { className: 'name', onClick: this.add, id: song.id }, song.name), _react2['default'].createElement('td', { className: 'artists' }, artists), _react2['default'].createElement('td', { className: 'album' }, song.album.name), _react2['default'].createElement('td', { className: 'duration' }, '时长')));
 	        }).bind(this));
 	      }
 	    }
@@ -23209,6 +23209,7 @@
 	exports.userSonglist = userSonglist;
 	exports.likelist = likelist;
 	exports.songlistDetail = songlistDetail;
+	exports.getSongDetail = getSongDetail;
 	exports.like = like;
 	exports.trash = trash;
 	exports.getTrash = getTrash;
@@ -23248,12 +23249,12 @@
 	// init some const and timer
 	path.music = config.music || "./music/";
 	var connected = true;
-	var download = false;
+	var downloading = false;
 	var action = {}; //some callback
 
 	// timer part
 	var downloader = setInterval(function () {
-	    if (download) {
+	    if (downloading) {
 	        var queue = config.downloadingList || [];
 	        var max = config.max || 3;
 	        if (queue.length == 0) return;
@@ -23314,7 +23315,7 @@
 	    for (var x in songs) {
 	        config.downloadingList.push(songs[x]);
 	    }
-	    exports.download = download = true;
+	    downloading = true;
 	    saveConfig();
 	}
 
@@ -23361,7 +23362,7 @@
 	        //console.log(chunk.length);
 	        pass += chunk.length;
 	        percent = (pass / total * 100).toFixed(2);
-	        if (percent % 3 < 2.95) return;
+	        if (percent % 3 < 2.5) return;
 	        for (var i in config.downloadingList) {
 	            if (config.downloadingList[i].id == song.id) {
 	                config.downloadingList[i].pass = pass;
@@ -33746,6 +33747,119 @@
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var api = __webpack_require__(204);
+	var action = __webpack_require__(205);
+	var alert = __webpack_require__(207).alert;
+
+	var Download = _react2['default'].createClass({
+	  displayName: 'Download',
+
+	  getInitialState: function getInitialState() {
+	    this.getDownloadedList(this.props.downloadedList);
+	    return {
+	      downloading: false,
+	      downloadedList: []
+	    };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.downloadedList.length != this.props.downloadedList.length) {
+	      console.log("new downloadedList");
+	      console.log(nextProps.downloadedList);
+	      this.getDownloadedList(nextProps.downloadedList);
+	    }
+	  },
+	  getDownloadedList: function getDownloadedList(list) {
+	    var ids = [];
+	    for (var x in list) {
+	      ids.push(x);
+	    }
+	    api.getSongDetail(ids, (function (songs) {
+	      this.setState({ downloadedList: songs });
+	    }).bind(this));
+	  },
+	  add: function add(e) {
+	    var id = e.target.id;
+	    var song = [];
+	    var songlist = this.state.downloadedList;
+	    for (var x = 0; x < songlist.length; x++) {
+	      if (songlist[x].id == id) {
+	        song = [songlist[x]];
+	        break;
+	      }
+	    }
+	    console.log("songlist out");
+	    this.props.action("addToPlaylist", song);
+	  },
+	  playAll: function playAll() {
+	    this.props.action("changePlayList", this.state.downloadedList);
+	  },
+	  like: function like(e) {
+	    var id = e.target.id;
+	    console.log(id in this.props.likelist);
+	    action.like({ like: !(id in this.props.likelist), id: id });
+	  },
+	  download: function download(e) {
+	    var id = e.target.id;
+	    if (id in this.props.downloadingList) return alert("已经在下载中啦");
+	    if (id in this.props.downloadedList) return alert("已经下载过啦");
+	    for (var i in this.state.downloadedList) {
+	      if (this.props.currentSonglist.tracks[i].id == id) {
+	        action.download(this.props.currentSonglist.tracks[i]);
+	        break;
+	      }
+	    }
+	  },
+	  toggle: function toggle(e) {
+	    this.setState({ downloading: /downloading/.test(e.target.className) });
+	  },
+	  render: function render() {
+	    console.log("download render");
+	    var list = [];
+	    var key = -1;
+	    if (this.state.downloading) {
+	      for (var x in this.props.downloadingList) {
+	        key += 1;
+	        var song = this.props.downloadingList[x];
+	        list.push(_react2['default'].createElement('tr', { className: "song tr" + key % 2, key: song.id }, _react2['default'].createElement('td', null, key < 9 ? "0" + (key + 1) : key + 1), _react2['default'].createElement('td', null, song.started), _react2['default'].createElement('td', null, song.percent), _react2['default'].createElement('td', null, song.name), _react2['default'].createElement('td', null, song.artists[0].name), _react2['default'].createElement('td', null, song.album.name), _react2['default'].createElement('td', null, song.duration)));
+	      }
+	    } else {
+	      this.state.downloadedList.map((function (song, key) {
+	        var artists = "";
+	        for (var i = 0; i < song.artists.length; i++) {
+	          artists += (i == 0 ? "" : ", ") + song.artists[i].name;
+	        }
+	        list.push(_react2['default'].createElement('tr', { className: "song tr" + key % 2, key: song.id }, _react2['default'].createElement('td', { className: 'number' }, key < 9 ? "0" + (key + 1) : key + 1), _react2['default'].createElement('td', { className: 'controls' }, _react2['default'].createElement('i', { id: song.id, onClick: this.like, className: "glyphicon glyphicon-heart" + (song.id in this.props.likelist ? "" : "-empty") }), _react2['default'].createElement('i', { id: song.id, onClick: this.download, className: "glyphicon glyphicon-" + (song.id in this.props.downloadedList ? "ok" : "download-alt") })), _react2['default'].createElement('td', { className: 'name', onClick: this.add, id: song.id }, song.name), _react2['default'].createElement('td', { className: 'artists' }, artists), _react2['default'].createElement('td', { className: 'album' }, song.album.name), _react2['default'].createElement('td', { className: 'duration' }, song.duration)));
+	      }).bind(this));
+	    }
+	    return _react2['default'].createElement('div', { className: 'main-content-container download' }, _react2['default'].createElement('div', { className: 'switch' }, _react2['default'].createElement('span', { className: "downloaded" + (this.state.downloading ? "" : " active"), onClick: this.toggle }, '已下载'), _react2['default'].createElement('span', { className: "downloading" + (!this.state.downloading ? "" : " active"), onClick: this.toggle }, '正在下载')), _react2['default'].createElement('div', { className: 'buttons' }, 'buttons'), _react2['default'].createElement('div', { className: this.state.downloading ? "downloading" : " songlist downloaded" }, _react2['default'].createElement('div', { className: 'tracklist' }, _react2['default'].createElement('table', { className: 'tracks' }, _react2['default'].createElement('thead', null, this.state.downloading ? _react2['default'].createElement('tr', null, _react2['default'].createElement('th', { className: 'number' }), _react2['default'].createElement('th', { className: 'status' }), _react2['default'].createElement('th', { className: 'pace' }, '进度'), _react2['default'].createElement('th', { className: 'name' }, '音乐标题'), _react2['default'].createElement('th', { className: 'artists' }, '歌手'), _react2['default'].createElement('th', { className: 'album' }, '专辑'), _react2['default'].createElement('th', { className: 'duration' }, '时长')) : _react2['default'].createElement('tr', null, _react2['default'].createElement('th', { className: 'number' }), _react2['default'].createElement('th', { className: 'controls' }, '操作'), _react2['default'].createElement('th', { className: 'name' }, '音乐标题'), _react2['default'].createElement('th', { className: 'artists' }, '歌手'), _react2['default'].createElement('th', { className: 'album' }, '专辑'), _react2['default'].createElement('th', { className: 'duration' }, '时长'))), _react2['default'].createElement('tbody', null, list)))));
+	  }
+	});
+
+	exports['default'] = Download;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "download.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 215 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
@@ -33778,7 +33892,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "toolbar.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 215 */
+/* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -33799,7 +33913,7 @@
 
 	var _reactRouter = __webpack_require__(160);
 
-	var _loginJs = __webpack_require__(216);
+	var _loginJs = __webpack_require__(217);
 
 	var _loginJs2 = _interopRequireDefault(_loginJs);
 
@@ -33838,7 +33952,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "nav.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 216 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -33879,7 +33993,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "login.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 217 */
+/* 218 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -33951,7 +34065,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "sidebar.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 218 */
+/* 219 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -33970,19 +34084,19 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _playListBox = __webpack_require__(219);
+	var _playListBox = __webpack_require__(220);
 
 	var _playListBox2 = _interopRequireDefault(_playListBox);
 
-	var _songJs = __webpack_require__(220);
+	var _songJs = __webpack_require__(221);
 
 	var _songJs2 = _interopRequireDefault(_songJs);
 
-	var _smallAlbumJs = __webpack_require__(221);
+	var _smallAlbumJs = __webpack_require__(222);
 
 	var _smallAlbumJs2 = _interopRequireDefault(_smallAlbumJs);
 
-	var _reactAddonsCssTransitionGroup = __webpack_require__(222);
+	var _reactAddonsCssTransitionGroup = __webpack_require__(223);
 
 	var _reactAddonsCssTransitionGroup2 = _interopRequireDefault(_reactAddonsCssTransitionGroup);
 
@@ -34309,7 +34423,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "player.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 219 */
+/* 220 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -34346,7 +34460,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "playListBox.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 220 */
+/* 221 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -34431,7 +34545,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "song.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 221 */
+/* 222 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -34465,13 +34579,13 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "smallAlbum.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 222 */
+/* 223 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(223);
+	module.exports = __webpack_require__(224);
 
 /***/ },
-/* 223 */
+/* 224 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -34492,8 +34606,8 @@
 
 	var assign = __webpack_require__(40);
 
-	var ReactTransitionGroup = __webpack_require__(224);
-	var ReactCSSTransitionGroupChild = __webpack_require__(226);
+	var ReactTransitionGroup = __webpack_require__(225);
+	var ReactCSSTransitionGroupChild = __webpack_require__(227);
 
 	function createTransitionTimeoutPropValidator(transitionType) {
 	  var timeoutPropName = 'transition' + transitionType + 'Timeout';
@@ -34559,7 +34673,7 @@
 	module.exports = ReactCSSTransitionGroup;
 
 /***/ },
-/* 224 */
+/* 225 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -34576,7 +34690,7 @@
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var ReactTransitionChildMapping = __webpack_require__(225);
+	var ReactTransitionChildMapping = __webpack_require__(226);
 
 	var assign = __webpack_require__(40);
 	var emptyFunction = __webpack_require__(16);
@@ -34769,7 +34883,7 @@
 	module.exports = ReactTransitionGroup;
 
 /***/ },
-/* 225 */
+/* 226 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -34872,7 +34986,7 @@
 	module.exports = ReactTransitionChildMapping;
 
 /***/ },
-/* 226 */
+/* 227 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -34892,8 +35006,8 @@
 	var React = __webpack_require__(3);
 	var ReactDOM = __webpack_require__(4);
 
-	var CSSCore = __webpack_require__(227);
-	var ReactTransitionEvents = __webpack_require__(228);
+	var CSSCore = __webpack_require__(228);
+	var ReactTransitionEvents = __webpack_require__(229);
 
 	var onlyChild = __webpack_require__(157);
 
@@ -35042,7 +35156,7 @@
 	module.exports = ReactCSSTransitionGroupChild;
 
 /***/ },
-/* 227 */
+/* 228 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -35145,7 +35259,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 228 */
+/* 229 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -35257,51 +35371,6 @@
 	};
 
 	module.exports = ReactTransitionEvents;
-
-/***/ },
-/* 229 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { "default": obj };
-	}
-
-	var _react = __webpack_require__(2);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var Download = _react2["default"].createClass({
-	  displayName: "Download",
-
-	  render: function render() {
-	    console.log("download render");
-	    console.log(this.props.downloadingList);
-	    var downloading = [];
-	    var downloaded = [];
-	    for (var x in this.props.downloadingList) {
-	      var song = this.props.downloadingList[x];
-	      downloading.push(_react2["default"].createElement("tr", { key: x }, _react2["default"].createElement("td", null, song.name), _react2["default"].createElement("td", null, song.started), _react2["default"].createElement("td", null, song.percent)));
-	    }
-	    for (var x in this.props.downloadedList) {
-	      var song = this.props.downloadedList[x];
-	      downloaded.push(_react2["default"].createElement("tr", { key: x }, _react2["default"].createElement("td", null, x), _react2["default"].createElement("td", null, song)));
-	    }
-	    return _react2["default"].createElement("div", { className: "main-content-container" }, _react2["default"].createElement("table", null, _react2["default"].createElement("tbody", null, _react2["default"].createElement("tr", null, _react2["default"].createElement("td", { key: "0" }, "downloading")), downloading, _react2["default"].createElement("tr", { key: "1" }, _react2["default"].createElement("td", null, "downloaded")), downloaded)));
-	  }
-	});
-
-	exports["default"] = Download;
-	module.exports = exports["default"];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "download.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }
 /******/ ]);

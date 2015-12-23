@@ -71,12 +71,12 @@ let Songlist = React.createClass({
           var artists = "";
           var percent = "";
           if(song.id in this.props.downloadingList){
-            percent = this.props.downloadingList[song.id].percent+"%";
+            percent = this.props.downloadingList[song.id].percent||0+"%";
           }
           for(var i=0;i<song.artists.length;i++){artists+=(i==0?"":", ")+song.artists[i].name}
           list.push(
             <tr className={"song tr"+key%2} key={song.id}>
-              <td className="number">{key<10?"0"+(key+1):(key+1)}</td>
+              <td className="number">{key<9?"0"+(key+1):(key+1)}</td>
               <td className="controls">
                 <i id={song.id} onClick={this.like} className={"glyphicon glyphicon-heart"+(song.id in this.props.likelist?"":"-empty")}></i>
                 <i id={song.id} onClick={this.download} className={"glyphicon glyphicon-"+(song.id in this.props.downloadedList?"ok":"download-alt")}></i>

@@ -1,3 +1,34 @@
+/* download */
+.download .switch{
+  margin: 30px auto;
+  width: 300px;
+}
+.download .buttons{
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid #ccc;
+}
+.download span{
+  width: 150px;
+  display: inline-block;
+  text-align: center;
+  padding: 5px;
+  border: 1px solid #666;
+  cursor: pointer;
+}
+.download span:hover{
+  background: #f1f1f1;
+}
+.download span.active{
+  background: #666;
+  color: white;
+}
+.download .downloaded{
+  border-radius: 5px 0 0 5px;
+}
+.download .downloading{
+  border-radius: 0 5px 5px 0;
+}
 /* alert */
 .alert{
   position: fixed;
@@ -491,10 +522,10 @@
   width: 30%;
 }
 /* tracklist */
-.songlist .tracklist .tracks th:last-child{
+.tracklist .tracks th:last-child{
   border-right: 0!important;
 }
-.songlist .tracklist .tracks th{
+.tracklist .tracks th{
   border-bottom: 1px solid #eee;
   border-right: 1px solid #eee;
   padding-left: 10px;
@@ -507,7 +538,7 @@
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.songlist .tracklist .tracks td{
+.tracklist .tracks td{
   height: 35px;
   padding-left: 10px;
   color: #414141;
@@ -525,11 +556,9 @@
 .songlist .tracklist table .number{
   padding-left: 35px;
   width: 60px;
-  width: -webkit-calc(6%);
 }
 .songlist .tracklist table .controls{
-  width: 80px;
-  width: -webkit-calc(8%);    
+  width: 80px;   
   color: #aaa;
   font-size: 18px;
   padding: 0 5px 0 15px;
@@ -573,13 +602,13 @@
 .songlist .tracklist table .heat{
   width: -webkit-calc(14%);
 }
-.songlist .tracklist table{
+.tracklist table{
   width: 100%;
   vertical-align: center;
   font-size: 17px;
   table-layout:fixed;
 }
-.songlist .tracklist{
+.tracklist{
   width: 100%;
 }
 .songlist .info-container{
