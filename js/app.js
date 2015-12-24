@@ -8,6 +8,8 @@ import Songlist from './components/songlist.js';
 import Radio from './components/radio.js';
 import Artist from './components/artist.js';
 import Download from './components/download.js';
+import User from './components/user.js';
+import Album from './components/album.js';
 
 import Toolbar from './components/toolbar.js';
 import Nav from './components/nav.js';
@@ -99,6 +101,8 @@ let routes = (
     <Route name="songlist" path="/songlist/:id" handler={Songlist}/>
     <Route name="radio" path="/radio" handler={Radio}/>
     <Route name="artist" path="/artist/:id" handler={Artist}/>
+    <Route name="user" path="/user/:id" handler={User}/>
+    <Route name="album" path="/album/:id" handler={Album}/>
     <Route name="download" path="/download" handler={Download}/>
     <Redirect to="discover"/>
   </Route>

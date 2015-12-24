@@ -4,7 +4,9 @@ let Artist = React.createClass({
   render() {
     return(
         <div className="main-content-container">
-          {this.props.params.id}
+            <div>artist</div>
+            <div>{this.props.params.id}</div>
+            <div>{this.props.query.name}</div>
         </div>
     );
   }

@@ -167,7 +167,8 @@
   font-size: 18px;
   position: relative;
   left: -2px;
-  top: 2px;
+  top: 3px;
+  margin-right: 1px;
 }
 @keyframes rotate{
   from{transform:rotate(0deg);}
@@ -446,6 +447,7 @@
   padding: 6px 0 0 7px;
   cursor: pointer;
   box-shadow: 0 0 5px #ddd;
+  outline: none;
 }
 .radio-container .buttons .button:hover{
   border: 2px solid #ddd;
@@ -618,40 +620,20 @@
 }
 .songlist .info-container .info{
   position: absolute;
-  top: 100px;
+  top: 45px;
   left: 350px;
   font-size: 15px;
 }
 .songlist .info-container .info .songlabel{
   display: inline-block;
-  width: 40px;
-  height: 30px;
-  background: #E21D1D;
+  background: #C71515;
   position: relative;
-  border-left-top-radius: 3px;
-  border-left-bottom-radius: 3px;
   color: white;
-  padding: 4px 0 0 10px;
-  top: -10px;
-}
-.songlist .info-container .info .triangle-up{
-    width: 0;
-    height: 0;
-    border-bottom: 15px solid #E21D1D;
-    border-right: 18px solid transparent;
-    position: absolute;
-    top: 1px;
-    left: 40px;
-}
-.songlist .info-container .info .triangle-bottom{
-    width: 0;
-    height: 0;
-    border-top: 15px solid #E21D1D;
-    border-right: 18px solid transparent;
-    position: absolute;
-    top: 16px;
-    left: 40px;
-}
+  padding: 1px 10px;
+  top: -6px;
+  border-radius: 5px;
+  font-weight: bold;
+}/* 
 .songlist .info-container .info button.play{
   outline: none;
   margin-top: 10px;
@@ -663,13 +645,13 @@
 }
 .songlist .info-container .info button.play:hover{
   background: #055db5;
-
-}
+} */
 .songlist .info-container .info .name{
   display: inline-block;
-  font-size: 30px;
+  font-size: 25px;
   position: relative;
-  left: 25px;
+  left: 10px;
+  color: #555;
   top: -4px;
 }
 .songlist .info-container .cover{
@@ -677,12 +659,99 @@
   width: 250px;
   height: 250px;
   left: 50px;
-  top: 50px;
+  top: 40px;
 }
 .songlist .info-container .cover img{
   width: 100%;
-  /* -webkit-filter: blur(5px); 
-  filter: blur(5px); */
+}
+.songlist .info-container .creator{
+  color: #666;
+}
+.songlist .info-container .creator .avatar{
+  width: 40px;
+  border-radius: 50%;
+  margin-right: 8px;
+  cursor: pointer;
+}
+.songlist .info-container .tags{
+  margin-top: 20px;
+}
+.songlist .info-container .description{
+  margin-top: 5px;
+}
+.songlist .info-container .downpart span.title{
+  color: #555;
+  font-weight: bold;
+}
+.songlist .info-container .downpart span{
+  color: #666;
+}
+.songlist .info-container .creator .nickname{
+  color: #666;
+  cursor: pointer;
+}
+.songlist .info-container .creator .nickname:hover{
+  color: #086ed5;
+}
+.songlist .info-container .creator .time{
+  color: #999;
+  margin-left: 20px;
+}
+.songlist .info-container .buttons{
+  margin-top: 15px;
+}
+.songlist .info-container .buttons button{
+  padding: 5px 8px;
+  background: white;
+  margin-right: 10px;
+  border: #ccc solid 1px;
+  border-radius: 3px;
+  box-shadow: 0 1px 1px #999;
+  font-size: 16px;
+  color: #666;
+  outline: none;
+}
+.songlist .info-container .buttons button:hover{
+  background: #fafafa;
+}
+.songlist .info-container .buttons button.play{
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-right: 0;
+}
+.songlist .info-container .buttons button.plus{
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: 0;
+  border-left: 0;
+}
+.songlist .info-container .buttons button.add i{
+  margin-right: 6px;
+}
+.songlist .info-container .buttons i{
+  margin: 0 3px;
+  font-size: 18px;
+  position: relative;
+  top: 3px;
+}
+.songlist .info-container .buttons i.glyphicon-play-circle{
+  color: #B91717;
+}
+.songlist .info-container .buttons i.glyphicon-plus{
+  margin: 0;
+}
+.songlist a{
+  text-decoration: none;
+  color: #666;
+}
+.songlist a:hover{
+  color: #337ab7;
+}
+.songlist .tracklist td.duration{
+  color: #888;
+}
+.songlist .tracklist td.number{
+  color: #888;
 }
 /* main content */
 .main-content-container {
@@ -1243,7 +1312,7 @@
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
   position: relative;
-  left: 6px;
+  left: 1px;
 }
 .nav .btn-group i:last-child {
   border-top-left-radius: 0px;

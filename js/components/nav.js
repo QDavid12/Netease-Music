@@ -6,17 +6,21 @@ let Nav = React.createClass({
   getInitialState: function(){
     return {
       profileBox: this.props.profileBox,
-      messageBox: this.props.messageBox
+      messageBox: this.props.messageBox,
+      back: false,
+      forward: false
     }
-  },
-  componentWillReceiveProps: function(nextProps){
-    this.setState({
-      profileBox: this.props.profileBox,
-      messageBox: this.props.messageBox 
-    })
   },
   showProfile: function(){
     this.setState({profileBox: !this.state.profileBox});
+  },
+  back: function(){
+    console.log(history.length);
+    this.setState({back: !(history.back()==undefined)})
+  },
+  forward: function(){
+    console.log(history.length);
+    this.setState({forward: !(history.forward()==undefined)})
   },
   render: function(){
     var profile;
@@ -33,8 +37,8 @@ let Nav = React.createClass({
         </div>
         <Link to="/discover" className="homelink"><div className="logo-letters">网易云音乐</div></Link>
         <div className="btn-group">
-          <i id="btn-back" className="glyphicon glyphicon-menu-left"></i>
-          <i id="btn-forward" className="glyphicon glyphicon-menu-right active"></i>
+          <i onClick={this.back} id="btn-back" className={"glyphicon glyphicon-menu-left"+(this.state.back?" active":"")}></i>
+          <i onClick={this.forward} id="btn-forward" className={"glyphicon glyphicon-menu-right"+(this.state.forward?" active":"")}></i>
         </div>
         <div className="search-container">
           <i className="glyphicon glyphicon-search"></i>

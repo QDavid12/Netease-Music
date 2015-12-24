@@ -1,6 +1,25 @@
 import React from 'react';
+var api = require('../Api');
 
 let Comment = React.createClass({
+    getInitialState: function(){
+        return{
+            comments: false
+        }
+    },
+    load: function(id){
+        api.getComments({rid: id}, function(data){
+            this.setState({comments: data.comments});
+        }.bind(this));
+    },  
+    componentDidMount: function(){
+        this.load(this.props.id);
+    },
+    componentWillReceiveProps: function(nextProps){
+        if(nextProps.id!=this.props.id){
+            this.load(this.props.id);
+        }
+    },
     comments: function(p){
         var a = [];
         for(var i=0;i<p.length;i++){
@@ -25,17 +44,19 @@ let Comment = React.createClass({
         return a;
     },
     render() {
-        var comments="loading";
-        if(this.props.comments!=undefined){
+        var comments="拼命加载中...";
+        console.log("comments render");
+        console.log(this.state.comments);
+        if(this.state.comments){
             comments = [];
-            comments.push(<div key="title0" className="title"><span className="big">听友评论</span>(已有{this.props.comments.total}条评论)</div>);
-            if(this.props.comments.hotComments!=undefined){
+            comments.push(<div key="title0" className="title"><span className="big">听友评论</span>(已有{this.state.comments.total}条评论)</div>);
+            if(this.state.comments.hotComments!=undefined){
                 comments.push(<div key="sub-title0" className="sub-title">精彩评论</div>);
-                comments.push(this.comments(this.props.comments.hotComments));
+                comments.push(this.comments(this.state.comments.hotComments));
             }
-            if(this.props.comments.comments!=undefined){
+            if(this.state.comments.comments!=undefined){
                 comments.push(<div key="sub-title1" className="sub-title">最新评论</div>);
-                comments.push(this.comments(this.props.comments.comments));
+                comments.push(this.comments(this.state.comments.comments));
             }
         }
         return(

@@ -10,7 +10,6 @@ let Song = React.createClass({
   getInitialState: function(){
     console.log("Song init");
     this.props.action("getLyric", this.props.song.id);
-    this.props.action("getComments", {"rid": this.props.song.commentThreadId});
     return {
       song: this.props.song
     }
@@ -20,7 +19,6 @@ let Song = React.createClass({
       console.log("new song");
       this.setState({song: nextProps.song});
       this.props.action("getLyric", nextProps.song.id);
-      this.props.action("getComments", {"rid": nextProps.song.commentThreadId});
     }
   },
   returnValue: function(res){
@@ -39,8 +37,6 @@ let Song = React.createClass({
     alert("分享暂时不可用哦");
   },
   render() {
-    //console.log("Song render");
-    //console.log(this.props.song);
     var chooseList = "";
     if(this.props.chooseList){
       chooseList = <ChooseList returnValue={this.returnValue} uid={this.props.account.id} userSonglist={this.props.userSonglist}/>
@@ -70,7 +66,7 @@ let Song = React.createClass({
             </div> 
             <div className="bottom">   
               <div className="song-comment">
-                  <Comment comments={this.props.comments} id={this.props.song.commentThreadId} />
+                  <Comment id={this.props.song.commentThreadId} />
               </div>
             </div>
           </div>

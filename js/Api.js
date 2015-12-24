@@ -367,7 +367,7 @@ function getFMLyric(id, callback){
     });
 }
 
-function getComments(data, callback) {
+export function getComments(data, callback) {
     if(!data.rid){return callback({msg: "params error"});}
     var url = 'http://music.163.com/weapi/v1/resource/comments/'+data.rid;
     var body = ipcRenderer.sendSync('encrypt', {"rid": data.rid, "offset": data.offset||0});

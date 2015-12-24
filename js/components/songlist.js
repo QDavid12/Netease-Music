@@ -3,6 +3,7 @@ import React from 'react';
 var api = require('../Api');
 var action = require('../Action');
 var alert = require('./alert').alert;
+import { Link } from 'react-router';
 
 let Songlist = React.createClass({
   getInitialState: function() {
@@ -60,20 +61,38 @@ let Songlist = React.createClass({
   render: function(){
     console.log("songlist render");
     console.log(this.props.currentSonglist);
+    console.log(this.props.query);
     console.log(this.id);
     var songlist = this.props.query;
+    songlist.tags = songlist.tags||[];
+    songlist.description = songlist.description||"...";
     var list = (<tr><td style={{width: "100%", textAlign: "center"}}><i className="rotate glyphicon glyphicon-refresh"></i></td></tr>);
     if(this.props.currentSonglist!=undefined){
       if(this.props.currentSonglist.id==this.id){
         songlist = this.props.currentSonglist;
         list = [];
         songlist.tracks.map(function(song, key){
-          var artists = "";
+          var artists = [];
           var percent = "";
           if(song.id in this.props.downloadingList){
             percent = this.props.downloadingList[song.id].percent||0+"%";
           }
-          for(var i=0;i<song.artists.length;i++){artists+=(i==0?"":", ")+song.artists[i].name}
+          for(var i=0;i<song.artists.length;i++){
+            var artist = song.artists[i];
+            artists.push(
+              <span key={artist.id}>
+                <span>{(i==0?"":", ")}</span>
+                <Link to={"/artist/"+artist.id} query={artist}>
+                  {song.artists[i].name}
+                </Link>
+              </span>
+            );
+          }
+          //time part
+          var duration = parseInt(song.duration)/1000;
+          var dmin = parseInt(duration/60);
+          var dsecond = parseInt(duration-dmin*60);
+          duration = (dmin>9?dmin.toString():"0"+dmin) + ":" + (dsecond>9?dsecond.toString():"0"+dsecond)
           list.push(
             <tr className={"song tr"+key%2} key={song.id}>
               <td className="number">{key<9?"0"+(key+1):(key+1)}</td>
@@ -84,8 +103,8 @@ let Songlist = React.createClass({
               </td>
               <td className="name" onClick={this.add} id={song.id}>{song.name}</td>
               <td className="artists">{artists}</td>
-              <td className="album">{song.album.name}</td>
-              <td className="duration">时长</td>
+              <td className="album"><Link to={"/album/"+song.album.id} query={song.album}>{song.album.name}</Link></td>
+              <td className="duration">{duration}</td>
             </tr>
           )
         }.bind(this));
@@ -97,11 +116,58 @@ let Songlist = React.createClass({
           <div className="cover"><img className="reflect" src={songlist.coverImgUrl}/></div>
           <div className="info">
             <div className="songlabel">歌单</div>
-            <span className="triangle-up"></span>
-            <span className="triangle-bottom"></span>
             <div className="name">{songlist.name}</div>
-            <div className="creator">创建人：{songlist.creator.nickname}</div>
-            <div><button className="play" onClick={this.playAll}>播放</button></div>
+            <div className="creator">
+              <Link to={"/user/"+songlist.creator.id} query={songlist.creator}>
+              <img className="avatar" src={songlist.creator.avatarUrl}/>
+              <span className="nickname">{songlist.creator.nickname}</span>
+              </Link>
+              <span className="time">{new Date(parseInt(songlist.createTime)).toLocaleDateString()}创建</span>
+            </div>
+            <div className="buttons">
+              <button className="play" onClick={this.playAll}>
+                <i className="glyphicon glyphicon-play-circle"></i>
+                播放全部
+              </button>
+              <button className="plus" onClick={this.playAll}>
+                <i className="glyphicon glyphicon-plus"></i>
+              </button>
+              <button className="add" onClick={this.playAll}>
+                <i className={"glyphicon glyphicon-folder-"+(songlist.subscribed=="true"?"close":"open")}></i>
+                收藏({songlist.subscribedCount})
+              </button>
+              <button className="share" onClick={this.playAll}>
+                <i className="glyphicon glyphicon-share"></i>
+                分享({songlist.shareCount||0})
+              </button>
+              <button className="downloadAll" onClick={this.playAll}>
+                <i className="glyphicon glyphicon-download-alt"></i>
+                下载全部
+              </button>
+            </div>
+            <div className="tags downpart">
+              <span className="title">标签：</span>
+              <span>
+              {
+                songlist.tags.length==0?"暂无标签":
+                songlist.tags.map(function(tag, key){
+                  var t = key==0?"":" / ";
+                  return(
+                    <span key={key}>
+                      {t}
+                      <span className="tag">{tag}</span>
+                    </span>
+                  )
+                })
+              }
+              </span>
+            </div>
+            <div className="description downpart">
+              <span className="title">简介：</span>
+              <span>
+              {(songlist.description==null)?"暂无简介":songlist.description}
+              </span>
+            </div>
           </div>
         </div>
         <div className="tracklist">
