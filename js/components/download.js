@@ -82,6 +82,9 @@ let Download = React.createClass({
               </tr>
             )
           }
+          if(key<0){
+            list.push(<tr key="0"><td>（空）</td></tr>)
+          }
         }
         else{
           this.state.downloadedList.map(function(song, key){
@@ -101,6 +104,9 @@ let Download = React.createClass({
               </tr>
             )
           }.bind(this));
+          if(list.length==0){
+            list.push(<tr key="0"><td>...</td></tr>);
+          }
         }
         return (
           <div className="main-content-container download">
