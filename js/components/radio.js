@@ -12,13 +12,13 @@ let Radio = React.createClass({
     console.log("radio init");
     console.log(this.props.radioList.length);
     if(this.props.radioList.length==0){
-      this.props.action("getNewRadio", {});
+      action.dispatch("getNewRadio", {});
     }
     else{
       this.song = this.props.radioList[this.props.radioNum];
       //this.isLiked();
-      this.props.action("getFMLyric", this.song.id);
-      this.props.action("getFMComments", {"rid": this.song.commentThreadId});
+      action.dispatch("getFMLyric", this.song.id);
+      action.dispatch("getFMComments", {"rid": this.song.commentThreadId});
     }
     return {
       time: "00:00",
@@ -35,8 +35,8 @@ let Radio = React.createClass({
       console.log("new song");
       this.song = song;
       //this.isLiked();
-      this.props.action("getFMLyric", song.id);
-      this.props.action("getFMComments", {"rid": song.commentThreadId});
+      action.dispatch("getFMLyric", song.id);
+      action.dispatch("getFMComments", {"rid": song.commentThreadId});
     }
   },
   componentDidMount: function(){
@@ -56,7 +56,7 @@ let Radio = React.createClass({
   play: function(e){
     var id = parseInt(e.target.id.split("-")[1]);
     //console.log("playRadio "+id);
-    this.props.action('playRadio', id);
+    action.dispatch('playRadio', id);
   },
   like: function(){
     var like = (this.song.id in this.props.likelist)?"false":"true";
@@ -87,13 +87,13 @@ let Radio = React.createClass({
   },
   next: function(){
     if(!this.props.radio){
-      this.props.action("playRadio")
+      action.dispatch("playRadio");
     }
     if(this.props.radioList[this.props.radioNum+2]==undefined){
       console.log("getNewRadio");
-      this.props.action("getNewRadio");
+      action.dispatch("getNewRadio");
     }
-    this.props.action('next');
+    action.dispatch('next');
   },
   plus: function(){
     this.setState({chooseList: !this.state.chooseList})

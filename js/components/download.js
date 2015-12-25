@@ -27,7 +27,7 @@ let Download = React.createClass({
         this.setState({downloadedList: songs});
       }.bind(this))
     },
-    add: function(e){
+    play: function(e){
       var id = e.target.id;
       var song = [];
       var songlist = (this.state.downloadedList);
@@ -38,10 +38,10 @@ let Download = React.createClass({
         }
       }
       console.log("songlist out");
-      this.props.action("addToPlaylist", song);
+      action.dispatch("addAndPlay", song);
     },
     playAll: function(){
-      this.props.action("changePlayList", this.state.downloadedList);
+      action.dispatch("changePlayList", this.state.downloadedList);
     },
     like: function(e){
       var id = e.target.id;
@@ -97,7 +97,7 @@ let Download = React.createClass({
                   <i id={song.id} onClick={this.like} className={"glyphicon glyphicon-heart"+(song.id in this.props.likelist?"":"-empty")}></i>
                   <i id={song.id} onClick={this.download} className={"glyphicon glyphicon-"+(song.id in this.props.downloadedList?"ok":"download-alt")}></i>
                 </td>
-                <td className="name" onClick={this.add} id={song.id}>{song.name}</td>
+                <td className="name" onClick={this.play} id={song.id}>{song.name}</td>
                 <td className="artists">{artists}</td>
                 <td className="album">{song.album.name}</td>
                 <td className="duration">{song.duration}</td>

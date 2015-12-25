@@ -61,16 +61,6 @@
 	  value: true
 	});
 
-	var _extends = Object.assign || function (target) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    var source = arguments[i];for (var key in source) {
-	      if (Object.prototype.hasOwnProperty.call(source, key)) {
-	        target[key] = source[key];
-	      }
-	    }
-	  }return target;
-	};
-
 	function _interopRequireDefault(obj) {
 	  return obj && obj.__esModule ? obj : { 'default': obj };
 	}
@@ -171,15 +161,19 @@
 	      _action.getUserState();
 	    }
 	    // online
-	    window.addEventListener("online", function (e) {
+	    window.addEventListener("online", (function (e) {
 	      console.log("fafa");
 	      alert("网络已连接");
-	    });
+	      _action.switchOnlineMode(true);
+	      this.setState({ online: true });
+	    }).bind(this));
 	    // offline
-	    window.addEventListener("offline", function (e) {
+	    window.addEventListener("offline", (function (e) {
 	      console.log("fafa");
 	      alert("网络已断开");
-	    });
+	      _action.switchOnlineMode(false);
+	      this.setState({ online: false });
+	    }).bind(this));
 	  },
 	  componentDidUpdate: function componentDidUpdate() {
 	    if (this.isLogin == false && this.state.isLogin == true) {
@@ -196,7 +190,7 @@
 
 	    var other = _objectWithoutProperties(this.state, []);
 
-	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], null), _react2['default'].createElement(_componentsNavJs2['default'], other), _react2['default'].createElement(_componentsSidebarJs2['default'], { uid: this.state.isLogin ? this.state.account.id : 0, radio: this.state.radio, userSonglist: this.state.userSonglist, action: this.action }), _react2['default'].createElement(_reactRouter.RouteHandler, _extends({}, other, { action: this.action })), _react2['default'].createElement(_componentsPlayerJs2['default'], _extends({}, other, { action: this.action })));
+	    return _react2['default'].createElement('div', { className: 'full' }, _react2['default'].createElement(_componentsToolbarJs2['default'], null), _react2['default'].createElement(_componentsNavJs2['default'], other), _react2['default'].createElement(_componentsSidebarJs2['default'], { uid: this.state.isLogin ? this.state.account.id : 0, radio: this.state.radio, userSonglist: this.state.userSonglist }), _react2['default'].createElement(_reactRouter.RouteHandler, other), _react2['default'].createElement(_componentsPlayerJs2['default'], other));
 	  }
 	});
 
@@ -23225,6 +23219,7 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	exports.switchOnlineMode = switchOnlineMode;
 	exports.init = init;
 	exports.addToDownloadingList = addToDownloadingList;
 	exports.getDownloadedList = getDownloadedList;
@@ -23274,13 +23269,13 @@
 	}
 	// init some const and timer
 	path.music = config.music || "./music/";
-	var connected = true;
+	var online = true;
 	var downloading = false;
 	var action = {}; //some callback
 
 	// timer part
 	var downloader = setInterval(function () {
-	    if (downloading) {
+	    if (downloading && online) {
 	        var queue = config.downloadingList || [];
 	        var max = config.max || 3;
 	        if (queue.length == 0) return;
@@ -23295,7 +23290,11 @@
 	            }
 	        }
 	    }
-	}, 500);
+	}, 1000);
+
+	function switchOnlineMode(status) {
+	    online = status;
+	}
 
 	function saveConfig() {
 	    var data = JSON.stringify(config);
@@ -23439,6 +23438,14 @@
 
 	function userSonglist(callback) {
 	    // [uid],[offset],[limit],callback
+	    if (!online) {
+	        var r = localStorage.getItem("userSonglist");
+	        if (r != "" && r != undefined) {
+	            return callback(JSON.parse(r));
+	        } else {
+	            return callback({ msg: "offline", type: 1 });
+	        }
+	    }
 	    var uid = config.profile.userId;
 	    if (!uid) {
 	        callback({ msg: '[userPlaylist]user do not login', type: 0 });
@@ -23467,6 +23474,9 @@
 	}
 
 	function likelist(id, callback) {
+	    if (!online) {
+	        return callback(config.likelist);
+	    }
 	    var url = 'http://music.163.com/weapi/v3/playlist/detail';
 	    var data = { "id": id };
 	    data = ipcRenderer.sendSync('encrypt', data);
@@ -23486,12 +23496,25 @@
 	}
 
 	function songlistDetail(id, callback) {
+	    console.log("songlistDetail");
+	    console.log(online);
+	    if (!online) {
+	        var cache = localStorage.getItem("songlist" + id);
+	        if (cache && cache != undefined) {
+	            return callback(JSON.parse(cache));
+	        } else {
+	            return callback({ msg: 'offline', type: 1 });
+	        }
+	    }
 	    var url = 'http://music.163.com/api/playlist/detail';
 	    var data = { "id": id };
 	    //var that = this;
 	    httpRequest('get', url, data, function (err, res) {
 	        if (err) callback({ msg: '[playlistDetail]http timeout', type: 1 });else {
-	            if (res.body.code != 200) callback({ msg: '[playlistDetail]http code ' + data.code, type: 1 });else callback(res.body.result);
+	            if (res.body.code != 200) callback({ msg: '[playlistDetail]http code ' + data.code, type: 1 });else {
+	                callback(res.body.result);
+	                localStorage.setItem("songlist" + res.body.result.id, JSON.stringify(res.body.result));
+	            }
 	        }
 	    });
 	}
@@ -23789,6 +23812,7 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	exports.toggleMode = toggleMode;
 	exports.switchOnlineMode = switchOnlineMode;
 	exports.getUserState = getUserState;
 	exports.songlistFunc = songlistFunc;
@@ -23808,6 +23832,7 @@
 
 	var methods = {
 	    "addAndPlay": addAndPlay,
+	    "addToPlaylist": addToPlaylist,
 	    "changePlayList": changePlayList,
 	    "changeNum": changeNum,
 	    "play": play,
@@ -23819,16 +23844,28 @@
 	    "playRadio": playRadio
 	};
 
+	var online = true;
+
+	function toggleMode() {
+	    var next = store.getState("next");
+	    next = next + 1 > 2 ? 0 : next + 1;
+	    store.setState({ next: next });
+	}
+
 	function switchOnlineMode(status) {
+	    api.switchOnlineMode(status);
 	    store.setState({ online: status });
 	}
 
 	function getUserState() {
 	    api.userSonglist(function (data) {
+	        //console.log(data);
 	        store.setState({ userSonglist: data });
-	        likelist();
+	        likelist(data[0].id);
 	    });
-	    getNewRadio();
+	    if (online) {
+	        getNewRadio();
+	    }
 	    store.setState({ downloadedList: api.getDownloadedList() });
 	}
 
@@ -23846,8 +23883,8 @@
 	    });
 	}
 
-	function likelist() {
-	    var lid = store.getState("userSonglist")[0].id;
+	function likelist(id) {
+	    var lid = id || store.getState("userSonglist")[0].id;
 	    api.likelist(lid, function (data) {
 	        console.log("likelist refresh");
 	        store.setState({ likelist: data });
@@ -23949,9 +23986,39 @@
 	        var num = store.getState("radioNum");
 	        store.setState({ radioNum: num - 1, play: true, restart: true });
 	    } else {
-	        var num = store.getState("num");
-	        store.setState({ num: num - 1, play: true, restart: true });
+	        var num = generate(-1);
+	        store.setState({ num: num, play: true, restart: true });
 	    }
+	}
+
+	function generate(pace) {
+	    var num = store.getState("num");
+	    var playlist = store.getState("playList");
+	    var next = store.getState("next");
+	    next = next || 0;
+	    var res;
+	    switch (next) {
+	        case 0:
+	            {
+	                res = num + pace;
+	                if (res < 0) res = playlist.length - 1;
+	                if (res >= playlist.length) res = 0;
+	            }
+	            break;
+	        case 1:
+	            {
+	                res = parseInt(Math.random() * playlist.length);
+	                if (res == num) res = parseInt(Math.random() * playlist.length);
+	                if (res == playlist.length) res = res - 1;
+	            }
+	            break;
+	        case 2:
+	            {
+	                res = num;
+	            }
+	            break;
+	    }
+	    return res;
 	}
 
 	function next() {
@@ -23960,8 +24027,8 @@
 	        var num = store.getState("radioNum");
 	        store.setState({ radioNum: num + 1, play: true, restart: true });
 	    } else {
-	        var num = store.getState("num");
-	        store.setState({ num: num + 1, play: true, restart: true });
+	        var num = generate(1);
+	        store.setState({ num: num, play: true, restart: true });
 	    }
 	}
 
@@ -23996,6 +24063,8 @@
 
 	function init() {
 	    var data = api.init(downloadStart, downloadUpdate, downloadEnd);
+	    online = window.navigator.onLine;
+	    api.switchOnlineMode(online);
 	    if (data.remember) {
 	        console.log("remember");
 	        console.log(data);
@@ -24109,18 +24178,18 @@
 	            radioList: [],
 	            radioNum: 0,
 	            mode: "playList",
+	            next: 0, // 0 顺序 1 随机 2 单曲
 	            play: false,
 	            radio: false,
 	            song: false,
 	            lyric: undefined,
 	            FMlyric: undefined,
-	            comments: undefined,
-	            FMcomments: undefined,
 	            time: "00:00",
 	            pace: 0,
 	            likelist: {},
 	            downloadedList: {},
-	            downloadingList: {}
+	            downloadingList: {},
+	            online: window.navigator.onLine
 	        };
 	        for (var x in newstate) {
 	            state[x] = newstate[x];
@@ -24235,12 +24304,12 @@
 	    console.log("radio init");
 	    console.log(this.props.radioList.length);
 	    if (this.props.radioList.length == 0) {
-	      this.props.action("getNewRadio", {});
+	      action.dispatch("getNewRadio", {});
 	    } else {
 	      this.song = this.props.radioList[this.props.radioNum];
 	      //this.isLiked();
-	      this.props.action("getFMLyric", this.song.id);
-	      this.props.action("getFMComments", { "rid": this.song.commentThreadId });
+	      action.dispatch("getFMLyric", this.song.id);
+	      action.dispatch("getFMComments", { "rid": this.song.commentThreadId });
 	    }
 	    return {
 	      time: "00:00",
@@ -24257,8 +24326,8 @@
 	      console.log("new song");
 	      this.song = song;
 	      //this.isLiked();
-	      this.props.action("getFMLyric", song.id);
-	      this.props.action("getFMComments", { "rid": song.commentThreadId });
+	      action.dispatch("getFMLyric", song.id);
+	      action.dispatch("getFMComments", { "rid": song.commentThreadId });
 	    }
 	  },
 	  componentDidMount: function componentDidMount() {
@@ -24278,7 +24347,7 @@
 	  play: function play(e) {
 	    var id = parseInt(e.target.id.split("-")[1]);
 	    //console.log("playRadio "+id);
-	    this.props.action('playRadio', id);
+	    action.dispatch('playRadio', id);
 	  },
 	  like: function like() {
 	    var like = this.song.id in this.props.likelist ? "false" : "true";
@@ -24307,13 +24376,13 @@
 	  },
 	  next: function next() {
 	    if (!this.props.radio) {
-	      this.props.action("playRadio");
+	      action.dispatch("playRadio");
 	    }
 	    if (this.props.radioList[this.props.radioNum + 2] == undefined) {
 	      console.log("getNewRadio");
-	      this.props.action("getNewRadio");
+	      action.dispatch("getNewRadio");
 	    }
-	    this.props.action('next');
+	    action.dispatch('next');
 	  },
 	  plus: function plus() {
 	    this.setState({ chooseList: !this.state.chooseList });
@@ -33713,6 +33782,9 @@
 	            this.load(this.props.id);
 	        }
 	    },
+	    shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
+	        return !(nextProps.id == this.props.id && nextState.comments == this.state.comments);
+	    },
 	    comments: function comments(p) {
 	        var a = [];
 	        for (var i = 0; i < p.length; i++) {
@@ -33877,7 +33949,7 @@
 	      this.setState({ downloadedList: songs });
 	    }).bind(this));
 	  },
-	  add: function add(e) {
+	  play: function play(e) {
 	    var id = e.target.id;
 	    var song = [];
 	    var songlist = this.state.downloadedList;
@@ -33888,10 +33960,10 @@
 	      }
 	    }
 	    console.log("songlist out");
-	    this.props.action("addToPlaylist", song);
+	    action.dispatch("addAndPlay", song);
 	  },
 	  playAll: function playAll() {
-	    this.props.action("changePlayList", this.state.downloadedList);
+	    action.dispatch("changePlayList", this.state.downloadedList);
 	  },
 	  like: function like(e) {
 	    var id = e.target.id;
@@ -33931,7 +34003,7 @@
 	        for (var i = 0; i < song.artists.length; i++) {
 	          artists += (i == 0 ? "" : ", ") + song.artists[i].name;
 	        }
-	        list.push(_react2['default'].createElement('tr', { className: "song tr" + key % 2, key: song.id }, _react2['default'].createElement('td', { className: 'number' }, key < 9 ? "0" + (key + 1) : key + 1), _react2['default'].createElement('td', { className: 'controls' }, _react2['default'].createElement('i', { id: song.id, onClick: this.like, className: "glyphicon glyphicon-heart" + (song.id in this.props.likelist ? "" : "-empty") }), _react2['default'].createElement('i', { id: song.id, onClick: this.download, className: "glyphicon glyphicon-" + (song.id in this.props.downloadedList ? "ok" : "download-alt") })), _react2['default'].createElement('td', { className: 'name', onClick: this.add, id: song.id }, song.name), _react2['default'].createElement('td', { className: 'artists' }, artists), _react2['default'].createElement('td', { className: 'album' }, song.album.name), _react2['default'].createElement('td', { className: 'duration' }, song.duration)));
+	        list.push(_react2['default'].createElement('tr', { className: "song tr" + key % 2, key: song.id }, _react2['default'].createElement('td', { className: 'number' }, key < 9 ? "0" + (key + 1) : key + 1), _react2['default'].createElement('td', { className: 'controls' }, _react2['default'].createElement('i', { id: song.id, onClick: this.like, className: "glyphicon glyphicon-heart" + (song.id in this.props.likelist ? "" : "-empty") }), _react2['default'].createElement('i', { id: song.id, onClick: this.download, className: "glyphicon glyphicon-" + (song.id in this.props.downloadedList ? "ok" : "download-alt") })), _react2['default'].createElement('td', { className: 'name', onClick: this.play, id: song.id }, song.name), _react2['default'].createElement('td', { className: 'artists' }, artists), _react2['default'].createElement('td', { className: 'album' }, song.album.name), _react2['default'].createElement('td', { className: 'duration' }, song.duration)));
 	      }).bind(this));
 	      if (list.length == 0) {
 	        list.push(_react2['default'].createElement('tr', { key: '0' }, _react2['default'].createElement('td', null, '...')));
@@ -34303,7 +34375,7 @@
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    console.log("player nextProps");
-	    var audio = this.refs.audio;
+	    var audio = document.getElementById("audio");
 	    var play = 0;
 	    var restart = 0;
 	    //play
@@ -34322,14 +34394,14 @@
 	    if (play == 1 && restart == 0) audio.play();
 	    if (restart == 1) {
 	      this.reload(nextProps);
-	      this.props.action("didRestart");
+	      action.dispatch("didRestart");
 	    }
 	  },
 	  setDuration: function setDuration() {
-	    if (this.refs.audio.src == "" || this.refs.audio.src == undefined) {
+	    if (document.getElementById("audio").src == "" || document.getElementById("audio").src == undefined) {
 	      return;
 	    }
-	    var duration = this.refs.audio.duration;
+	    var duration = document.getElementById("audio").duration;
 	    var dmin = parseInt(duration / 60);
 	    var dsecond = parseInt(duration - dmin * 60);
 	    this.setState({
@@ -34337,11 +34409,11 @@
 	    });
 	  },
 	  setTime: function setTime() {
-	    if (this.refs.audio.src == "" || this.refs.audio.src == undefined) {
+	    if (document.getElementById("audio").src == "" || document.getElementById("audio").src == undefined) {
 	      return;
 	    }
-	    var duration = this.refs.audio.duration;
-	    var time = this.refs.audio.currentTime;
+	    var duration = document.getElementById("audio").duration;
+	    var time = document.getElementById("audio").currentTime;
 	    var min = parseInt(time / 60);
 	    var second = parseInt(time - min * 60);
 	    this.setState({
@@ -34351,43 +34423,43 @@
 	  },
 	  playClick: function playClick() {
 	    if (this.props.play) {
-	      return this.props.action("pause");
+	      return action.dispatch("pause");
 	    }
 	    if (this.props.radio) {
-	      return this.props.action("play");
+	      return action.dispatch("play");
 	    }
 	    //playList
 	    if (this.props.playList.length != 0) {
-	      this.props.action("play");
+	      action.dispatch("play");
 	    }
 	  },
 	  nextClick: function nextClick() {
 	    if (this.props.radio) {
 	      if (this.props.radioList[this.props.radioNum + 2] == undefined) {
 	        console.log("getNewRadio");
-	        this.props.action("getNewRadio");
+	        action.dispatch("getNewRadio");
 	      }
-	      return this.props.action("next");
+	      return action.dispatch("next");
 	    }
 	    //playList
-	    if (this.props.playList.length != 0 && this.props.playList[this.props.num + 1] != undefined) {
-	      this.props.action("next");
+	    if (this.props.playList.length != 0) {
+	      action.dispatch("next");
 	    }
 	  },
 	  backClick: function backClick() {
 	    if (this.props.radio) {
 	      if (this.props.radioList[this.props.radioNum - 1] != undefined) {
-	        return this.props.action("last");
+	        return action.dispatch("last");
 	      }
 	      return;
 	    }
 	    if (this.props.playList.length != 0 && this.props.playList[this.props.num - 1] != undefined) {
-	      this.props.action("last");
+	      action.dispatch("last");
 	    }
 	  },
 	  reload: function reload(nextProps) {
 	    console.log(nextProps.playList);
-	    var audio = this.refs.audio;
+	    var audio = document.getElementById("audio");
 	    this.setState({ pace: 0, time: "00:00" });
 	    if (nextProps.radio) {
 	      var song = nextProps.radioList[nextProps.radioNum];
@@ -34396,7 +34468,13 @@
 	    }
 	    this.song = song;
 	    //this.isLiked();
+	    if (this.props.online == false && !(song.id in this.props.downloadedList)) {
+	      this.next = true;
+	      return;
+	    }
 	    if (song != undefined) {
+	      console.log("play now");
+	      console.log(song);
 	      this.setState({ pace: 0, time: "00:00", like: song.id in this.props.likelist });
 	      audio.src = api.getUrl(song);
 	      audio.load();
@@ -34405,42 +34483,50 @@
 	  },
 	  componentDidUpdate: function componentDidUpdate() {
 	    //console.log("player update");
+	    if (this.next == true) {
+	      this.next = false;
+	      alert("已跳过未下载歌曲");
+	      this.nextClick();
+	    }
 	  },
 	  componentDidMount: function componentDidMount() {
 	    console.log("player mount");
-	    this.refs.audio.addEventListener("play", (function () {
+	    document.getElementById("audio").addEventListener("play", (function () {
 	      this.setState({ playing: true });
 	    }).bind(this));
-	    this.refs.audio.addEventListener("pause", (function () {
+	    document.getElementById("audio").addEventListener("pause", (function () {
 	      this.setState({ playing: false });
 	    }).bind(this));
-	    this.refs.audio.addEventListener("loadstart", (function () {
+	    document.getElementById("audio").addEventListener("loadstart", (function () {
 	      console.log("loadstart");
 	      this.setState({ loading: true });
 	    }).bind(this));
-	    this.refs.audio.addEventListener("canplay", (function () {
+	    document.getElementById("audio").addEventListener("canplay", (function () {
 	      console.log("canplay");
 	      this.setState({ loading: false });
 	    }).bind(this));
-	    this.refs.audio.addEventListener("durationchange", (function () {
-	      console.log("durationchange" + this.refs.audio.duration);
+	    document.getElementById("audio").addEventListener("durationchange", (function () {
+	      console.log("durationchange" + document.getElementById("audio").duration);
 	      this.setDuration();
 	    }).bind(this));
-	    this.refs.audio.addEventListener("timeupdate", (function () {
+	    document.getElementById("audio").addEventListener("timeupdate", (function () {
 	      if (this.onmoving) return;
 	      this.setTime();
 	    }).bind(this));
-	    this.refs.audio.addEventListener("ended", (function () {
+	    document.getElementById("audio").addEventListener("ended", (function () {
 	      console.log("ended");
+	      this.nextClick();
+	    }).bind(this));
+	    document.getElementById("audio").addEventListener("error", (function () {
+	      console.log("error");
 	      this.nextClick();
 	    }).bind(this));
 	    /*pace control*/
 	    this.refs.paceCursor.addEventListener("mousedown", (function (e) {
 	      console.log("mousedown");
-	      if (this.refs.audio.src == "") {
+	      if (document.getElementById("audio").src == "" || this.state.loading == true) {
 	        return;
 	      }
-	      //this.refs.audio.pause();
 	      this.onmoving = this.refs.paceCursor;
 	    }).bind(this));
 	    this.refs.volumeCursor.addEventListener("mousedown", (function (e) {
@@ -34462,14 +34548,14 @@
 	        var ratio = width / maxWidth;
 	        console.log(ratio);
 	        if (/pace/.test(this.onmoving.className)) {
-	          var time = ratio * this.refs.audio.duration;
+	          var time = ratio * document.getElementById("audio").duration;
 	          var min = parseInt(time / 60);
 	          var second = parseInt(time - min * 60);
 	          var timeStr = (min > 9 ? min.toString() : "0" + min) + ":" + (second > 9 ? second.toString() : "0" + second);
 	          this.setState({ pace: (ratio * 100).toFixed(2), time: timeStr });
 	        } else {
 	          console.log("volumeCursor");
-	          this.refs.audio.volume = ratio;
+	          document.getElementById("audio").volume = ratio;
 	          this.setState({ volume: (ratio * 100).toFixed(2) });
 	        }
 	      }
@@ -34478,8 +34564,8 @@
 	      if (this.onmoving) {
 	        console.log("mouseup");
 	        if (/pace/.test(this.onmoving.className)) {
-	          //this.refs.audio.play();
-	          this.refs.audio.currentTime = this.state.pace * this.refs.audio.duration / 100;
+	          //document.getElementById("audio").play();
+	          document.getElementById("audio").currentTime = this.state.pace * document.getElementById("audio").duration / 100;
 	        } else {
 	          console.log("volumeCursor mouseup");
 	        }
@@ -34487,10 +34573,10 @@
 	      }
 	    }).bind(this));
 	    document.addEventListener("mousedown", (function () {}).bind(this));
-	    this.refs.audio.volume = this.state.volume / 100;
+	    document.getElementById("audio").volume = this.state.volume / 100;
 	  },
 	  paceChange: function paceChange(e) {
-	    //bug
+	    // no bug
 	    if (/cursor/.test(e.target.className)) {
 	      return;
 	    }
@@ -34499,7 +34585,7 @@
 	      container = container.parentNode;
 	    }
 	    var isTime = /time/.test(container.className);
-	    if (this.refs.audio.src == "" || this.refs.audio.src == undefined) {
+	    if (document.getElementById("audio").src == "" || document.getElementById("audio").src == undefined) {
 	      if (isTime) return;
 	    }
 	    var maxWidth = container.offsetWidth;
@@ -34507,15 +34593,15 @@
 	    console.log(width / maxWidth);
 	    var ratio = width / maxWidth;
 	    if (isTime) {
-	      var time = ratio * this.refs.audio.duration;
+	      var time = ratio * document.getElementById("audio").duration;
 	      var min = parseInt(time / 60);
 	      var second = parseInt(time - min * 60);
 	      var timeStr = (min > 9 ? min.toString() : "0" + min) + ":" + (second > 9 ? second.toString() : "0" + second);
 	      this.setState({ pace: (ratio * 100).toFixed(2), time: timeStr });
-	      this.refs.audio.play();
-	      this.refs.audio.currentTime = ratio * this.refs.audio.duration;
+	      document.getElementById("audio").play();
+	      document.getElementById("audio").currentTime = ratio * document.getElementById("audio").duration;
 	    } else {
-	      this.refs.audio.volume = ratio;
+	      document.getElementById("audio").volume = ratio;
 	      this.setState({ volume: (ratio * 100).toFixed(2) });
 	    }
 	  },
@@ -34525,7 +34611,7 @@
 	  switchPlay: function switchPlay(e) {
 	    var key = parseInt(e.target.id.split("-")[1]);
 	    console.log(key);
-	    this.props.action("changeNum", key);
+	    action.dispatch("changeNum", key);
 	  },
 	  toggleSong: function toggleSong() {
 	    if (this.props.radio) {
@@ -34553,6 +34639,14 @@
 	  plus: function plus() {
 	    this.setState({ chooseList: !this.state.chooseList });
 	  },
+	  toggleMode: function toggleMode() {
+	    action.toggleMode();
+	  },
+	  showMode: function showMode(e) {
+	    var t = e.target.nextSibling;
+	    t.style.display = "inline-block";
+	    console.log(t);
+	  },
 	  returnValue: function returnValue(res) {
 	    console.log("player returnValue");
 	    console.log(res);
@@ -34572,6 +34666,7 @@
 	    }
 	  },
 	  render: function render() {
+	    console.log("player render");
 	    var playerClass = "control play glyphicon glyphicon-" + (!this.props.play ? "play" : "pause");
 	    var song = this.props.playList.length == 0 ? { album: { picUrl: "./img/logo.png" }, name: "song", artists: [{ name: "artist" }] } : this.props.playList[this.props.num];
 	    if (this.props.radio) {
@@ -34584,7 +34679,17 @@
 	    } else {
 	      playListBox = "";
 	    }
-	    return _react2['default'].createElement('div', { className: 'player grey' }, _react2['default'].createElement('i', { onClick: this.backClick, className: 'control last glyphicon glyphicon-step-backward' }), _react2['default'].createElement('i', { onClick: this.playClick, className: playerClass }), _react2['default'].createElement('i', { onClick: this.nextClick, className: 'control next glyphicon glyphicon-step-forward' }), _react2['default'].createElement('audio', { id: 'audio', ref: 'audio' }), _react2['default'].createElement(_reactAddonsCssTransitionGroup2['default'], { transitionName: 'song-container', transitionEnterTimeout: 300, transitionLeaveTimeout: 300 }, this.state.song ? _react2['default'].createElement(_songJs2['default'], { returnValue: this.returnValue, chooseList: this.state.chooseList, account: this.props.account, userSonglist: this.props.userSonglist, song: song, like: this.like, plus: this.plus, liked: this.song.id in this.props.likelist, downloading: this.song.id in this.props.downloadingList, downloaded: this.song.id in this.props.downloadedList, lyric: this.props.lyric, play: this.props.play, time: this.state.time, toggleSong: this.toggleSong, action: this.props.action }) : ""), _react2['default'].createElement('div', { className: 'panel' }, _react2['default'].createElement('div', { className: 'pace-container' }, _react2['default'].createElement('div', { className: 'pace timePace', onClick: this.paceChange }, _react2['default'].createElement('div', { className: 'already', style: { width: this.state.pace + "%" } }, _react2['default'].createElement('div', { className: "cursor paceCursor" + (this.state.loading ? " loading" : ""), ref: 'paceCursor' }, _react2['default'].createElement('div', { className: 'point' }), _react2['default'].createElement('i', { className: 'glyphicon glyphicon-repeat' })))), _react2['default'].createElement('div', { className: 'time' }, _react2['default'].createElement('span', { id: 'timeSpan' }, this.state.time), ' / ', _react2['default'].createElement('span', null, this.state.duration)))), _react2['default'].createElement('div', { className: 'right' }, _react2['default'].createElement('div', { className: 'volume-container' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-volume-up' }), _react2['default'].createElement('div', { className: 'pace volumePace', onClick: this.paceChange }, _react2['default'].createElement('div', { className: 'already', style: { width: this.state.volume + "%" } }, _react2['default'].createElement('div', { className: 'cursor', ref: 'volumeCursor' })))), _react2['default'].createElement('i', { className: 'widget glyphicon glyphicon-random' }), _react2['default'].createElement('div', { className: 'widget lyric' }, _react2['default'].createElement('span', null, '词')), _react2['default'].createElement('i', { className: 'widget glyphicon glyphicon-tasks', onClick: this.togglePlayList }), _react2['default'].createElement('span', { className: 'tasks-number' }, this.props.playList.length), playListBox), _react2['default'].createElement(_reactAddonsCssTransitionGroup2['default'], { transitionName: 'fade', transitionEnterTimeout: 300, transitionLeaveTimeout: 300 }, this.props.radio ? "" : _react2['default'].createElement(_smallAlbumJs2['default'], { song: song, liked: this.song.id in this.props.likelist, toggleSong: this.toggleSong })));
+	    var nextClass = {
+	      0: "glyphicon glyphicon-retweet",
+	      1: "glyphicon glyphicon-random",
+	      2: "glyphicon glyphicon-repeat"
+	    };
+	    var nextName = {
+	      0: "顺序循环",
+	      1: "随机播放",
+	      2: "单曲循环"
+	    };
+	    return _react2['default'].createElement('div', { className: 'player grey' }, _react2['default'].createElement('i', { onClick: this.backClick, className: 'control last glyphicon glyphicon-step-backward' }), _react2['default'].createElement('i', { onClick: this.playClick, className: playerClass }), _react2['default'].createElement('i', { onClick: this.nextClick, className: 'control next glyphicon glyphicon-step-forward' }), _react2['default'].createElement(_reactAddonsCssTransitionGroup2['default'], { transitionName: 'song-container', transitionEnterTimeout: 300, transitionLeaveTimeout: 300 }, this.state.song ? _react2['default'].createElement(_songJs2['default'], { returnValue: this.returnValue, chooseList: this.state.chooseList, account: this.props.account, userSonglist: this.props.userSonglist, song: song, like: this.like, plus: this.plus, liked: this.song.id in this.props.likelist, downloading: this.song.id in this.props.downloadingList, downloaded: this.song.id in this.props.downloadedList, lyric: this.props.lyric, play: this.props.play, time: this.state.time, toggleSong: this.toggleSong, action: action.dispatch }) : ""), _react2['default'].createElement('div', { className: 'panel' }, _react2['default'].createElement('div', { className: 'pace-container' }, _react2['default'].createElement('div', { className: 'pace timePace', onClick: this.paceChange }, _react2['default'].createElement('div', { className: 'already', style: { width: this.state.pace + "%" } }, _react2['default'].createElement('div', { className: "cursor paceCursor" + (this.state.loading ? " loading" : ""), ref: 'paceCursor' }, _react2['default'].createElement('div', { className: 'point' }), _react2['default'].createElement('i', { className: 'glyphicon glyphicon-repeat' })))), _react2['default'].createElement('div', { className: 'time' }, _react2['default'].createElement('span', { id: 'timeSpan' }, this.state.time), ' / ', _react2['default'].createElement('span', null, this.state.duration)))), _react2['default'].createElement('div', { className: 'right' }, _react2['default'].createElement('div', { className: 'volume-container' }, _react2['default'].createElement('i', { className: 'glyphicon glyphicon-volume-up' }), _react2['default'].createElement('div', { className: 'pace volumePace', onClick: this.paceChange }, _react2['default'].createElement('div', { className: 'already', style: { width: this.state.volume + "%" } }, _react2['default'].createElement('div', { className: 'cursor', ref: 'volumeCursor' })))), _react2['default'].createElement('i', { className: "widget " + nextClass[this.props.next], onHover: this.showMode, onClick: this.toggleMode }), _react2['default'].createElement('div', { className: 'tooltip top', role: 'tooltip', ref: 'tip', style: { display: "none" } }, _react2['default'].createElement('div', { className: 'tooltip-arrow' }), _react2['default'].createElement('div', { className: 'tooltip-inner' }, nextName[this.props.next])), _react2['default'].createElement('div', { className: 'widget lyric' }, _react2['default'].createElement('span', null, '词')), _react2['default'].createElement('i', { className: 'widget glyphicon glyphicon-tasks', onClick: this.togglePlayList }), _react2['default'].createElement('span', { className: 'tasks-number' }, this.props.playList.length), playListBox), _react2['default'].createElement(_reactAddonsCssTransitionGroup2['default'], { transitionName: 'fade', transitionEnterTimeout: 300, transitionLeaveTimeout: 300 }, this.props.radio ? "" : _react2['default'].createElement(_smallAlbumJs2['default'], { song: song, like: this.like, liked: this.song.id in this.props.likelist, toggleSong: this.toggleSong })));
 	  }
 	});
 
@@ -34744,7 +34849,7 @@
 
 	  render: function render() {
 	    var song = this.props.song;
-	    return _react2["default"].createElement("div", { className: "small-album grey" }, _react2["default"].createElement("div", { className: "cover", onClick: this.props.toggleSong }, _react2["default"].createElement("div", { className: "resize" }, _react2["default"].createElement("i", { className: "glyphicon glyphicon-resize-full" })), _react2["default"].createElement("img", { src: song.album.picUrl })), _react2["default"].createElement("div", { className: "info" }, _react2["default"].createElement("a", { href: "#", className: "name overflow" }, _react2["default"].createElement("span", null, song.name)), _react2["default"].createElement("a", { href: "#", className: "artist overflow" }, _react2["default"].createElement("span", null, song.artists[0].name))), _react2["default"].createElement("div", { className: "tools" }, _react2["default"].createElement("i", { className: "glyphicon glyphicon-share" }), _react2["default"].createElement("i", { className: "glyphicon glyphicon-heart" + (this.props.liked ? "" : "-empty") })));
+	    return _react2["default"].createElement("div", { className: "small-album grey" }, _react2["default"].createElement("div", { className: "cover", onClick: this.props.toggleSong }, _react2["default"].createElement("div", { className: "resize" }, _react2["default"].createElement("i", { className: "glyphicon glyphicon-resize-full" })), _react2["default"].createElement("img", { src: song.album.picUrl })), _react2["default"].createElement("div", { className: "info" }, _react2["default"].createElement("a", { href: "#", className: "name overflow" }, _react2["default"].createElement("span", null, song.name)), _react2["default"].createElement("a", { href: "#", className: "artist overflow" }, _react2["default"].createElement("span", null, song.artists[0].name))), _react2["default"].createElement("div", { className: "tools" }, _react2["default"].createElement("i", { className: "glyphicon glyphicon-share" }), _react2["default"].createElement("i", { onClick: this.props.like, className: "pointer glyphicon glyphicon-heart" + (this.props.liked ? "" : "-empty") })));
 	  }
 	});
 

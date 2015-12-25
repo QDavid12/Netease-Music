@@ -1516,6 +1516,10 @@ html, body, .full {
 }
 .glyphicon-heart{
   color: red!important;
+  cursor: pointer;
+}
+.pointer{
+  cursor: pointer;
 }
 .red {
   background: #BA3523!important;

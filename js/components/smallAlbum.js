@@ -15,7 +15,7 @@ let SmallAlbum = React.createClass({
               </div>
               <div className="tools">
                 <i className="glyphicon glyphicon-share"></i>
-                <i className={"glyphicon glyphicon-heart"+(this.props.liked?"":"-empty")}></i>
+                <i onClick={this.props.like} className={"pointer glyphicon glyphicon-heart"+(this.props.liked?"":"-empty")}></i>
               </div>
             </div>
         )

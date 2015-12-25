@@ -10,18 +10,18 @@ var store = (function(){
           radioList: [],
           radioNum: 0,
           mode: "playList",
+          next: 0,// 0 顺序 1 随机 2 单曲
           play: false,
           radio: false,
           song: false,
           lyric: undefined,
           FMlyric: undefined,
-          comments: undefined,
-          FMcomments: undefined,
           time: "00:00",
           pace: 0,
           likelist: {},
           downloadedList: {},
-          downloadingList: {}
+          downloadingList: {},
+          online: window.navigator.onLine
         }
         for(var x in newstate){
             state[x] = newstate[x];

@@ -29,13 +29,13 @@ catch(e){
 }
 // init some const and timer
 path.music = config.music||"./music/";
-var connected = true;
+var online = true;
 var downloading = false;
 var action = {}; //some callback
 
 // timer part
 var downloader = setInterval(function(){
-    if(downloading){
+    if(downloading&&online){
         var queue = config.downloadingList||[];
         var max = config.max||3;
         if(queue.length==0) return;
@@ -52,8 +52,11 @@ var downloader = setInterval(function(){
         }
     }
     
-}, 500);
+}, 1000);
 
+export function switchOnlineMode(status){
+    online = status;
+}
 
 function saveConfig(){
     var data = JSON.stringify(config);
@@ -200,6 +203,15 @@ export function getNewRadio(callback) {
 
 export function userSonglist(callback) {
     // [uid],[offset],[limit],callback
+    if(!online){
+        var r = localStorage.getItem("userSonglist");
+        if(r!=""&&r!=undefined){
+            return callback(JSON.parse(r));
+        }
+        else{
+            return callback({msg: "offline", type: 1});
+        }
+    }
     var uid = config.profile.userId;
     if (!uid) {
         callback({msg: '[userPlaylist]user do not login', type: 0});
@@ -229,6 +241,9 @@ export function userSonglist(callback) {
 }
 
 export function likelist(id, callback) {
+    if(!online){
+        return callback(config.likelist);
+    }
     var url = 'http://music.163.com/weapi/v3/playlist/detail';
     var data = {"id": id}
     data = ipcRenderer.sendSync('encrypt', data);
@@ -249,6 +264,17 @@ export function likelist(id, callback) {
 }
 
 export function songlistDetail(id, callback) {
+    console.log("songlistDetail");
+    console.log(online);
+    if(!online){
+        var cache = localStorage.getItem("songlist"+id);
+        if(cache&&cache!=undefined){
+            return callback(JSON.parse(cache));
+        }
+        else{
+            return callback({msg: 'offline', type: 1});
+        }
+    }
     var url = 'http://music.163.com/api/playlist/detail';
     var data = {"id": id}
     //var that = this;
@@ -256,7 +282,10 @@ export function songlistDetail(id, callback) {
         if (err)callback({msg: '[playlistDetail]http timeout', type: 1});
         else {
             if (res.body.code != 200)callback({msg: '[playlistDetail]http code ' + data.code, type: 1});
-            else callback(res.body.result);
+            else{
+                callback(res.body.result);
+                localStorage.setItem("songlist"+res.body.result.id, JSON.stringify(res.body.result))
+            }
         }
     });
 }

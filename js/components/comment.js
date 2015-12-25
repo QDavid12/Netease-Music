@@ -20,6 +20,9 @@ let Comment = React.createClass({
             this.load(this.props.id);
         }
     },
+    shouldComponentUpdate: function(nextProps, nextState){
+        return !(nextProps.id==this.props.id&&nextState.comments==this.state.comments);
+    },
     comments: function(p){
         var a = [];
         for(var i=0;i<p.length;i++){

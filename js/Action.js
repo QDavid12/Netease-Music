@@ -3,6 +3,7 @@ var api = require('./Api');
 
 const methods = {
     "addAndPlay": addAndPlay,
+    "addToPlaylist": addToPlaylist,
     "changePlayList": changePlayList,
     "changeNum": changeNum,
     "play": play,
@@ -14,16 +15,28 @@ const methods = {
     "playRadio": playRadio
 }
 
+var online = true;
+
+export function toggleMode(){
+    var next = store.getState("next");
+    next = next+1>2?0:next+1;
+    store.setState({next: next});
+}
+
 export function switchOnlineMode(status){
+    api.switchOnlineMode(status);
     store.setState({online: status});
 }
 
 export function getUserState(){
     api.userSonglist(function(data){
+        //console.log(data);
         store.setState({userSonglist: data});
-        likelist();
+        likelist(data[0].id);
     })
-    getNewRadio();
+    if(online){
+        getNewRadio();
+    }
     store.setState({downloadedList: api.getDownloadedList()});
 }
 
@@ -41,8 +54,8 @@ export function like(data, callback){
     })
 }
 
-export function likelist(){
-    var lid = store.getState("userSonglist")[0].id;
+export function likelist(id){
+    var lid = id||store.getState("userSonglist")[0].id;
     api.likelist(lid, function(data){
         console.log("likelist refresh");
         store.setState({likelist: data});
@@ -147,9 +160,36 @@ function last(){
         store.setState({radioNum: num-1, play: true, restart: true});
     }
     else{
-        var num = store.getState("num");
-        store.setState({num: num-1, play: true, restart: true});
+        var num = generate(-1);
+        store.setState({num: num, play: true, restart: true});
     }
+}
+
+function generate(pace){
+    var num = store.getState("num");
+    var playlist = store.getState("playList");
+    var next = store.getState("next");
+    next = next || 0;
+    var res;
+    switch(next){
+        case 0:{
+            res = num+pace;
+            if(res<0) res = playlist.length-1;
+            if(res>=playlist.length) res = 0;
+        }
+            break;
+        case 1:{
+            res = parseInt(Math.random()*(playlist.length));
+            if(res==num) res = parseInt(Math.random()*(playlist.length));
+            if(res==playlist.length) res = res-1;
+        }
+            break;
+        case 2:{
+            res = num;
+        }
+            break;
+    }
+    return res;
 }
 
 function next(){
@@ -159,8 +199,8 @@ function next(){
         store.setState({radioNum: num+1, play: true, restart: true});
     }
     else{
-        var num = store.getState("num");
-        store.setState({num: num+1, play: true, restart: true});
+        var num = generate(1);
+        store.setState({num: num, play: true, restart: true});
     }
 }
 
@@ -196,6 +236,8 @@ export function login(username, password){
 
 export function init(){
     var data = api.init(downloadStart, downloadUpdate, downloadEnd);
+    online = window.navigator.onLine;
+    api.switchOnlineMode(online);
     if(data.remember){
         console.log("remember");
         console.log(data);

@@ -52,12 +52,16 @@ let App = React.createClass({
     window.addEventListener("online", function(e){
       console.log("fafa");
       alert("网络已连接");
-    });
+      action.switchOnlineMode(true);
+      this.setState({online: true});
+    }.bind(this));
     // offline
     window.addEventListener("offline", function(e){
       console.log("fafa");
       alert("网络已断开");
-    }); 
+      action.switchOnlineMode(false);
+      this.setState({online: false});
+    }.bind(this)); 
   },
   componentDidUpdate: function(){
     if(this.isLogin==false&&this.state.isLogin==true){
@@ -76,9 +80,9 @@ let App = React.createClass({
       <div className="full">
         <Toolbar/>
         <Nav {...other}/>
-          <Sidebar uid={this.state.isLogin?this.state.account.id:0} radio={this.state.radio} userSonglist={this.state.userSonglist} action={this.action}/>
-          <RouteHandler {...other} action={this.action}/>
-        <Player {...other} action={this.action}/>
+          <Sidebar uid={this.state.isLogin?this.state.account.id:0} radio={this.state.radio} userSonglist={this.state.userSonglist}/>
+          <RouteHandler {...other}/>
+        <Player {...other}/>
       </div>
     )
   }
