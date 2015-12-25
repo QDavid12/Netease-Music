@@ -23210,9 +23210,9 @@
 
 /***/ },
 /* 204 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (module.hot) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* WEBPACK VAR INJECTION */(function(process) {/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -23239,11 +23239,6 @@
 	exports.getUrl = getUrl;
 	exports.getImgUrl = getImgUrl;
 	exports.dispatch = dispatch;
-	var ipcRenderer = require('electron').ipcRenderer;
-	var request = require('superagent');
-	var requests = require('request');
-	var fs = require('fs');
-
 	var header = {
 	    'Accept': '*/*',
 	    'Accept-Encoding': 'gzip,deflate,sdch',
@@ -23257,7 +23252,7 @@
 
 	var config = {};
 	var path = {
-	    config: "./cache/config"
+	    config: "./config/config"
 	};
 
 	try {
@@ -23265,6 +23260,8 @@
 	} catch (e) {
 	    // not remember
 	    config.remember = false;
+	    fs.writeFileSync(path.config, JSON.parse(config), { flag: i == 0 ? "w+" : "a" });
+	    fs.mkdirSync("./config");
 	    console.log("config not found");
 	}
 	// init some const and timer
@@ -23272,6 +23269,8 @@
 	var online = true;
 	var downloading = false;
 	var action = {}; //some callback
+	config.downloadedList = config.downloadedList || {};
+	config.downloadingList = config.downloadingList || [];
 
 	// timer part
 	var downloader = setInterval(function () {
@@ -23345,11 +23344,11 @@
 	}
 
 	function getDownloadedList() {
-	    return config.downloadedList;
+	    return config.downloadedList || {};
 	}
 
 	function getDownloadingList() {
-	    return config.downloadingList;
+	    return config.downloadingList || [];
 	}
 
 	function download(song, start, update, end) {
@@ -23745,7 +23744,7 @@
 	        config["account"] = res.body.account;
 	        config["remember"] = true;
 	        config["downloadedList"] = {};
-	        config["downloadingList"] = {};
+	        config["downloadingList"] = [];
 	        config["likelist"] = [];
 	        console.log(res.header['set-cookie']);
 	        saveConfig();
@@ -23799,7 +23798,8 @@
 	    ipcRenderer.sendSync('close');
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (module.hot) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Api.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/qzw/workspace/netease-music/react-client/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "Api.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
 /* 205 */
@@ -23895,7 +23895,7 @@
 	setInterval(function () {
 	    var downloadingList = api.getDownloadingList();
 	    var downloadedList = api.getDownloadedList();
-	    //console.log(downloadingList.length);
+	    console.log(downloadingList.length);
 	    if (downloadingList.length != 0) {
 	        updateDownload(downloadedList, downloadingList);
 	    }
@@ -34170,6 +34170,12 @@
 	  },
 	  showProfile: function showProfile() {
 	    this.setState({ profileBox: !this.state.profileBox });
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    this.setState({
+	      profileBox: nextProps.profileBox,
+	      messageBox: nextProps.messageBox
+	    });
 	  },
 	  back: function back() {
 	    console.log(history.length);

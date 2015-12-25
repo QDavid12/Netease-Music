@@ -16,7 +16,7 @@ module.exports = {
             { test: /\.css$/, loader: "style!css" },
             { test: /\.less/,loader: 'style-loader!css-loader!less-loader'}
         ],
-        noParse: [/Api/]
+        noParse: []
     },
     resolve:{
         extensions:['','.js','.json']

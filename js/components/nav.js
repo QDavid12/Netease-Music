@@ -12,6 +12,12 @@ let Nav = React.createClass({
   showProfile: function(){
     this.setState({profileBox: !this.state.profileBox});
   },
+  componentWillReceiveProps: function(nextProps){
+    this.setState({
+      profileBox: nextProps.profileBox,
+      messageBox: nextProps.messageBox
+    })
+  },
   back: function(){
     console.log(history.length);
     var r = history.go(-1);

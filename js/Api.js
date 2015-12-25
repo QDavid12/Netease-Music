@@ -1,8 +1,3 @@
-var ipcRenderer = require('electron').ipcRenderer;
-var request = require('superagent');
-var requests = require('request');
-var fs = require('fs');
-
 var header = {
     'Accept': '*/*',
     'Accept-Encoding': 'gzip,deflate,sdch',
@@ -16,7 +11,7 @@ var header = {
 
 var config = {};
 const path = {
-    config: "./cache/config"
+    config: "./config/config"
 }
 
 try{
@@ -25,6 +20,8 @@ try{
 catch(e){
     // not remember
     config.remember = false;
+    fs.writeFileSync(path.config, JSON.parse(config), {flag: i==0?"w+":"a"})
+    fs.mkdirSync("./config")
     console.log("config not found");
 }
 // init some const and timer
@@ -32,6 +29,8 @@ path.music = config.music||"./music/";
 var online = true;
 var downloading = false;
 var action = {}; //some callback
+config.downloadedList = config.downloadedList||{};
+config.downloadingList = config.downloadingList||[];
 
 // timer part
 var downloader = setInterval(function(){
@@ -108,10 +107,10 @@ export function addToDownloadingList(songs){
 }
 
 export function getDownloadedList(){
-    return config.downloadedList;
+    return config.downloadedList||{};
 }
 export function getDownloadingList(){
-    return config.downloadingList;
+    return config.downloadingList||[];
 }
 
 export function download(song, start, update, end){
@@ -509,7 +508,7 @@ export function login(username, password, callback){
         config["account"] = res.body.account;
         config["remember"] = true;
         config["downloadedList"] = {};
-        config["downloadingList"] = {};
+        config["downloadingList"] = [];
         config["likelist"] = [];
         console.log(res.header['set-cookie']);
         saveConfig();

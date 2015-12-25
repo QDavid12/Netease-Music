@@ -4,8 +4,8 @@ const fs = require('fs');
 const app = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
 
-const api = require('./js/api/api');
-const Crypto = require('./js/api/Crypto');
+const api = require('./build/api/api');
+const Crypto = require('./build/api/Crypto');
 var ipc = require('electron').ipcMain;
 
 // Report crashes to our server.

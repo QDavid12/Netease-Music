@@ -66,7 +66,7 @@ export function likelist(id){
 setInterval(function(){
     var downloadingList = api.getDownloadingList();
     var downloadedList = api.getDownloadedList();
-    //console.log(downloadingList.length);
+    console.log(downloadingList.length);
     if(downloadingList.length!=0){
         updateDownload(downloadedList, downloadingList);
     }

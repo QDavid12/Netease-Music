@@ -9,6 +9,12 @@
   <body>
     <section id="app"></section>
     <audio id="audio"/>
+    <script>
+      var ipcRenderer = require('electron').ipcRenderer;
+      var request = require('superagent');
+      var requests = require('request');
+      var fs = require('fs');
+    </script>
     <script src="./build/bundle.js"></script>
   </body>
 </html>

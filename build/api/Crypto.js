@@ -1,7 +1,3 @@
-/**
- * Created by kevin on 15-7-19.
- */
-
 var crypto = require('crypto');
 var bigInt = require('big-integer');
 
@@ -67,4 +63,3 @@ var Crypto = {
     }
 };
 module.exports = Crypto;
-
