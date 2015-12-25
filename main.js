@@ -61,6 +61,14 @@ app.on('ready', function() {
     })
   });
 
+  ipc.on('path', function(event, name){
+    if(name=="app"){
+      event.returnValue = app.getAppPath();
+      return;
+    }
+    event.returnValue = app.getPath(name);
+  });
+
   ipc.on('encrypt', function(event, data){
     var body = Crypto.aesRsaEncrypt(JSON.stringify(data));
     event.returnValue = body;

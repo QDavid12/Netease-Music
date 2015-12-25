@@ -282,7 +282,7 @@ function isExist(id){
 
 export function addAndPlay(song){
     console.log("addAndPlay");
-    var num = store.getState("num")+1;
+    var num = store.getState("num");
     var oldList = store.getState("playList");
     //var x = isExist(song.id);
     var newList = [];
@@ -292,6 +292,7 @@ export function addAndPlay(song){
             newList.push(song);
         }
     }
+    num = num + 1;
     if(oldList.length==0){newList=[song];num=0;}
     store.setState({
         playList: newList,

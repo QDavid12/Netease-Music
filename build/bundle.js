@@ -23260,12 +23260,14 @@
 	} catch (e) {
 	    // not remember
 	    config.remember = false;
-	    fs.writeFileSync(path.config, JSON.parse(config), { flag: i == 0 ? "w+" : "a" });
 	    fs.mkdirSync("./config");
+	    fs.writeFileSync(path.config, JSON.stringify(config), { flag: "w+" });
 	    console.log("config not found");
 	}
 	// init some const and timer
-	path.music = config.music || "./music/";
+	var music = ipcRenderer.sendSync("path", "music");
+	console.log(music);
+	config.music = config.music || music + "/Cloud Music/";
 	var online = true;
 	var downloading = false;
 	var action = {}; //some callback
@@ -23352,7 +23354,7 @@
 	}
 
 	function download(song, start, update, end) {
-	    var dir = config.music || "./music/";
+	    var dir = config.music;
 	    var id = song.hMusic.dfsId;
 	    //id = "6039617371462119";
 	    console.log(id);
@@ -23757,8 +23759,8 @@
 
 	function getUrl(song) {
 	    if (song.id in config.downloadedList) {
-	        //console.log(config.downloadedList);
-	        return path.music + config.downloadedList[song.id];
+	        console.log(config.music);
+	        return config.music + config.downloadedList[song.id];
 	    }
 	    return ipcRenderer.sendSync('getUrl', song.hMusic.dfsId);
 	}
@@ -24108,7 +24110,7 @@
 
 	function addAndPlay(song) {
 	    console.log("addAndPlay");
-	    var num = store.getState("num") + 1;
+	    var num = store.getState("num");
 	    var oldList = store.getState("playList");
 	    //var x = isExist(song.id);
 	    var newList = [];
@@ -24118,6 +24120,7 @@
 	            newList.push(song);
 	        }
 	    }
+	    num = num + 1;
 	    if (oldList.length == 0) {
 	        newList = [song];num = 0;
 	    }

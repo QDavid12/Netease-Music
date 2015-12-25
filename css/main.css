@@ -724,6 +724,7 @@
   border-bottom-left-radius: 0;
   margin-left: 0;
   border-left: 0;
+  padding-bottom: 11px;
 }
 .songlist .info-container .buttons button.add i{
   margin-right: 6px;
@@ -850,7 +851,7 @@
   width: 30px;
   height: 60px;
   position: absolute;
-  right: 10px;
+  right: 2px;
   top: 16px;
   color: #9b9b9b;
   font-size: 20px;
@@ -859,6 +860,7 @@
   font-size: 22px;
   position: relative;
   left: -2px;
+  top: 10px;
 }
 .small-album .cover {
   width: 76px;
