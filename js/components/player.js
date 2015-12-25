@@ -109,7 +109,7 @@ let Player = React.createClass({
     }
   },
   reload: function(nextProps){
-    //console.log("playSong");
+    console.log(nextProps.playList);
     var audio = this.refs.audio;
     this.setState({pace: 0, time: "00:00"});
     if(nextProps.radio){

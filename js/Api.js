@@ -256,8 +256,7 @@ export function songlistDetail(id, callback) {
         if (err)callback({msg: '[playlistDetail]http timeout', type: 1});
         else {
             if (res.body.code != 200)callback({msg: '[playlistDetail]http code ' + data.code, type: 1});
-            else callback({currentSonglist: res.body.result, mode: "playList"});
-            //else callback(transfer(res.body.result.tracks));
+            else callback(res.body.result);
         }
     });
 }
@@ -525,13 +524,13 @@ export function dispatch(method, data, callback){
 }
 
 function maximize(data, callback){
-    callback(ipcRenderer.sendSync('maximize'));
+    ipcRenderer.sendSync('maximize');
 }
 
 function minimize(data, callback){
-    callback(ipcRenderer.sendSync('minimize'));
+    ipcRenderer.sendSync('minimize');
 }
 
 function close(data, callback){
-    callback(ipcRenderer.sendSync('close'));
+    ipcRenderer.sendSync('close');
 }

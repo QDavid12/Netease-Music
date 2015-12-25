@@ -18,6 +18,7 @@ import Player from './components/player.js';
 
 var store = require('./Store');
 var action = require('./Action');
+var alert = require('./components/alert').alert;
 action.init();
 
 let App = React.createClass({
@@ -37,15 +38,9 @@ let App = React.createClass({
     var state = store.getInitState();
     this.isLogin = state.isLogin;
     return state;
-  }, 
-  login: function(username, password){
-    action.login(username, password);
   },
   action: function(method, data){
     action.dispatch(method, data);
-  },
-  getUrl: function(id){
-    return action.getUrl(id);
   },
   componentDidMount: function(){
     //document.location = "#/discover";
@@ -53,6 +48,16 @@ let App = React.createClass({
       this.isLogin = true;
       action.getUserState();
     }
+    // online
+    window.addEventListener("online", function(e){
+      console.log("fafa");
+      alert("网络已连接");
+    });
+    // offline
+    window.addEventListener("offline", function(e){
+      console.log("fafa");
+      alert("网络已断开");
+    }); 
   },
   componentDidUpdate: function(){
     if(this.isLogin==false&&this.state.isLogin==true){
@@ -63,33 +68,17 @@ let App = React.createClass({
   didRestart: function(){
     this.setState({restart: false});
   },
-  nextRadio: function(){
-    console.log("nextRadio");
-    var radioNum = this.state.radioNum;
-    this.setState({radioNum: this.state.radioNum+1, restart: true});
-    if(this.state.radio[radioNum+3]==undefined){
-      console.log("load more");
-      this.action("getNewRadio", {});
-    }
-  },
-  lastRadio: function(){
-    var radioNum = this.state.radioNum;
-    if(this.state.radio[radioNum-1]!=undefined){
-      this.setState({radioNum: this.state.radioNum-1, restart: true});
-    }
-    //this.setState({radioNum: this.state.radioNum-1, restart: true});
-  },
   render: function(){
     console.log("app render");
     //console.log(this.state);
     var { ...other } = this.state;
     return (
       <div className="full">
-        <Toolbar action={this.action} />
-        <Nav {...other} login={this.login}/>
+        <Toolbar/>
+        <Nav {...other}/>
           <Sidebar uid={this.state.isLogin?this.state.account.id:0} radio={this.state.radio} userSonglist={this.state.userSonglist} action={this.action}/>
           <RouteHandler {...other} action={this.action}/>
-        <Player {...other} getUrl={this.getUrl} action={this.action}/>
+        <Player {...other} action={this.action}/>
       </div>
     )
   }

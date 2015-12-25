@@ -8,68 +8,82 @@ import { Link } from 'react-router';
 let Songlist = React.createClass({
   getInitialState: function() {
     console.log("songlist init");
-    //console.log(this.props.query);
-    this.props.action("songlistDetail", this.props.params.id);
     this.id = this.props.params.id;
     console.log(this.id);
     return {
-      query: this.props.query
+      query: this.props.query,
+      list: false
     }
   },
+  load: function(){
+    api.songlistDetail(this.id, function(list){
+      this.setState({list: list});
+    }.bind(this));
+  },
+  componentDidMount: function(){
+    this.load();
+  },
   componentWillReceiveProps: function(nextProps){
-    console.log("should songlist receive");
     if(nextProps.params.id!=this.id){
       console.log("new List");
       console.log(nextProps.query);
-      this.setState({query: nextProps.query});
       this.id = nextProps.params.id;
-      this.props.action("songlistDetail", nextProps.params.id);
+      this.load();
+      this.setState({query: nextProps.query});
     }
   },
-  add: function(e){
+  play: function(e){
     var id = e.target.id;
-    var song = [];
-    var songlist = (this.props.currentSonglist.tracks);
+    var songlist = (this.state.list.tracks);
+    var song;
     for(var x=0;x<songlist.length;x++){
       if(songlist[x].id==id){
-        song = [songlist[x]];
+        song = songlist[x];
         break;
       }
     }
-    console.log("songlist out");
-    this.props.action("addToPlaylist", song);
+    action.dispatch("addAndPlay", song);
+  },
+  add: function(){
+    alert("收藏暂不可用");
+  },
+  share: function(){
+    alert("分享暂不可用");
+  },
+  downloadAll: function(){
+    alert("下载暂不可用");
   },
   playAll: function(){
-    this.props.action("changePlayList", this.props.currentSonglist.tracks);
+    action.dispatch("changePlayList", this.state.list.tracks);
+  },
+  addToPlaylist: function(){
+    action.addToPlaylist(this.state.list.tracks);
   },
   like: function(e){
     var id = e.target.id;
     console.log(id in this.props.likelist);
-    action.like({like: !(id in this.props.likelist), id: id})
+    action.like({like: !(id in this.props.likelist), id: id});
   },
   download: function(e){
     var id = e.target.id;
     if(id in this.props.downloadingList) return alert("已经在下载中啦");
     if(id in this.props.downloadedList) return alert("已经下载过啦");
-    for(var i in this.props.currentSonglist.tracks){
-      if(this.props.currentSonglist.tracks[i].id==id){
-        action.download(this.props.currentSonglist.tracks[i]);
+    for(var i in this.state.list.tracks){
+      if(this.state.list.tracks[i].id==id){
+        action.download(this.state.list.tracks[i]);
         break;
       }
     }
   },
   render: function(){
     console.log("songlist render");
-    console.log(this.props.currentSonglist);
-    console.log(this.props.query);
-    console.log(this.id);
     var songlist = this.props.query;
     songlist.tags = songlist.tags||[];
     songlist.description = songlist.description||"...";
     var list = (<tr><td style={{width: "100%", textAlign: "center"}}><i className="rotate glyphicon glyphicon-refresh"></i></td></tr>);
-    if(this.props.currentSonglist!=undefined){
-      if(this.props.currentSonglist.id==this.id){
-        songlist = this.props.currentSonglist;
+    if(this.state.list!=false){
+      if(this.state.list.id==this.props.params.id){
+        songlist = this.state.list;
         list = [];
         songlist.tracks.map(function(song, key){
           var artists = [];
@@ -80,7 +94,7 @@ let Songlist = React.createClass({
           for(var i=0;i<song.artists.length;i++){
             var artist = song.artists[i];
             artists.push(
-              <span key={artist.id}>
+              <span key={artist.id+i}>
                 <span>{(i==0?"":", ")}</span>
                 <Link to={"/artist/"+artist.id} query={artist}>
                   {song.artists[i].name}
@@ -101,7 +115,7 @@ let Songlist = React.createClass({
                 <i id={song.id} onClick={this.download} className={"glyphicon glyphicon-"+(song.id in this.props.downloadedList?"ok":"download-alt")}></i>
                 {percent}
               </td>
-              <td className="name" onClick={this.add} id={song.id}>{song.name}</td>
+              <td className="name" onClick={this.play} id={song.id}>{song.name}</td>
               <td className="artists">{artists}</td>
               <td className="album"><Link to={"/album/"+song.album.id} query={song.album}>{song.album.name}</Link></td>
               <td className="duration">{duration}</td>
@@ -129,18 +143,18 @@ let Songlist = React.createClass({
                 <i className="glyphicon glyphicon-play-circle"></i>
                 播放全部
               </button>
-              <button className="plus" onClick={this.playAll}>
+              <button className="plus" onClick={this.addToPlaylist}>
                 <i className="glyphicon glyphicon-plus"></i>
               </button>
-              <button className="add" onClick={this.playAll}>
+              <button className="add" onClick={this.add}>
                 <i className={"glyphicon glyphicon-folder-"+(songlist.subscribed=="true"?"close":"open")}></i>
                 收藏({songlist.subscribedCount})
               </button>
-              <button className="share" onClick={this.playAll}>
+              <button className="share" onClick={this.share}>
                 <i className="glyphicon glyphicon-share"></i>
                 分享({songlist.shareCount||0})
               </button>
-              <button className="downloadAll" onClick={this.playAll}>
+              <button className="downloadAll" onClick={this.downloadAll}>
                 <i className="glyphicon glyphicon-download-alt"></i>
                 下载全部
               </button>
@@ -153,7 +167,7 @@ let Songlist = React.createClass({
                 songlist.tags.map(function(tag, key){
                   var t = key==0?"":" / ";
                   return(
-                    <span key={key}>
+                    <span key={tag}>
                       {t}
                       <span className="tag">{tag}</span>
                     </span>

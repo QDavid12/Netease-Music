@@ -1,4 +1,6 @@
 import React from 'react';
+var action = require('../Action');
+var alert = require('./alert').alert;
 
 let Login = React.createClass({
   getInitialState: function() {
@@ -9,7 +11,7 @@ let Login = React.createClass({
   submit: function(){
     var user = this.refs.user.value;
     var pass = this.refs.pass.value;
-    this.props.login(user, pass);
+    action.login(user, pass);
   },
   render: function(){
     return(

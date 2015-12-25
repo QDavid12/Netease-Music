@@ -1,9 +1,12 @@
 import React from 'react';
+var api = require('../Api');
+var action = require('../Action');
+var alert = require('./alert').alert;
 
 let Toolbar = React.createClass({
   control: function(e){
     var method = e.target.id;
-    this.props.action(method, "");
+    action.dispatch(method);
   },  
   render() {
     return(

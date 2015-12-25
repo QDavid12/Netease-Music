@@ -2,7 +2,7 @@ var store = require('./Store');
 var api = require('./Api');
 
 const methods = {
-    "addToPlaylist": addToPlaylist,
+    "addAndPlay": addAndPlay,
     "changePlayList": changePlayList,
     "changeNum": changeNum,
     "play": play,
@@ -12,6 +12,10 @@ const methods = {
     "didRestart": didRestart,
     "getNewRadio": getNewRadio,
     "playRadio": playRadio
+}
+
+export function switchOnlineMode(status){
+    store.setState({online: status});
 }
 
 export function getUserState(){
@@ -200,36 +204,63 @@ export function init(){
             profile: data.profile,
             account: data.account,
             profileBox: false,
-            playList: data.playList
+            playList: data.playList,
+            online: window.navigator.onLine
         });
     }
     else{
         console.log("not login");
         store.setStore({
             isLogin: false,
-            profileBox: false
+            profileBox: false,
+            online: window.navigator.onLine
         })
     }
 }
 
-
-function addToPlaylist(list){
+export function addToPlaylist(list){
     console.log("addToPlaylist");
+    var playList = store.getState("playList");
     var newList = [];
-    var oldList = store.getState("playList");
-    for(var i=0;i<oldList.length;i++) newList.push(oldList[i]);
+    for(var i=0;i<playList.length;i++) newList.push(playList[i]);
     for(var i=0;i<list.length;i++) newList.push(list[i]);
-    console.log(newList);
     store.setState({
         playList: newList,
-        num: oldList.length,
+        restart: false
+    });
+}
+
+function isExist(id){
+    var oldList = store.getState("playList");
+    for(var x in oldList){
+        if(id==oldList[x].id) return x; 
+    }
+    return false;
+}
+
+export function addAndPlay(song){
+    console.log("addAndPlay");
+    var num = store.getState("num")+1;
+    var oldList = store.getState("playList");
+    //var x = isExist(song.id);
+    var newList = [];
+    for(var i=0;i<oldList.length;i++) {
+        newList.push(oldList[i]);
+        if(i==num){
+            newList.push(song);
+        }
+    }
+    if(oldList.length==0){newList=[song];num=0;}
+    store.setState({
+        playList: newList,
+        num: num,
         play: true,
         restart: true,
         radio: false
     });
 }
 
-function changePlayList(list){
+export function changePlayList(list){
     console.log("changePlayList");
     store.setState({
         playList: list,
@@ -240,7 +271,7 @@ function changePlayList(list){
     });
 }
 
-function getNewRadio(data){
+export function getNewRadio(data){
     console.log("getNewRadio");
     var oldRadio = store.getState("radioList");
     api.getNewRadio(function(data){
